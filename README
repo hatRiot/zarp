@@ -1,5 +1,5 @@
-NOTE: This is still very much a work in progress, and not all functionality is yet implemented.  I will update this 
-readme with a link to the blogpost regarding this.
+NOTE: This is still very much a work in progress, and not all functionality is yet 
+implemented.  I will update this readme with a link to the blogpost regarding this.
 
 [ZARP]
 :Version 0.02
@@ -7,13 +7,14 @@ readme with a link to the blogpost regarding this.
 :@ballastsec, @dronesec
 
 [INTRODUCTION]
-Zarp is a network attack tool centered around exploitation of local networks.  This does not include system 
-exploitation, but rather abusing networking protocols and stacks to take over, infiltrate, and knock out.  Sessions
-can be managed to quickly poison and sniff multiple systems at once, dumping sensitive information automatically 
-or to the attacker directly.  Various sniffers are included to automatically parse usernames and passwords from
-various protocols, as well as view HTTP traffic and more.  DoS attacks are included to knock out various systems and
-applications.  These tools open up the possibility for very complex attack scenarios on live networks quickly, 
-cleanly, and quietly.
+Zarp is a network attack tool centered around exploitation of local networks.  This does not 
+include system exploitation, but rather abusing networking protocols and stacks to take 
+over, infiltrate, and knock out.  Sessions can be managed to quickly poison and sniff multiple 
+systems at once, dumping sensitive information automatically or to the attacker directly.  
+Various sniffers are included to automatically parse usernames and passwords from various 
+protocols, as well as view HTTP traffic and more.  DoS attacks are included to knock out 
+various systems and applications.  These tools open up the possibility for very complex attack 
+scenarios on live networks quickly, cleanly, and quietly.
 
 [TOOL OVERVIEW] 
 	[POISONERS]
@@ -25,23 +26,24 @@ cleanly, and quietly.
 	: Teardrop, IPv6 NDP RA, Nestea, LAND, TCP SYN, SMB2 :
 
 	[SNIFFERS]
-	Post-poisoning tools for aggressively parsing and sniffing local traffic.  These are used to 
-	intelligently view poisoned traffic.
+	Post-poisoning tools for aggressively parsing and sniffing local traffic.  These are 
+	used to intelligently view poisoned traffic.
 	: HTTP Traffic, Password and Username Sniffer :
 
 	[SCANNERS]
-	These tools can be used for mapping a network out.  Network topography and service systems can 
-	be automatically mapped out to assist in the planning of attacks.
+	These tools can be used for mapping a network out.  Network topography and service 
+	systems can be automatically mapped out to assist in the planning of attacks.
 	: Network Scanner, Service Scanner, Access Point Scanner :
 	
 	[EMULATE]
-	These are functionally different from poisoners in that they provide a spoofed service.  For example, 
-	you could set up a fake SSH service or a honeypot FTP server and poison a systems DNS to redirect to 
-	yours.  When you get a hit, remove the DNS poison and allow it to resolve correctly.
+	These are functionally different from poisoners in that they provide a spoofed service.  
+	For example, you could set up a fake SSH service or a honeypot FTP server and poison a 
+	systems DNS to redirect to yours.  When you get a hit, remove the DNS poison and allow 
+	it to resolve correctly.
 	: Spoof HTTP Server, Spoof SSH Server :
 	
 	[PARAMETER]
-	Parameter tools are for use when you're on the outside of a network.  These will assist in mapping
-	out potential entry points and soft spots for vulnerabilities.  These, in conjunction with Scanners,
-	should give you a solid picture of what's available.  
+	Parameter tools are for use when you're on the outside of a network.  These will assist 
+	in mapping out potential entry points and soft spots for vulnerabilities.  These, in 
+	conjunction with Scanners, should give you a solid picture of what's available.  
 	: WEP Crack, WPA2 Crack, Router pwn : 
