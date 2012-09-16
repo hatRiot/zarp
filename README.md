@@ -3,12 +3,13 @@ implemented.  I will update this readme with a link to the blogpost regarding th
 It is also worth mentioning that all output beginning with [dbg] are, in fact, 
 debug statements.  They will be removed once I near a more defined release.
 
-[ZARP]
-:Version 0.02
-:Network Attack Tool
-:@ballastsec, @dronesec
+#[ZARP]
+###:Version 0.02
+###:Network Attack Tool
+###:@ballastsec, @dronesec
 
-[INTRODUCTION]
+#[INTRODUCTION]
+<pre>
 Zarp is a network attack tool centered around exploitation of local networks.  This does not 
 include system exploitation, but rather abusing networking protocols and stacks to take 
 over, infiltrate, and knock out.  Sessions can be managed to quickly poison and sniff multiple 
@@ -17,8 +18,9 @@ Various sniffers are included to automatically parse usernames and passwords fro
 protocols, as well as view HTTP traffic and more.  DoS attacks are included to knock out 
 various systems and applications.  These tools open up the possibility for very complex attack 
 scenarios on live networks quickly, cleanly, and quietly.
-
-[TOOL OVERVIEW] 
+</pre>
+#[TOOL OVERVIEW] 
+<pre>
 	[POISONERS]
 	Various man in the middle tools provide a stepping stone for more complex attacks.
 	: ARP, DNS, DHCP :
@@ -50,8 +52,8 @@ scenarios on live networks quickly, cleanly, and quietly.
 	These, in conjunction with Scanners, should give you a solid picture of what's 
 	available.  
 	: WEP Crack, WPA2 Crack, Router pwn : 
-
-[USE EXAMPLES]
+</pre>
+#[USE EXAMPLES]
 ## Command line options
 <pre>
 bryan@devbox:~/zarp$ sudo python zarp.py -h
