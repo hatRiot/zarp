@@ -1,5 +1,6 @@
 from scapy.all import *
 from threading import Thread
+from commands import getoutput
 import sys, os
 
 #
@@ -10,6 +11,7 @@ scanning = False
 
 def initialize():
 	global scanning
+	conf.verbose = 0
 	try:
 		iface = raw_input('[!] Enter monitoring wireless interface [%s]: '%conf.iface)
 		if len(iface) <= 0:
@@ -25,11 +27,12 @@ def initialize():
 def ap_scan(adapt):
 	global scanning
 	scanning = True
-#hop_thread = Thread(target=hops, args=[adapt])		
-#	hop_thread.start()
-	print '[dbg] is scanning: ', scanning
+	hop_thread = Thread(target=hops, args=[adapt])		
+	hop_thread.start()
+	time.sleep(1)	# let channel hopping set up
 	try:
 		print '[!] Scanning for access points...'
+		print '{0:25} {1:30} {2:35}'.format('SSID','MAC','PRIVACY')
 		sniff(iface=adapt, prn=sniffBeacon, stopper=stop_callback, stopperTimeout=3)
 	except KeyboardInterrupt:
 		scanning = False
@@ -41,39 +44,29 @@ def ap_scan(adapt):
 def sniffBeacon(pkt):
 	if pkt.haslayer(Dot11Beacon):
 		if not pkt.addr2 in unique:
-			print '[+] Address: ', pkt.addr2
-			print pkt.sprintf("\t[%Dot11Elt.info%|%Dot11Beacon.cap%]")
-			if pkt[Dot11Elt].ID == 221 and pkt[Dot11Elt].info.startswith("\x00P\xf2\x02"):
-				print "[!] WPA Enabled"
+			tmp = pkt.sprintf("\t[%Dot11Elt.info%|%Dot11Beacon.cap%]")
+			print '[+] {0:20} {1:30} {2:35}'.format(pkt[Dot11Elt].info, pkt.addr2,'Encrypted' if ('privacy' 
+									in tmp)	else 'Unencrypted')
 			unique.append(pkt.addr2)
-	# potential hidden SSID's
-	if pkt.haslayer(Dot11ProbeReq) and not pkt.addr1 in unique:
-		print '[+] Hidden SSID found: ', pkt.addr1
-		print pkt.sprintf("\t[%Dot11Elt.info%|%Dot11Beacon.cap%]")
-		print pkt.fields
-	if pkt.haslayer(Dot11WEP):
-		print struct.unpack("!I", pkt[Dot11WEP].wepdata[-4:])
-		print 'wep data: ',pkt[Dot11WEP].wepdata[:-4]
-		print '[dbg] key id: ',pkt[Dot11WEP].keyid
-		print '[dbg] icv: ',pkt[Dot11WEP].icv
-	if pkt.haslayer(PrismHeader):
-		print 'channel: ',pkt[PrismHeader].Channel
-		print 'Rate: ',pkt[PrismHeader].Rate
-	
 
 #
 # Hop channels to find different APs
-# credit: airoscapy.py @iphelix
 #
 def hops(adapter):
 	global scanning
+	# not all cards support this
+	tmp = getoutput('iwconfig %s channel %d'%(adapter, 2))
+	if 'SET failed on device' in tmp:
+		print '[-] \'%s\' does not support channel hopping.  Disabling...'%adapter
+		return False
 	print '[dbg] starting channel hopper with device [%s]'%adapter
 	while scanning:
 		try:
 			channel = random.randrange(1,15)
-			os.system("iw dev %s set channel %d"%(adapter, channel))
+			os.system("iwconfig %s channel %d"%(adapter, channel))
 			time.sleep(2)
-		except Exception:
+		except Exception,e:
+			print '[ERR] ', e
 			break
 	print '[dbg] stopping channel hopper..'
 
