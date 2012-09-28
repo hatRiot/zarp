@@ -132,7 +132,7 @@ def dump_module_sessions(module):
 # Return the total number of running sessions
 #
 def get_session_count():
-	return len(arp_sessions) + len(http_sniffers)+ len(password_sniffers)
+	return len(arp_sessions) + len(http_sniffers)+ len(password_sniffers) + (1 if not rogue_dhcp is None else 0)
 
 #
 # Stop a specific session; this calls the .shutdown() method for the given object.
@@ -171,13 +171,12 @@ def stop_session(module, number):
 			http_sniffers[i].shutdown()
 		for i in password_sniffers:
 			password_sniffers[i].shutdown()
-	elif module == 'dhcp':
+
+	if module == 'dhcp':
 		# dhcp is a different story
 		if not rogue_dhcp is None:
 			rogue_dhcp.shutdown()
 			rogue_dhcp = None
-	else:
-		print '[-] Module could not be stopped.'
 	gc.collect()
 
 #
