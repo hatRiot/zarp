@@ -72,6 +72,7 @@ def service_scan ( block, service ):
 					if not pkt is None and pkt[TCP].getfieldval('flags') == 18L:
 						print '\t[+] %s'%(ip)
 						print '\t  %d \t %s'%(pkt[TCP].sport, 'open')
+					sr(IP(dst=ip)/TCP(flags='FA',dport=port),timeout=1)
 			else:
 				if service == 67:
 					dhcp_scan()
@@ -80,7 +81,7 @@ def service_scan ( block, service ):
 				if not pkt is None and pkt[TCP].getfieldval('flags') == 18L:
 					print '\t[+] %s'%(ip)
 					print '\t  %d \t %s'%(pkt[TCP].sport, 'open')
-					sr(IP(dst=ip)/TCP(flags='FA',dport=service),timeout=1)
+				sr(IP(dst=ip)/TCP(flags='FA',dport=service),timeout=1)
 	except Exception, j:
 		print '[dbg] error: ', j
 	print '\n'
