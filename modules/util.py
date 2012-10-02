@@ -1,6 +1,8 @@
+from signal import SIGINT
 from commands import getoutput
 from subprocess import Popen
 import os
+
 #
 # Class houses utility functions
 #
@@ -114,3 +116,39 @@ def disable_monitor():
 				adapt = line.split(' ')[0]
 				tmp = getoutput('airmon-ng stop %s'%adapt)
 				print '[dbg] killed monitor adapter ', adapt 
+#
+# check if a local file exists
+# TRUE if it does, FALSE otherwise
+#
+def does_file_exist(fle):
+	try:
+		with open(fle) as f: pass
+	except IOError:
+		return False
+	return True
+#
+# Helper for the interface.
+# arr is a list of items for display
+#
+def print_menu(arr):
+	i = 0
+	while i < len(arr):
+		# if there are more than 6 items in the list, add another column
+		if len(arr) > 6 and i < len(arr)-1:
+			print '\t[%d] %s \t [%d] %s'%(i,arr[i],i+1,arr[i+1])
+			i += 2
+		else:
+			print '\t[%d] %s'%(i+1,arr[i])
+			i += 1
+	print '\n0) Back'
+	try:
+		choice = (raw_input('> '))
+		if 'info' in choice:
+			print '[-] Module \'info\' not implemented yet.'
+			#stream.view_info(choice.split(' ')[1])	
+			choice = -1
+		else:
+			choice = int(choice)
+	except Exception:
+		os.system('clear')
+	return choice
