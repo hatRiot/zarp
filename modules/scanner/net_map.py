@@ -1,6 +1,5 @@
 import socket, time
 from scapy.all import *
-from scapy.modules.p0f import p0f
 
 #
 # Map the local network by gathering active hosts within the given range

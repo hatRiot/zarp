@@ -12,7 +12,7 @@ def initialize():
 		if not util.check_program('airmon-ng'):
 			print '[-] airomon-ng not installed.  Please install to continue.'
 			return
-		print '[!] (cntrl^c) when finished.'
+		print '[!] (ctrl^c) when finished.'
 		iface = util.get_monitor_adapter()
 		if iface is None:
 			print '[!] No devices found in monitor mode.  Enabling...'
@@ -29,7 +29,7 @@ def ap_scan(adapt):
 	try:
 		print '[!] Scanning for access points...'
 		os.system('airodump-ng %s'%adapt)
-	except KeyboardInterrupt:
+	except Exception, j: 
+		print '[dbg] error: ', j
 		util.disable_monitor()
-		print '[!] Exiting..'
 	util.disable_monitor()
