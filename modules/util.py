@@ -135,7 +135,7 @@ def print_menu(arr):
 	while i < len(arr):
 		# if there are more than 6 items in the list, add another column
 		if len(arr) > 6 and i < len(arr)-1:
-			print '\t[%d] %s \t [%d] %s'%(i,arr[i],i+1,arr[i+1])
+			print '\t[%d] %s \t [%d] %s'%(i+1,arr[i],i+2,arr[i+1])
 			i += 2
 		else:
 			print '\t[%d] %s'%(i+1,arr[i])
