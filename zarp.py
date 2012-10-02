@@ -1,7 +1,8 @@
 #! /usr/local/bin/python
 import os, sys
 sys.path.insert(0, os.getcwd() + '/modules/')
-import stream, session_manager, parse_cmd, util
+from util import print_menu, header
+import stream, session_manager, parse_cmd
 from commands import getoutput
 
 #
@@ -17,21 +18,21 @@ def main():
 		sys.exit(1)
 
 	# menus
-	main_menu =    [ 'Quit', 'Poisoners', 'DoS Attacks', 'Sniffers', 'Scanners',
+	main_menu =    [ 'Poisoners', 'DoS Attacks', 'Sniffers', 'Scanners',
 				     'Parameter','Sessions']
-	poison_menu =  ['Back', 'ARP Poison', 'DNS Poison', 'DHCP Poison']
-	dos_menu =     ['Back', 'Teardrop', 'NDP', 'Nestea', 'LAND', 'TCP SYN', 'SMB2',
+	poison_menu =  [ 'ARP Poison', 'DNS Poison', 'DHCP Poison']
+	dos_menu =     [ 'Teardrop', 'NDP', 'Nestea', 'LAND', 'TCP SYN', 'SMB2',
 					'DHCP Starve'
 				   ]
-	sniffer_menu = ['Back', 'HTTP Sniffer', 'Password Sniffer']
-	spoofer_menu = ['Back', 'HTTP Server', 'SSH Server', 'FTP Server' ]
-	scanner_menu = ['Back', 'NetMap', 'Service Scan', 'AP Scan']
-	parameter_menu = ['Back', 'WEP Crack', 'WPA2 Crack', 'Router Pwn' ]
+	sniffer_menu = [ 'HTTP Sniffer', 'Password Sniffer']
+	spoofer_menu = [ 'HTTP Server', 'SSH Server', 'FTP Server' ]
+	scanner_menu = [ 'NetMap', 'Service Scan', 'AP Scan']
+	parameter_menu = [ 'WEP Crack', 'WPA2 Crack', 'Router Pwn' ]
 	
 	running = True
 	choice = -1
 	while running:
-		util.header()
+		header()
 		choice = print_menu(main_menu)		
 		if choice == 0:
 			# check if they've got running sessions! 
@@ -116,7 +117,7 @@ def main():
 				elif choice == 2:
 					print '[-] Not implemented.'
 				elif choice == 3:
-					print '[-] Not implemented.'
+					stream.initialize('router_pwn')	
 				elif choice == -1:
 					pass
 		elif choice == 6:
@@ -124,32 +125,6 @@ def main():
 		elif choice == -1:
 			pass
 
-#
-# Helper for the interface.
-# arr is a list of items for display
-#
-def print_menu(arr):
-	i = 1
-	while i < len(arr):
-		# if there are more than 6 items in the list, add another column
-		if len(arr) > 6 and i < len(arr)-1:
-			print '\t[%d] %s \t [%d] %s'%(i,arr[i],i+1,arr[i+1])
-			i += 2
-		else:
-			print '\t[%d] %s'%(i,arr[i])
-			i += 1
-	print '\n0) Back'
-	try:
-		choice = (raw_input('> '))
-		if 'info' in choice:
-			print '[-] Module info not implemented yet.'
-			#stream.view_info(choice.split(' ')[1])	
-			choice = -1
-		else:
-			choice = int(choice)
-	except Exception:
-		os.system('clear')
-	return choice
 	
 # Application entry
 if __name__=="__main__":
