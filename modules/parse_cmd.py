@@ -14,7 +14,8 @@ def parse(sysv):
 	parser.add_option('--finger', help='Fingerprint scan packets', action='store_true', default=False,dest='finger')
 	parser.add_option('-a', help='Service scan', action='store_true', default=False, dest='service')
 	parser.add_option('-q', help='Quick network sniff with filter', action='store', dest='filter')
-	parser.add_option('-w', help='Wireless AP scan', action='store',dest='adapter')
+	parser.add_option('-w', help='Wireless AP scan', action='store_true', default=False,dest='wifind')
+	parser.add_option('--channel',help='Set channel to scan on',action='store', dest='channel')
 
 	(options, args) = parser.parse_args(sysv)
 	
@@ -32,7 +33,7 @@ def parse(sysv):
 			sniff(filter=options.filter,store=0, prn=lambda x: x.summary())
 		except KeyboardInterrupt,Exception:
 			print '[!] Exiting sniffer..'
-	elif options.adapter is not None:
+	elif options.wifind: 
 		print '[dbg] beginning wireless AP scan..'
-		ap_scan.ap_scan(options.adapter)
+		ap_scan.initialize()
 	sys.exit(1)

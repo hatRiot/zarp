@@ -117,6 +117,12 @@ else
   fi
 fi
 
+# check for airodump-ng, but dont install
+AD= `which airodump-ng`
+if [ $AD == '' ]; then
+  echo '[-] Airodump-ng not found.  This is required for any wireless modules.'
+fi
+
 # check IP forwarding
 FORWARDING=`cat /proc/sys/net/ipv4/ip_forward`
 if [ $FORWARDING == '0' ]; then

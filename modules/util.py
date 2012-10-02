@@ -1,3 +1,6 @@
+from commands import getoutput
+from subprocess import Popen
+import os
 #
 # Class houses utility functions
 #
@@ -27,3 +30,87 @@ def is_in_subnet(ip, mask):
 	netaddr = int(''.join([ '%02x' % int(x) for x in netstr.split('.')]), 16)
 	mask = (0xffffffff << (32 - int(bits))) & 0xffffffff
 	return (ipaddr & mask) == (netaddr & mask)	
+
+# verify if an app is installed (and pathed) properly 
+def check_program(prog):
+	tmp = init_app('which {0}'.format(prog), True)
+	if len(tmp) > len(prog) and '/' in tmp:
+		return True
+	else:
+		return False
+
+# initialize an application 
+# PROG is the full command with args
+# OUTPUT true if output should be returned
+#		 false if output should be dumped to null
+def init_app(prog, output):
+	# dump output to null
+	if not output:
+		try:
+			null = open(os.devnull, 'w')
+			proc = Popen(prog, stdout=null, stderr=null)
+		except Exception,j:
+			print '[dbg] error init: ', j
+			return False
+		return proc
+	# just grab output
+	else:
+		return getoutput(prog)
+
+#
+# kill an application
+#
+def kill_app(proc):
+	try:
+		os.kill(proc.pid, SIGINT)
+	except Exception, j:
+		print '[dbg] error kill: ', j
+		return False
+	return True
+
+#
+# Try and automatically detect which adapter is in monitor mode
+# NONE if there are none
+#
+def get_monitor_adapter():
+	tmp = init_app('iwconfig', True)
+	iface = None
+	for line in tmp.split('\n'):	
+		if line.startswith(' '):
+			continue	
+		elif len(line.split(' ')[0]) > 1:
+			if 'Mode:Monitor' in line:
+				return line.split(' ')[0]
+	return None
+
+#
+# Enable monitor mode on the wireless adapter
+#
+def enable_monitor():
+	tmp = init_app('iwconfig', True)
+	iface = None
+	for line in tmp.split('\n'):
+		if line.startswith('wlan'):
+			try:
+				iface = line.split(' ')[0]
+				tmp = getoutput('airmon-ng start {0}'.format(iface))
+				print '[dbg] started \'%s\' in monitor mode'%iface
+			except Exception, j:
+				print 'error enabling monitor mode: ', j
+			break
+	return get_monitor_adapter()
+
+#
+# Kill the monitoring adapter
+#
+def disable_monitor():
+	tmp = init_app('iwconfig', True)
+	iface = None
+	for line in tmp.split('\n'):
+		if line.startswith(' '):
+			continue
+		elif len(line.split(' ')[0]) > 1:
+			if 'Mode:Monitor' in line:
+				adapt = line.split(' ')[0]
+				tmp = getoutput('airmon-ng stop %s'%adapt)
+				print '[dbg] killed monitor adapter ', adapt 
