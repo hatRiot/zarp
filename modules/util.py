@@ -147,6 +147,9 @@ def print_menu(arr):
 			print '[-] Module \'info\' not implemented yet.'
 			#stream.view_info(choice.split(' ')[1])	
 			choice = -1
+		elif 'quit' in choice:
+			# hard quit
+			os._exit(1)
 		else:
 			choice = int(choice)
 	except Exception:

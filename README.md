@@ -4,12 +4,11 @@ It is also worth mentioning that all output beginning with [dbg] are, in fact,
 debug statements.  They will be removed once I near a more defined release.
 
 #[ZARP]
-###:Version 0.02
-###:Network Attack Tool
-###:@ballastsec, @dronesec
+Version 0.02
+Network Attack Tool
+@ballastsec, @dronesec
 
 #[INTRODUCTION]
-<pre>
 Zarp is a network attack tool centered around exploitation of local networks.  This does not 
 include system exploitation, but rather abusing networking protocols and stacks to take 
 over, infiltrate, and knock out.  Sessions can be managed to quickly poison and sniff multiple 
@@ -18,9 +17,8 @@ Various sniffers are included to automatically parse usernames and passwords fro
 protocols, as well as view HTTP traffic and more.  DoS attacks are included to knock out 
 various systems and applications.  These tools open up the possibility for very complex attack 
 scenarios on live networks quickly, cleanly, and quietly.
-</pre>
+
 #[TOOL OVERVIEW] 
-<pre>
 	[POISONERS]
 	Various man in the middle tools provide a stepping stone for more complex attacks.
 	: ARP, DNS, DHCP :
@@ -52,7 +50,16 @@ scenarios on live networks quickly, cleanly, and quietly.
 	These, in conjunction with Scanners, should give you a solid picture of what's 
 	available.  
 	: WEP Crack, WPA2 Crack, Router pwn : 
-</pre>
+
+[CLI USAGE AND SHORTCUTS]
+	If you want to clear the screen, typing gibberish ('asdf') will wipe the screen and 
+	reprint the current menu.
+
+	Typing 'quit' will close out of the application, no matter where you are.  Note 
+	that this is a 'hard quit', so any running sessions may not be closed gracefully.
+
+	Typing 'info [module]' will dump information and usage about the specified module.
+
 #[USE EXAMPLES]
 ## Command line options
 <pre>

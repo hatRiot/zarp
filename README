@@ -51,72 +51,11 @@ scenarios on live networks quickly, cleanly, and quietly.
 	available.  
 	: WEP Crack, WPA2 Crack, Router pwn : 
 
-[USE EXAMPLES]
-## Command line options
-<pre>
-bryan@devbox:~/zarp$ sudo python zarp.py -h
-Usage: zarp.py [options]
+[CLI USAGE AND SHORTCUTS]
+	If you want to clear the screen, typing gibberish ('asdf') will wipe the screen and 
+	reprint the current menu.
 
-Options:
-  -h, --help  show this help message and exit
-  -s SCAN     Quick network map
-  --finger    Fingerprint scan packets
-  -a          Service scan
-  -q FILTER   Quick network sniff with filter
-  -w ADAPTER  Wireless AP scan
-bryan@devbox:~/zarp$ 
-</pre>
-## Main menu
-<pre>
-bryan@devbox:~/zarp$ sudo python zarp.py
-	        [ZARP]		
-	    [Version 0.02]			
-	[1] Poisoners 	 [2] DoS Attacks
-	[3] Sniffers 	 [4] Scanners
-	[5] Parameter 	 [6] Sessions
+	Typing 'quit' will close out of the application, no matter where you are.  Note 
+	that this is a 'hard quit', so any running sessions may not be closed gracefully.
 
-0) Back
-> 
-</pre>
-## ARP Poisoning Session
-<pre>
-	[1] ARP Poison
-	[2] DNS Poison
-	[3] DHCP Poison
-
-0) Back
-> 1
-[dbg] Received module start for:  arp
-[!] Using interface [eth2:08:00:27:2d:7a:6d]
-[!] Enter host to poison:	192.168.1.88
-[!] Enter address to spoof:	192.168.1.1
-[!] Spoof IP 192.168.1.88 from victim 192.168.1.1.  Is this correct? y
-[!] Initializing ARP poison..
-	[1] ARP Poison
-	[2] DNS Poison
-	[3] DHCP Poison
-
-0) Back
-> 0
-	        [ZARP]		
-	    [Version 0.02]			
-	[1] Poisoners 	 [2] DoS Attacks
-	[3] Sniffers 	 [4] Scanners
-	[5] Parameter 	 [6] Sessions
-
-0) Back
-> 6
-
-	[Running sessions]
-[!] ARP POISONS [arp]:
-	[0] 192.168.1.88
-
-
-	[1] Stop session
-	[2] View session
-	[3] Start session logger
-	[4] Stop session logger
-
-0) Back
-> 
-</pre>
+	Typing 'info [module]' will dump information and usage about the specified module.

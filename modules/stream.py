@@ -10,7 +10,7 @@ from http_sniffer import HTTPSniffer
 from net_map import NetMap
 from wep_crack import WEPCrack
 import dhcp, ndp_dos, nestea_dos, land_dos, smb2_dos,dhcp_starvation,service_scan
-import ap_scan
+import ap_scan, router_pwn
 
 #
 # Main data bus for interacting with the various modules.  Dumps information, initializes objects,
@@ -82,6 +82,8 @@ def initialize(module):
 	elif module == 'wep_crack':
 		tmp = WEPCrack()
 		tmp.initialize()
+	elif module == 'router_pwn':
+		router_pwn.initialize()
 	else:
 		print '[-] Module \'%s\' does not exist.'%module
 
