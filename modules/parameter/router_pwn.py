@@ -1,6 +1,6 @@
 import sys, os
 sys.path.insert(0, os.getcwd() + '/modules/parameter/routers/')
-import dlink, util
+import dlink, cisco, linksys, netgear, util
 
 #
 # Router exploits and vulnerabilities.
@@ -17,11 +17,20 @@ def initialize():
 				continue
 			dlink.run(choice)
 		elif choice == 2:
-			pass
+			choice = util.print_menu(netgear.vulnerabilities())
+			if choice == 0:
+				continue
+			netgear.run(choice)
 		elif choice == 3:
-			pass
+			choice = util.print_menu(linksys.vulnerabilities())
+			if choice == 0:
+				continue
+			linksys.run(choice)
 		elif choice == 4:
-			pass
+			choice = util.print_menu(cisco.vulnerabilities())
+			if choice == 0:
+				continue
+			cisco.run(choice)
 		else:
 			break
 			
