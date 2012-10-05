@@ -10,11 +10,13 @@ services = {
 		    'ftp' : 21,
 		    'ssh' : 22,
 			'telnet':23,
-			'smtp' : 24,
+			'smtp' : 25,
 			'dns' : 53,
 			'dhcp' : 67,
 			'http' : 80,
-			'snmp' : 161
+			'pop3' : 110,
+			'snmp' : 161,
+			'smb' : 445
 		    }
 
 def initialize():
