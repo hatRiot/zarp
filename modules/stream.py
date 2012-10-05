@@ -78,7 +78,7 @@ def initialize(module):
 	elif module == 'dhcp_starv':
 		dhcp_starvation.initialize()
 	elif module == 'ap_scan':
-		ap_scan.initialize()	
+		return ap_scan.initialize()	
 	elif module == 'wep_crack':
 		tmp = WEPCrack()
 		tmp.initialize()

@@ -16,7 +16,9 @@ class WEPCrack:
 	def initialize(self):
 		print '[+] Initializing AP scan.  (Cntrl+C) when you\'re ready to crack.'
 		time.sleep(2)
-		stream.initialize('ap_scan')
+		res = stream.initialize('ap_scan')
+		if res is False:
+			return
 		try:
 			self.bssid = raw_input('[!] BSSID: ')
 			self.mon_iface = util.get_monitor_adapter()
