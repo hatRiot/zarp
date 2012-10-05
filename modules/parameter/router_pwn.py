@@ -31,6 +31,8 @@ def initialize():
 			if choice == 0:
 				continue
 			cisco.run(choice)
-		else:
+		elif choice == 0:
 			break
+		else:
+			os.system('clear')
 			
