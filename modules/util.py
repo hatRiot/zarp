@@ -154,4 +154,5 @@ def print_menu(arr):
 			choice = int(choice)
 	except Exception:
 		os.system('clear')
+		choice = -1
 	return choice
