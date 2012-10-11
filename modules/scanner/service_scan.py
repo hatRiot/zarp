@@ -1,4 +1,5 @@
 import time
+from ftplib import FTP
 from scapy.all import *
 
 #
@@ -68,16 +69,16 @@ def service_scan ( block, service ):
 		for s,r in ans:
 			ip = r[ARP].getfieldval('psrc')
 			for port in service:
-				if port == 67:
+				if port is 67: 
 					dhcp_scan()
+				if port is 161:
+					snmp_query(ip)
 					continue
 				pkt = sr1(IP(dst=ip)/TCP(flags='S',dport=port),timeout=1)
 				if not pkt is None and pkt[TCP].getfieldval('flags') == 18L:
 					print '\t[+] %s'%(ip)
 					print '\t  %d \t %s'%(pkt[TCP].sport, 'open')
-					if port == '161':
-						snmp_query(ip)
-					elif port == '21':
+					if port is 21:
 						ftp_info(ip)
 				sr(IP(dst=ip)/TCP(flags='FA',dport=port),timeout=1)
 		if ans is None:
@@ -107,21 +108,45 @@ def dhcp_scan():
 	
 #
 # query and dump snmp info
+# TODO: walk through different versions and try different passwords
 #
 def snmp_query(ip):
-	print '[dbg] getting snmp dump for %s'%ip
 	pkt = IP(dst=ip)/UDP(sport=161)
 	pkt /= SNMP(community='public', PDU=SNMPget(varbindlist=[SNMPvarbind(oid=ASN1_OID('1.3.6.1.2.1.1.1.0'))]))
 	recv = sr1(pkt)
-	print '[+] Retrieved: ', recv.show()
+	print '[+] SNMP Dump\n ', recv[SNMP].show()
 
 #
 # DNS zone transfer 
 #
 def zone_transfer():
 	pass
+
+#
+# ssh banner grab
+#
+def ssh_info(ip):
+	pass	
+
 #
 # banner grab the FTP, check if we can log in anonymously
 #
 def ftp_info(ip):
-	pass
+	print '[+] FTP banner for %s\n'%(ip)
+	con = FTP(ip)
+	banner = con.getwelcome()
+	print banner + '\n'
+
+	print '[+] Checking anonymous access...'
+	try:
+		con.login()
+	except:
+		print '[-] No anonymous access.'
+		con.close()
+		return
+	
+	# if we logged in, LIST contents and exit
+	data = con.retrlines('LIST')
+	if data is not None:
+		print '[+] Anonymous access available.'
+	con.close()
