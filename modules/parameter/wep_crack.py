@@ -1,4 +1,3 @@
-from signal import SIGINT
 import util, stream
 import sys, time
 
@@ -62,8 +61,15 @@ class WEPCrack:
 		print '[+] Killing aireplay-ng...'
 		util.kill_app(airep_process)
 		
-		print airep_process.communicate()[0]
+		print '[dbg] aireplay dump: ',airep_process.communicate()[0]
+	
+		print '[+] Replaying ARPs...'
+		# replay ARP requests
+		airep_cmd = [ 'aireplay-ng',
+					  '-3',
+					  self.mon_iface ]
 
+		airep_process = init_app(arep_cmd, False)
 		# cleanup
 		if not util.kill_app(airo_process):
 			print '[dbg] Error killing airmon-ng..'

@@ -265,7 +265,7 @@ def get_key(module, number):
 	return None
 
 #
-#
+# read in the module/number for interacting with a specific running module
 #
 def get_session_input():
 	try:
@@ -279,7 +279,7 @@ def get_session_input():
 		return (None, None)
 
 #
-#
+# view a modules information
 #
 def view_info (module):
 	if module == 'http':

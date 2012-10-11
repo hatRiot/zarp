@@ -1,4 +1,5 @@
-import stream, string
+import string
+import util, stream
 from os import system
 
 #
@@ -36,9 +37,12 @@ def menu():
 			else:
 				return
 		elif choice == 3:
-			print '[!] Enter file path to log to: '
+			print '[!] Enter file to log to: '
 			file_path = raw_input('> ')
 			if file_path is None:
+				return
+			if util.does_file_exist(file_path):
+				print '[-] File already exists.'
 				return
 			print '[!] Module must be a sniffer.'
 			module = None
