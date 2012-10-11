@@ -21,7 +21,7 @@ def main():
 	main_menu =    [ 'Poisoners', 'DoS Attacks', 'Sniffers', 'Scanners',
 				     'Parameter','Sessions']
 	poison_menu =  [ 'ARP Poison', 'DNS Poison', 'DHCP Poison']
-	dos_menu =     [ 'Teardrop', 'NDP', 'Nestea', 'LAND', 'TCP SYN', 'SMB2',
+	dos_menu =     [ 'NDP', 'Nestea', 'LAND', 'TCP SYN', 'SMB2',
 					'DHCP Starve'
 				   ]
 	sniffer_menu = [ 'HTTP Sniffer', 'Password Sniffer']
@@ -64,18 +64,16 @@ def main():
 			while True:
 				choice = print_menu(dos_menu)
 				if choice == 1:
-					stream.initialize('teardrop')
-				elif choice == 2:
 					stream.initialize('ndp')
-				elif choice == 3:
+				elif choice == 2:
 					stream.initialize('nestea')
-				elif choice == 4:
+				elif choice == 3:
 					stream.initialize('land')
-				elif choice == 5:
+				elif choice == 4:
 					stream.initialize('tcp_syn')
-				elif choice == 6:
+				elif choice == 5:
 					stream.initialize('smb2')
-				elif choice == 7:
+				elif choice == 6:
 					stream.initialize('dhcp_starv')
 				elif choice == 0:
 					break

