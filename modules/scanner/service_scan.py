@@ -19,7 +19,7 @@ services = {
 
 def initialize():
 	block = raw_input('[!] Enter net mask: ')
-	service = raw_input('[!] Enter service to scan for: ')
+	service = raw_input('[!] Enter service or port to scan for: ')
 	tmp = raw_input('[!] Scan %s for %s.  Is this correct? '%(block, service))
 	if tmp == 'n':
 		return
@@ -35,8 +35,9 @@ def initialize():
 #
 def service_scan ( block, service ):
 	conf.verb = 0
+	tmp = []
 	if service.isdigit():
-		service = int(service)
+		tmp.append(int(service))
 	elif ',' in service:
 		service = service.split(',')
 		# list of ports
@@ -44,44 +45,41 @@ def service_scan ( block, service ):
 			service = map(int, service)
 		# list of services
 		else:
-			try:
-				tmp = []
-				for i in service: 
+			tmp = []
+			for i in service: 
+				try:
 					tmp.append(services[i])
-				service = tmp
-			except:
-				print '[-] \'%s\' is not a supported service.'%i
-				return
+				except:
+					print '[-] \'%s\' is not a supported service.'%i
+					continue
 	elif service in services:
-		service = services[service]	
+		tmp.append(services[service])
 	else:
 		print '[-] Service \'%s\' not recognized.'%(service)
 		return
+	service = tmp
 	
-	# parsing is done, we've got a list of integers. SYN the port.
+	# parsing is done, we've got a list of integers. SYN the port and pass
+	# processing off if we need to do service specific querying
 	try:
 		(ans, unans) = arping(block)
 		for s,r in ans:
 			ip = r[ARP].getfieldval('psrc')
-			if type(service) is list:
-				for port in service:
-					if port == 67:
-						dhcp_scan()
-						continue
-					pkt = sr1(IP(dst=ip)/TCP(flags='S',dport=port),timeout=1)
-					if not pkt is None and pkt[TCP].getfieldval('flags') == 18L:
-						print '\t[+] %s'%(ip)
-						print '\t  %d \t %s'%(pkt[TCP].sport, 'open')
-					sr(IP(dst=ip)/TCP(flags='FA',dport=port),timeout=1)
-			else:
-				if service == 67:
+			for port in service:
+				if port == 67:
 					dhcp_scan()
-					return 
-				pkt = sr1(IP(dst=ip)/TCP(flags='S',dport=service),timeout=1)
+					continue
+				pkt = sr1(IP(dst=ip)/TCP(flags='S',dport=port),timeout=1)
 				if not pkt is None and pkt[TCP].getfieldval('flags') == 18L:
 					print '\t[+] %s'%(ip)
 					print '\t  %d \t %s'%(pkt[TCP].sport, 'open')
-				sr(IP(dst=ip)/TCP(flags='FA',dport=service),timeout=1)
+					if port == '161':
+						snmp_query(ip)
+					elif port == '21':
+						ftp_info(ip)
+				sr(IP(dst=ip)/TCP(flags='FA',dport=port),timeout=1)
+		if ans is None:
+			print '[-] No host(s) response.'
 	except Exception, j:
 		print '[dbg] error: ', j
 	print '\n'
@@ -104,3 +102,24 @@ def dhcp_scan():
 		print '\n'
 	else:
 		print '[-] No DHCP servers found.'
+	
+#
+# query and dump snmp info
+#
+def snmp_query(ip):
+	print '[dbg] getting snmp dump for %s'%ip
+	pkt = IP(dst=ip)/UDP(sport=161)
+	pkt /= SNMP(community='public', PDU=SNMPget(varbindlist=[SNMPvarbind(oid=ASN1_OID('1.3.6.1.2.1.1.1.0'))]))
+	recv = sr1(pkt)
+	print '[+] Retrieved: ', recv.show()
+
+#
+# DNS zone transfer 
+#
+def zone_transfer():
+	pass
+#
+# banner grab the FTP, check if we can log in anonymously
+#
+def ftp_info(ip):
+	pass
