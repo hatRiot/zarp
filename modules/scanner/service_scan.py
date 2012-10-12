@@ -1,5 +1,6 @@
-import time
+import time, socket
 from ftplib import FTP
+from commands import getoutput
 from scapy.all import *
 
 #
@@ -71,7 +72,7 @@ def service_scan ( block, service ):
 			for port in service:
 				if port is 67: 
 					dhcp_scan()
-				if port is 161:
+				elif port is 161:
 					snmp_query(ip)
 					continue
 				pkt = sr1(IP(dst=ip)/TCP(flags='S',dport=port),timeout=1)
@@ -80,6 +81,10 @@ def service_scan ( block, service ):
 					print '\t  %d \t %s'%(pkt[TCP].sport, 'open')
 					if port is 21:
 						ftp_info(ip)
+					# todo: change this up so if ssh is on another port...
+					elif port is 22:
+						ssh_info(ip,port)
+						continue
 				sr(IP(dst=ip)/TCP(flags='FA',dport=port),timeout=1)
 		if ans is None:
 			print '[-] No host(s) response.'
@@ -118,15 +123,26 @@ def snmp_query(ip):
 
 #
 # DNS zone transfer 
+# TODO: better way than interfacing with dig?
 #
-def zone_transfer():
+def zone_transfer(addr):
 	pass
 
 #
 # ssh banner grab
 #
-def ssh_info(ip):
-	pass	
+def ssh_info(ip, port):
+	print '[dbg] banner grabbing SSH for %s'%(ip)
+	sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	try:
+		sock.connect((ip,port))
+		data = sock.recv(1024)
+		print '\t[+] ',data
+		sock.close()
+	except Exception, j:
+		print '[dbg] error: ', j
+		sock.close()
+	return	
 
 #
 # banner grab the FTP, check if we can log in anonymously
