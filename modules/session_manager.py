@@ -6,22 +6,17 @@ from os import system
 # Module provides the front end for interacting with sessions
 #
 
+session_menu = [ 'Stop session', 'View session', 'Start session logger',
+			 	 'Stop session logger' ]
+
 #
 # Driver for session management
 #
 def menu():
 	while True:
 		stream.dump_sessions()
-		print '\t[1] Stop session'
-		print '\t[2] View session'
-		print '\t[3] Start session logger'
-		print '\t[4] Stop session logger'
-		print '\n0) Back'
-		try:
-			choice = int(raw_input('> '))
-		except Exception:
-			system('clear')
-			continue
+		choice = util.print_menu(session_menu)
+
 		if choice == 0:
 			break
 		elif choice == 1:
@@ -61,7 +56,8 @@ def menu():
 			stream.start_log_session(module, int(number), file_path)
 		elif choice == 4:
 			(module, number) = get_session_input()
-			stream.stop_log_session(module, int(number))
+			if not module is None:
+				stream.stop_log_session(module, int(number))
 		else:
 		  system('clear')
 

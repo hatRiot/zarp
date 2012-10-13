@@ -5,6 +5,7 @@ sys.path[:0] = [str(os.getcwd()) + '/modules/sniffer/', str(os.getcwd()) + '/mod
 from arp import ARPSpoof
 from dns import DNSSpoof
 from dhcp import DHCPSpoof
+from nbns import NBNSSpoof
 from password_sniffer import PasswordSniffer
 from http_sniffer import HTTPSniffer
 from net_map import NetMap
@@ -22,15 +23,15 @@ import ap_scan, router_pwn, tcp_syn
 arp_sessions = {}
 http_sniffers = {}
 password_sniffers = {}
-global netscan,rogue_dhcp	#dont manage 'many' of these; just overwrite the history of one
-netscan = rogue_dhcp = None
+global netscan,rogue_dhcp,nbnspoof	#dont manage 'many' of these; just overwrite the history of one
+netscan = rogue_dhcp = nbnspoof = None
 
 #
 # Initialize a poisoner and/or DoS attack and store the object
 # TODO rework this so it doesn't turn into a HUGE if/elif/elif/elif...
 #
 def initialize(module):
-	global netscan,rogue_dhcp
+	global netscan,rogue_dhcp,nbnspoof
 	print '[dbg] Received module start for: ', module
 	if module == 'arp':
 		tmp = ARPSpoof() 
@@ -86,6 +87,11 @@ def initialize(module):
 		router_pwn.initialize()
 	elif module == 'tcp_syn':
 		tcp_syn.initialize()
+	elif module == 'nbns':
+		tmp = NBNSSpoof()
+		if tmp.initialize():
+			nbnspoof = tmp
+		print '[dbg] is nbns running: ', nbnspoof.running
 	else:
 		print '[-] Module \'%s\' does not exist.'%module
 
@@ -93,7 +99,7 @@ def initialize(module):
 # Dump running sessions
 #
 def dump_sessions():
-	global arp_sessions, dns_sessions, rogue_dhcp, netscan
+	global arp_sessions, dns_sessions, rogue_dhcp, netscan, nbnspoof
 	print '\n\t[Running sessions]'
 	if len(arp_sessions) > 0: print '[!] ARP POISONS [arp]:'
 	for (counter, session) in enumerate(arp_sessions):
@@ -113,13 +119,15 @@ def dump_sessions():
 		print '\n[0] NetMap Scan [netmap]'
 	if not rogue_dhcp is None:
 		print '\n[1] Rogue DHCP [dhcp]'
+	if not nbnspoof is None:
+		print '\n[2] NBNS Spoof [nbns]'
 	print '\n'
 
 #
 # Dump the sessions for a specific module
 #
 def dump_module_sessions(module):
-	global arp_sessions, dns_sessions, dhcp_sessions, dhcp_spoof
+	global arp_sessions, dns_sessions, dhcp_sessions, dhcp_spoof, nbnspoof
 	if module == 'arp':
 		print '\n\t[Running ARP sessions]'
 		for (counter, session) in enumerate(arp_sessions):
@@ -132,6 +140,9 @@ def dump_module_sessions(module):
 	elif module == 'dhcp':
 		if not rogue_dhcp is None and rogue_dhcp.running:
 			print '[-] not yet'
+	elif module == 'nbns':
+		if not nbnspoof is None and nbnspoof.running:
+		 	print '\t[2] NBNS Spoof'
 #
 # Return the total number of running sessions
 #
@@ -145,7 +156,7 @@ def get_session_count():
 # @param number is the session number (beginning with 0)
 #
 def stop_session(module, number):
-	global rogue_dhcp
+	global rogue_dhcp, nbnspoof
 	ip = get_key(module, number)
 	if not ip is None:
 		if module == 'arp':
@@ -181,6 +192,10 @@ def stop_session(module, number):
 		if not rogue_dhcp is None:
 			rogue_dhcp.shutdown()
 			rogue_dhcp = None
+	elif module == 'nbns':
+		if not nbnspoof is None:
+			nbnspoof.shutdown()
+			nbnspoof = None
 	gc.collect()
 
 #

@@ -20,7 +20,7 @@ def main():
 	# menus
 	main_menu =    [ 'Poisoners', 'DoS Attacks', 'Sniffers', 'Scanners',
 				     'Parameter','Sessions']
-	poison_menu =  [ 'ARP Poison', 'DNS Poison', 'DHCP Poison']
+	poison_menu =  [ 'ARP Poison', 'DNS Poison', 'DHCP Poison', 'NBNS Spoof']
 	dos_menu =     [ 'NDP', 'Nestea', 'LAND', 'TCP SYN', 'SMB2',
 					'DHCP Starve'
 				   ]
@@ -58,6 +58,8 @@ def main():
 					stream.initialize('dns')
 				elif choice == 3:
 					stream.initialize('dhcp')
+				elif choice == 4:
+					stream.initialize('nbns')
 				elif choice == -1:
 					pass
 		elif choice == 2:
