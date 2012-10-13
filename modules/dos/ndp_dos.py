@@ -27,4 +27,4 @@ def initialize():
 		send(pkt, loop=1, inter=0.1)
 	except:
 		pass
-u	print '[+] NDP DoS shutdown.'
+	print '[+] NDP DoS shutdown.'
