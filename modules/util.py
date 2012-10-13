@@ -44,7 +44,9 @@ def check_program(prog):
 # initialize an application 
 # PROG is the full command with args
 # OUTPUT true if output should be returned
-#		 false if output should be dumped to null
+#		 false if output should be dumped to null.  This will
+#		 return a process handle and is meant for initializing 
+#		 background processes.  Use wisely.
 def init_app(prog, output):
 	# dump output to null
 	if not output:

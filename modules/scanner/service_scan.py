@@ -1,4 +1,5 @@
 import time, socket
+import util
 from ftplib import FTP
 from commands import getoutput
 from scapy.all import *
@@ -79,15 +80,17 @@ def service_scan ( block, service ):
 				if not pkt is None and pkt[TCP].getfieldval('flags') == 18L:
 					print '\t[+] %s'%(ip)
 					print '\t  %d \t %s'%(pkt[TCP].sport, 'open')
-					if port is 21:
+					if port is services['ftp']:
 						ftp_info(ip)
-					# todo: change this up so if ssh is on another port...
-					elif port is 22:
+						continue
+					elif port is services['ssh']:
+						# todo: change this up so if ssh is on another port...
 						ssh_info(ip,port)
 						continue
+					elif port is services['smb']: 
+						smb_info(ip)
+						continue
 				sr(IP(dst=ip)/TCP(flags='FA',dport=port),timeout=1)
-		if ans is None:
-			print '[-] No host(s) response.'
 	except Exception, j:
 		print '[dbg] error: ', j
 	print '\n'
@@ -132,12 +135,11 @@ def zone_transfer(addr):
 # ssh banner grab
 #
 def ssh_info(ip, port):
-	print '[dbg] banner grabbing SSH for %s'%(ip)
 	sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	try:
 		sock.connect((ip,port))
 		data = sock.recv(1024)
-		print '\t[+] ',data
+		print '\t  |- ',data
 		sock.close()
 	except Exception, j:
 		print '[dbg] error: ', j
@@ -148,21 +150,37 @@ def ssh_info(ip, port):
 # banner grab the FTP, check if we can log in anonymously
 #
 def ftp_info(ip):
-	print '[+] FTP banner for %s\n'%(ip)
 	con = FTP(ip)
 	banner = con.getwelcome()
-	print banner + '\n'
-
-	print '[+] Checking anonymous access...'
+	# dump banner
+	for line in banner.split('\n'):
+		print '\t  |-' + line
+	
+	print '\t  [+] Checking anonymous access...'
 	try:
 		con.login()
 	except:
-		print '[-] No anonymous access.'
+		print '\t  [-] No anonymous access.'
 		con.close()
 		return
 	
-	# if we logged in, LIST contents and exit
-	data = con.retrlines('LIST')
+	# get the logged in dir
+	data = con.pwd()
 	if data is not None:
-		print '[+] Anonymous access available.'
+		print '\t  [+] Anonymous access available.'
+		print '\t  [+] Directory: ', data 
 	con.close()
+
+#
+# dump smb shares.  interfaces with SMBclient
+#
+def smb_info(ip):
+	if not util.check_program('smbclient'):
+		print '\t  [-] Skipping SMB enumeration.'
+		return
+	tmp = 'smbclient -U GUEST -N --socket-options=\'TCP_NODELAY IPTOS_LOWDELAY\' -L %s'%(ip)
+	data = util.init_app(tmp, True)
+	
+	# dump smb reponse
+	for line in data.split('\n'):
+		print '\t  |-', line
