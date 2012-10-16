@@ -16,9 +16,15 @@ def parse(sysv):
 	parser.add_option('-q', help='Quick network sniff with filter', action='store', dest='filter')
 	parser.add_option('-w', help='Wireless AP scan', action='store_true', default=False,dest='wifind')
 	parser.add_option('--channel',help='Set channel to scan on',action='store', dest='channel')
+	parser.add_option('--debug', help='Launch Zarp with error logging',action='store_true',default=False,dest='debug')
 
 	(options, args) = parser.parse_args(sysv)
 	
+	# debug check; for right now must be run in interactive mode
+	if options.debug:
+		util.isDebug = True
+		return
+
 	# initiate the netmap module
 	if options.scan is not None:
 		tmp = NetMap()

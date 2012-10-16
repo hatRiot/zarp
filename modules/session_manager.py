@@ -1,5 +1,5 @@
 import string
-import util, stream
+import stream, util
 from os import system
 
 #
@@ -37,9 +37,9 @@ def menu():
 			if file_path is None:
 				return
 			if util.does_file_exist(file_path):
-				print '[-] File already exists.'
+				util.Error('File already exists.')
 				return
-			print '[!] Module must be a sniffer.'
+			Msg('Module must be a sniffer.')
 			module = None
 			(module, number) = get_session_input()
 			try:
@@ -72,5 +72,5 @@ def get_session_input():
 		if not module is None and not number is None:
 			return (module, number)
 	except Exception: 
-		print '[-] Error: Must specify [module] followed by [number]\n'
+		util.Error('Must specify [module] followed by [number]\n')
 		return (None, None)

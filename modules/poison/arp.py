@@ -4,6 +4,7 @@ from threading import Thread
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 from scapy.all import *
 from time import sleep
+from util import Error, Msg
 import gc
 
 #
@@ -61,14 +62,14 @@ class ARPSpoof:
 			target_thread.start()
 			self.spoofing = True
 		except KeyboardInterrupt:
-			print '[!] Closing ARP poison down...'
+			Msg('Closing ARP poison down...')
 			return
 		except TypeError, t:
-			print '[-] Type error: ', t
+			Error('Type error: %s'%t)
 			traceback.print_exc(file=sys.stdout)
 			return
 		except Exception, j:
-			print "[-] Error sniffing: ", j
+			Error('Error sniffing: %s'%(j))
 			return
 		# return to_ip for storage
 		return self.to_ip
@@ -84,7 +85,7 @@ class ARPSpoof:
 				sendp(pkt, iface_hint=target)
 				time.sleep(3)
 		except Exception, j:
-			print '[-] Spoofer error: ', j
+			Error('Spoofer error: %s'%j)
 			return 
 	
 	#
@@ -117,7 +118,7 @@ class ARPSpoof:
 		try:
 			dns_name = raw_input('[!] Enter DNS record to spoof (site): ')
 			if dns_name in self.dns_spoofed_pair:
-				print '[-] DNS is already being spoofed (%s).'%(self.dns_spoofed_pair[dns_name])
+				Msg('DNS is already being spoofed (%s).'%(self.dns_spoofed_pair[dns_name]))
 				return
 			dns_spoofed = raw_input('[!] Spoof DNS entry for %s to: '%dns_name)
 			tmp = raw_input('[!] Spoof DNS record for %s to %s.  Is this correct? '%(dns_name,dns_spoofed))
@@ -176,5 +177,5 @@ class ARPSpoof:
 				self.dns_dump = False
 				return
 		else:
-			print '[-] No view for ARP poison.  Enable a sniffer for detailed analysis.'
+			Msg('No view for ARP poison.  Enable a sniffer for detailed analysis.')
 			return

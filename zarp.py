@@ -1,7 +1,7 @@
 #! /usr/local/bin/python
 import os, sys
 sys.path.insert(0, os.getcwd() + '/modules/')
-from util import print_menu, header
+from util import print_menu, header, Error, Msg
 import stream, session_manager, parse_cmd
 from commands import getoutput
 
@@ -15,7 +15,6 @@ def main():
 	# handle command line options first
 	if len(sys.argv) > 1:
 		parse_cmd.parse(sys.argv)
-		sys.exit(1)
 
 	# menus
 	main_menu =    [ 'Poisoners', 'DoS Attacks', 'Sniffers', 'Scanners',
@@ -38,7 +37,7 @@ def main():
 			# check if they've got running sessions! 
 			cnt = stream.get_session_count()
 			if cnt > 0:
-				print '[!] You have %d sessions running.  Are you sure?'%cnt
+				Msg('You have %d sessions running.  Are you sure?'%cnt)
 				choice = raw_input('> ')
 				if choice == 'y':
 					stream.stop_session('all', -1)
@@ -115,7 +114,7 @@ def main():
 				elif choice == 1:
 					stream.initialize('wep_crack')	
 				elif choice == 2:
-					print '[-] Not implemented.'
+					Error('Not implemented.')
 				elif choice == 3:
 					stream.initialize('router_pwn')	
 				elif choice == -1:
@@ -130,13 +129,13 @@ def main():
 if __name__=="__main__":
 	# perm check
 	if int(os.getuid()) > 0:
-		print "[-] Please run as root."
+		Error('Please run as root.')
 		sys.exit(1)
 	# check for forwarding
 	if not getoutput('cat /proc/sys/net/ipv4/ip_forward') == '1':
-		print '[-] IPv4 forwarding disabled.  Enabling..'
+		Msg('IPv4 forwarding disabled.  Enabling..')
 		tmp = getoutput('sudo sh -c \'echo "1" > /proc/sys/net/ipv4/ip_forward\'')	
 		if len(tmp) > 0:
-			print '[-] Error enabling IPv4 forwarding.'
+			Error('[-] Error enabling IPv4 forwarding.')
 			sys.exit(1)
 	main()

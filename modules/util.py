@@ -1,4 +1,5 @@
 from signal import SIGINT
+from datetime import date, datetime
 from commands import getoutput
 from subprocess import Popen
 import os
@@ -7,14 +8,37 @@ import os
 # Class houses utility functions
 #
 
+isDebug = False
+DEBUG_LOG = 'zarp_debug.log'
+
 # zarp version
 def version():
-	return 0.02
+	return 0.03
 
 # zarp header
 def header():
 	print "\t        [\033[31mZARP\033[0m]\t\t" #red
-	print "\t    [\033[33mVersion %s\033[0m]\t\t\t"%(version()) #yellow
+	print "\t    [\033[32mVersion %s\033[0m]\t\t\t"%(version()) #yellow
+
+#
+# Print the passed error message in red formatted text!
+#
+def Error(msg):
+	print '\033[31m[-] %s'%(msg)
+	if isDebug:
+		debug(msg)	
+
+#
+# Print a warning/message in yellow formatted text!
+#
+def Msg(msg):
+	print '\033[33m[!] %s'%(msg)
+
+# if debugging, write to dbg file
+def debug(msg):
+	if isDebug and not os.path.islink(DEBUG_LOG):
+		with open(DEBUG_LOG, 'a+') as f:
+			f.write(format('[%s %s] %s'%(date.today().isoformat(), datetime.now().strftime("%I:%M%p"), msg)))
 
 # return the next IP address following the given IP address.
 # It needs to be converted to an integer, then add 1, then converted back to an IP address
@@ -108,16 +132,14 @@ def enable_monitor():
 # Kill the monitoring adapter
 #
 def disable_monitor():
-	tmp = init_app('iwconfig', True)
-	iface = None
-	for line in tmp.split('\n'):
-		if line.startswith(' '):
-			continue
-		elif len(line.split(' ')[0]) > 1:
-			if 'Mode:Monitor' in line:
-				adapt = line.split(' ')[0]
-				tmp = getoutput('airmon-ng stop %s'%adapt)
-				print '[dbg] killed monitor adapter ', adapt 
+	try:
+		adapt = get_monitor_adapter()
+		if not adapt is None:
+			tmp = getoutput('airmon-ng stop %s'%adapt)
+			print '[dbg] killed monitor adapter ', adapt 
+	except Exception, j:
+		print '[dbg] error killing monitor adapter: ', j
+
 #
 # check if a local file exists
 # TRUE if it does, FALSE otherwise
@@ -146,7 +168,7 @@ def print_menu(arr):
 	try:
 		choice = (raw_input('> '))
 		if 'info' in choice:
-			print '[-] Module \'info\' not implemented yet.'
+			Error('Module \'info\' not implemented yet.')
 			#stream.view_info(choice.split(' ')[1])	
 			choice = -1
 		elif 'quit' in choice:

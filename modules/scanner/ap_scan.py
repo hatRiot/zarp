@@ -10,12 +10,12 @@ import util
 def initialize():
 	try:
 		if not util.check_program('airmon-ng'):
-			print '[-] airomon-ng not installed.  Please install to continue.'
+			util.Error('airomon-ng not installed.  Please install to continue.')
 			return False
 		print '[!] (ctrl^c) when finished.'
 		iface = util.get_monitor_adapter()
 		if iface is None:
-			print '[!] No devices found in monitor mode.  Enabling...'
+			util.Msg('No devices found in monitor mode.  Enabling...')
 			iface = util.enable_monitor()
 		print '[dbg] using interface %s'%iface
 		ap_scan(iface)

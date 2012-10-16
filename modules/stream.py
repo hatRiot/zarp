@@ -2,6 +2,7 @@ import os, sys, gc
 sys.path[:0] = [str(os.getcwd()) + '/modules/sniffer/', str(os.getcwd()) + '/modules/dos/', 
 				str(os.getcwd()) + '/modules/poison/', str(os.getcwd())+'/modules/scanner/',
 				str(os.getcwd()) + '/modules/parameter/'] 
+import util
 from arp import ARPSpoof
 from dns import DNSSpoof
 from dhcp import DHCPSpoof
@@ -93,7 +94,7 @@ def initialize(module):
 			nbnspoof = tmp
 		print '[dbg] is nbns running: ', nbnspoof.running
 	else:
-		print '[-] Module \'%s\' does not exist.'%module
+		Error('[-] Module \'%s\' does not exist.'%module)
 
 #
 # Dump running sessions
@@ -179,7 +180,7 @@ def stop_session(module, number):
 				del(password_sniffers[ip])
 	elif module == 'all' and number == -1:
 		# this is the PANIC KILL ALL signal
-		print '[!] Shutting all sessions down...'
+		Msg('Shutting all sessions down...')
 		for i in arp_sessions:
 			arp_sessions[i].shutdown()
 		for i in http_sniffers:
@@ -236,8 +237,8 @@ def start_log_session(module, number, file_location):
 		else:
 			print '[-] Module \'%s\' does not have a logger.'%module
 	else:
-		print '[-] %s session \'%s\' could not be found.'%(module, number)
-		print '[-] Logging canceled.'
+		Error('%s session \'%s\' could not be found.'%(module, number))
+		Error('Logging canceled.')
 
 #
 # Stop logging a session 
@@ -252,27 +253,27 @@ def stop_log_session(module, number):
 			print '[dbg] Stopping pass logger..'
 			password_sniffers[ip].log(False, None)
 		else:
-			print '[-] Module \'%s\' does not have a logger.'%module 
+			Error('Module \'%s\' does not have a logger.'%module)
 	else:
-		print '[-] %s session \'%s\' could not be found.'%(module, number)
-		print '[-] Logging could not be stopped.'
+		Error('%s session \'%s\' could not be found.'%(module, number))
+		Error('Logging could not be stopped.')
 #
 # Internal function for grabbing IP address from a module/index
 #
 def get_key(module, number):
 	if module == 'http':
 		if len(http_sniffers) <= number:
-			print '[-] Invalid session number (0-%d)'%len(http_sniffers)
+			Error('Invalid session number (0-%d)'%len(http_sniffers))
 			return None
 		return http_sniffers.keys()[number]
 	elif module == 'pass':
 		if len(password_sniffers) <= number:
-			print '[-] Invalid session number (0-%d)'%len(password_sniffers)
+			Error('Invalid session number (0-%d)'%len(password_sniffers))
 			return None
 		return password_sniffers.keys()[number]
 	elif module == 'arp' or module == 'dns':
 		if len(arp_sessions) <= number:
-			print '[-] Invalid session number (0-%d)'%len(arp_sessions)
+			Error('Invalid session number (0-%d)'%len(arp_sessions))
 			return None
 		return arp_sessions.keys()[number]
 	elif module == 'none' and number == -1:
@@ -290,7 +291,7 @@ def get_session_input():
 		if not module is None and not number is None:
 			return (str(module), int(number))
 	except Exception: 
-		print '[-] Error: Must specify [module] followed by [number]\n'
+		Error('Must specify [module] followed by [number]\n')
 		return (None, None)
 
 #

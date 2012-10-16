@@ -1,4 +1,5 @@
 import socket, time
+from util import Error
 from scapy.all import *
 
 #
@@ -48,7 +49,7 @@ class NetMap:
 				self.available_hosts[mac] = ip
 		except Exception, j:
 		  	print '[dbg] error: ', j
-			print '[-] Error with net mask.  Cannot scan given block.'
+			Error('Error with net mask.  Cannot scan given block.')
 			return
 		print '\n'
 

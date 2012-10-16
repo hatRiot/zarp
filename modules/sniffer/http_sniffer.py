@@ -1,4 +1,5 @@
 import stream 
+from util import Error
 from threading import Thread
 from scapy.all import *
 
@@ -74,7 +75,7 @@ class HTTPSniffer:
 				print '[dbg] starting logger...'
 				self.log_file = open(log_loc, 'w+')
 			except Exception, j:
-				print '[-] Error opening log file: ', j
+				Error('Error opening log file: %s'%j)
 				self.log_file = None
 				return
 			self.log_data = True

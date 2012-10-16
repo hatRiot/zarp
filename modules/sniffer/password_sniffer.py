@@ -1,4 +1,5 @@
 import stream
+from util import Error
 from scapy.all import *
 from threading import Thread
 
@@ -86,7 +87,7 @@ class PasswordSniffer:
 				print '[dbg] starting logger..'
 				self.log_file = open(log_loc, 'w+')
 			except Exception, j:
-				print '[-] Error opening log file: ', j
+				Error('Error opening log file: %s'%j)
 				self.log_file = None
 				return
 			self.log_data = True

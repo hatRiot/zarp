@@ -55,12 +55,12 @@ def service_scan ( block, service ):
 				try:
 					tmp.append(services[i])
 				except:
-					print '[-] \'%s\' is not a supported service.'%i
+					util.Error('\'%s\' is not a supported service.'%i)
 					continue
 	elif service in services:
 		tmp.append(services[service])
 	else:
-		print '[-] Service \'%s\' not recognized.'%(service)
+		util.Error('Service \'%s\' not recognized.'%(service))
 		return
 	service = tmp
 	
@@ -73,6 +73,7 @@ def service_scan ( block, service ):
 			for port in service:
 				if port is 67: 
 					dhcp_scan()
+					continue
 				elif port is 161:
 					snmp_query(ip)
 					continue
@@ -82,14 +83,11 @@ def service_scan ( block, service ):
 					print '\t  %d \t %s'%(pkt[TCP].sport, 'open')
 					if port is services['ftp']:
 						ftp_info(ip)
-						continue
 					elif port is services['ssh']:
 						# todo: change this up so if ssh is on another port...
 						ssh_info(ip,port)
-						continue
 					elif port is services['smb']: 
 						smb_info(ip)
-						continue
 				sr(IP(dst=ip)/TCP(flags='FA',dport=port),timeout=1)
 	except Exception, j:
 		print '[dbg] error: ', j
@@ -112,7 +110,7 @@ def dhcp_scan():
 			print '\t{0:20} {1:20}'.format(f[IP].src, f[Ether].src)
 		print '\n'
 	else:
-		print '[-] No DHCP servers found.'
+		util.Msg('No DHCP servers found.')
 	
 #
 # query and dump snmp info
