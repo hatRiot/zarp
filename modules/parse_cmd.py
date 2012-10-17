@@ -40,6 +40,6 @@ def parse(sysv):
 		except KeyboardInterrupt,Exception:
 			util.Msg("Exiting sniffer..")
 	elif options.wifind: 
-		debug("beginning wireless AP scan..")
+		util.debug("beginning wireless AP scan..")
 		ap_scan.initialize()
 	sys.exit(1)

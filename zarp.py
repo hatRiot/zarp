@@ -136,6 +136,6 @@ if __name__=="__main__":
 		Msg('IPv4 forwarding disabled.  Enabling..')
 		tmp = getoutput('sudo sh -c \'echo "1" > /proc/sys/net/ipv4/ip_forward\'')	
 		if len(tmp) > 0:
-			Error('[-] Error enabling IPv4 forwarding.')
+			Error('Error enabling IPv4 forwarding.')
 			sys.exit(1)
 	main()

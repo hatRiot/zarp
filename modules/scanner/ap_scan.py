@@ -17,7 +17,7 @@ def initialize():
 		if iface is None:
 			util.Msg('No devices found in monitor mode.  Enabling...')
 			iface = util.enable_monitor()
-		debug('Using interface %s'%iface)
+		util.debug('Using interface %s'%iface)
 		ap_scan(iface)
 	except Exception, KeyboardInterrupt:
 		return
@@ -30,6 +30,6 @@ def ap_scan(adapt):
 		print '[!] Scanning for access points...'
 		os.system('airodump-ng %s'%adapt)
 	except Exception, j:
-		Error('Error scanning: %s'%j)
+		util.Error('Error scanning: %s'%j)
 		util.disable_monitor()
 	util.disable_monitor()
