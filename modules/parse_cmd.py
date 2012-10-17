@@ -34,12 +34,12 @@ def parse(sysv):
 	elif options.service:
 		service_scan.initialize()
 	elif options.filter is not None:
-		print '[dbg] performing basic sniffer with filter [%s]'%options.filter
+		util.debug("Performing basic sniffer with filter [%s]"%options.filter)
 		try:
 			sniff(filter=options.filter,store=0, prn=lambda x: x.summary())
 		except KeyboardInterrupt,Exception:
-			print '[!] Exiting sniffer..'
+			util.Msg("Exiting sniffer..")
 	elif options.wifind: 
-		print '[dbg] beginning wireless AP scan..'
+		debug("beginning wireless AP scan..")
 		ap_scan.initialize()
 	sys.exit(1)

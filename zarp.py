@@ -1,7 +1,7 @@
 #! /usr/local/bin/python
 import os, sys
 sys.path.insert(0, os.getcwd() + '/modules/')
-from util import print_menu, header, Error, Msg
+from util import print_menu, header, Error, Msg, debug
 import stream, session_manager, parse_cmd
 from commands import getoutput
 
@@ -43,8 +43,8 @@ def main():
 					stream.stop_session('all', -1)
 					running = False	
 			else:
-				print '[dbg] session count: ', cnt
-				print "Exiting..."
+				debug("Exiting with session count: %d"%(cnt))
+				Msg("Exiting...")
 				running = False
 		elif choice == 1:
 			while True:

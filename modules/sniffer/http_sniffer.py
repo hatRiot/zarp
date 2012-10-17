@@ -1,5 +1,5 @@
 import stream 
-from util import Error
+import util
 from threading import Thread
 from scapy.all import *
 
@@ -40,7 +40,7 @@ class HTTPSniffer:
 	def stop_callback(self):
 		if self.sniff:
 			return False
-		print '[dbg] http sniffer shutdown'
+		util.debug('http sniffer shutdown')
 		return True
 	#
 	# dump the HTTP payload to the screen IF they're viewing the session
@@ -72,10 +72,10 @@ class HTTPSniffer:
 	def log(self, opt, log_loc):
 		if opt and not self.log_data:
 			try:
-				print '[dbg] starting logger...'
+				util.debug("Starting HTTP logger")	
 				self.log_file = open(log_loc, 'w+')
 			except Exception, j:
-				Error('Error opening log file: %s'%j)
+				util.Error('Error opening log file: %s'%j)
 				self.log_file = None
 				return
 			self.log_data = True
@@ -84,9 +84,9 @@ class HTTPSniffer:
 				self.log_file.close()
 				self.log_file = None
 				self.log_data = False
-				print '[dbg] logger shutdown completed.'
+				util.debug('HTTP logger shutdown completed.')
 			except Exception, j:
-				print '[dbg] Error closing logger: ', j
+				util.Error('Error closing logger: %s'%j)
 			
 	#
 	# Shutdown the sniffer; there's not much to do but close the sniffing thread and any
@@ -98,5 +98,5 @@ class HTTPSniffer:
 		# if logging, gracefully close file handles
 		if self.log_data:
 			self.log(False, None)
-		print '[dbg] http sniffer shutting down'
+		util.debug('http sniffer shutting down')
 		return True

@@ -2,7 +2,7 @@ import os, sys, gc
 sys.path[:0] = [str(os.getcwd()) + '/modules/sniffer/', str(os.getcwd()) + '/modules/dos/', 
 				str(os.getcwd()) + '/modules/poison/', str(os.getcwd())+'/modules/scanner/',
 				str(os.getcwd()) + '/modules/parameter/'] 
-import util
+from util import Error, Msg, debug
 from arp import ARPSpoof
 from dns import DNSSpoof
 from dhcp import DHCPSpoof
@@ -33,14 +33,13 @@ netscan = rogue_dhcp = nbnspoof = None
 #
 def initialize(module):
 	global netscan,rogue_dhcp,nbnspoof
-	print '[dbg] Received module start for: ', module
+	debug("Received module start for: %s"%(module))
 	if module == 'arp':
 		tmp = ARPSpoof() 
 		to_ip = tmp.initialize()
 		if not to_ip is None:
-			print '[dbg] Storing session for ', to_ip
+			debug("Storing session for %s"%to_ip)
 			arp_sessions[to_ip] = tmp
-			print '[dbg] is running: ',arp_sessions[to_ip].isRunning()
 		del(tmp)
 	elif module == 'dns':
 		dump_module_sessions('arp')
@@ -58,13 +57,13 @@ def initialize(module):
 		tmp = HTTPSniffer()
 		to_ip = tmp.initialize()
 		if not to_ip is None:
-			print '[dbg] Storing sniffer for ', to_ip
+			debug("Storing sniffer for %s"%to_ip)
 			http_sniffers[to_ip] = tmp
 	elif module == 'password_sniffer':
 		tmp = PasswordSniffer()
 		to_ip = tmp.initialize()
 		if not to_ip is None:
-			print '[dbg] Storing session for ', to_ip
+			debug("Storing session for %s"%to_ip)
 			password_sniffers[to_ip] = tmp
 	elif module == 'nestea':
 		nestea_dos.initialize()
@@ -92,7 +91,6 @@ def initialize(module):
 		tmp = NBNSSpoof()
 		if tmp.initialize():
 			nbnspoof = tmp
-		print '[dbg] is nbns running: ', nbnspoof.running
 	else:
 		Error('[-] Module \'%s\' does not exist.'%module)
 
@@ -112,9 +110,13 @@ def dump_sessions():
 	if len (http_sniffers) > 0: print '[!] HTTP SNIFFERS [http]:'
 	for (counter, session) in enumerate(http_sniffers):
 		print '\t[%d] %s'%(counter, session)
+		if http_sniffers[session].log_data:
+			print '\t|--> Logging to ', http_sniffers[session].log_file.name
 	if len(password_sniffers) > 0: print '[!] PASSWORD SNIFFERS [pass]:'
 	for (counter, session) in enumerate(password_sniffers):
 		print '\t[%d] %s'%(counter, session)
+		if password_sniffers[session].log_data:
+			print '\t|--> Logging to ', password_sniffers[session].log_file.name
 	if not netscan is None:
 		# we dont save a history of scans; just the last one
 		print '\n[0] NetMap Scan [netmap]'
@@ -161,21 +163,20 @@ def stop_session(module, number):
 	ip = get_key(module, number)
 	if not ip is None:
 		if module == 'arp':
-			print '[dbg] killing ARP session for ip ', ip
+			debug("Killing ARP session for %s"%ip)
 			if arp_sessions[ip].shutdown():
 				del(arp_sessions[ip])
 		elif module == 'dns':
-			print '[dbg] killing DNS sessions for ip ', ip
+		  	debug("Killing DNS sessions for %s"%ip)
 			arp_sessions[ip].stop_dns_spoof()
-			print '[dbg] is dns running anymore: ',arp_sessions[ip].dns_spoof
 		elif module == 'ndp':
-			print '[-] Not implemented'
+		  	Error("NDP not implemented")
 		elif module == 'http':
-			print '[dbg] killing HTTP sniffer for ip ', ip
+		  	debug("Killing HTTP sniffer for %s"%ip)
 			if http_sniffers[ip].shutdown():
 				del(http_sniffers[ip])
 		elif module == 'pass':
-			print '[dbg] killing password sniffer for ip ', ip
+		  	debug("Killing password sniffer for %s"%ip)
 			if password_sniffers[ip].shutdown():
 				del(password_sniffers[ip])
 	elif module == 'all' and number == -1:
@@ -207,17 +208,16 @@ def view_session(module, number):
 	global netscan
 	ip = get_key(module, number)
 	if module == 'netmap':
-		print '[dbg] dumping netmap scan'
 		netscan.view()
 	elif not ip is None:
 		if module == 'http':
-			print '[dbg] beginning HTTP dump for ip ', ip
+			debug("Beginning HTTP dump for %s"%ip)
 			http_sniffers[ip].view()
 		elif module == 'pass':
-			print '[dbg] beginning password dump for ip ', ip
+			debug("Beginning password dump for %s"%ip)
 			password_sniffers[ip].view()
 		elif module == 'arp' or module == 'dns':
-			print '[dbg] beginning ARP/DNS dump for ',ip
+			debug("Beginning ARP/DNS dump for %s"%ip)
 			arp_sessions[ip].view()
 	else:
 		return
@@ -229,13 +229,13 @@ def start_log_session(module, number, file_location):
 	ip = get_key(module, number)
 	if not ip is None:
 		if module == 'http':
-			print '[dbg] Starting http logger..'
+			debug("Beginning HTTP logger")
 			http_sniffers[ip].log(True, file_location)
 		elif module == 'pass':
-			print '[dbg] Starting password logger..'
+			debug("Beginning password logger")
 			password_sniffers[ip].log(True, file_location)
 		else:
-			print '[-] Module \'%s\' does not have a logger.'%module
+			Error('Module \'%s\' does not have a logger.'%module)
 	else:
 		Error('%s session \'%s\' could not be found.'%(module, number))
 		Error('Logging canceled.')
@@ -247,10 +247,10 @@ def stop_log_session(module, number):
 	ip = get_key(module, number)
 	if not ip is None:
 		if module == 'http':
-			print '[dbg] Stopping http logger..'
+			debug("Stopping HTTP logger")
 			http_sniffers[ip].log(False, None)
 		elif module == 'pass':
-			print '[dbg] Stopping pass logger..'
+			debug("Stopping password logger")
 			password_sniffers[ip].log(False, None)
 		else:
 			Error('Module \'%s\' does not have a logger.'%module)
@@ -287,7 +287,6 @@ def get_session_input():
 	try:
 		tmp = raw_input('[module] [number]> ')
 		(module, number) = tmp.split(' ')
-		print '[dbg] got: %s and %s'%(module, number)
 		if not module is None and not number is None:
 			return (str(module), int(number))
 	except Exception: 

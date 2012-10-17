@@ -39,7 +39,7 @@ def menu():
 			if util.does_file_exist(file_path):
 				util.Error('File already exists.')
 				return
-			Msg('Module must be a sniffer.')
+			util.Msg('Module must be a sniffer.')
 			module = None
 			(module, number) = get_session_input()
 			try:
@@ -49,7 +49,7 @@ def menu():
 				else:
 					return
 			except Exception, j:
-				print '[dbg] Exception: ',j
+				util.Error('Error logging to given file')
 				return
 			if tmp == 'n':
 				return
@@ -68,7 +68,6 @@ def get_session_input():
 	try:
 		tmp = raw_input('[module] [number]> ')
 		(module, number) = tmp.split(' ')
-		print '[dbg] got: %s and %s'%(module, number)
 		if not module is None and not number is None:
 			return (module, number)
 	except Exception: 

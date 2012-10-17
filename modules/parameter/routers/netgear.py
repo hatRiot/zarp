@@ -1,4 +1,4 @@
-import util
+from util import Error
 import urllib
 
 #
@@ -23,7 +23,7 @@ def run ( run ):
 		try:
 			response = urllib.urlopen(url)
 		except Exception, j:
-			print '[-] Error connecting to host: ', j
+			Error('Error connecting to host: %s'%j)
 			return
 		print response.read()
 	else:

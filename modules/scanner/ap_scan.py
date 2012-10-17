@@ -12,12 +12,12 @@ def initialize():
 		if not util.check_program('airmon-ng'):
 			util.Error('airomon-ng not installed.  Please install to continue.')
 			return False
-		print '[!] (ctrl^c) when finished.'
+		util.Msg('(ctrl^c) when finished.')
 		iface = util.get_monitor_adapter()
 		if iface is None:
 			util.Msg('No devices found in monitor mode.  Enabling...')
 			iface = util.enable_monitor()
-		print '[dbg] using interface %s'%iface
+		debug('Using interface %s'%iface)
 		ap_scan(iface)
 	except Exception, KeyboardInterrupt:
 		return
@@ -29,7 +29,7 @@ def ap_scan(adapt):
 	try:
 		print '[!] Scanning for access points...'
 		os.system('airodump-ng %s'%adapt)
-	except Exception, j: 
-		print '[dbg] error: ', j
+	except Exception, j:
+		Error('Error scanning: %s'%j)
 		util.disable_monitor()
 	util.disable_monitor()

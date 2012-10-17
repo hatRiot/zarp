@@ -1,5 +1,5 @@
 import stream
-from util import Error
+import util
 from scapy.all import *
 from threading import Thread
 
@@ -41,7 +41,7 @@ class PasswordSniffer:
 	def shutdown(self):
 		if self.sniff:
 			self.sniff = False
-		print '[dbg] password sniffer shutting down'
+		util.debug('password sniffer shutting down')
 		return True
 
 	#
@@ -75,7 +75,7 @@ class PasswordSniffer:
 	def stop_callback(self):
 		if self.sniff:
 			return False
-		print '[dbg] password sniffer shutdown'
+		util.debug('password sniffer shutdown')
 		return True
 
 	#
@@ -84,10 +84,10 @@ class PasswordSniffer:
 	def log(self, opt, log_loc):
 		if opt and not self.log_data:
 			try:
-				print '[dbg] starting logger..'
+				util.debug('Starting password logger..')
 				self.log_file = open(log_loc, 'w+')
 			except Exception, j:
-				Error('Error opening log file: %s'%j)
+				util.Error('Error opening log file: %s'%j)
 				self.log_file = None
 				return
 			self.log_data = True
@@ -96,8 +96,8 @@ class PasswordSniffer:
 				self.log_file.close()
 				self.log_file = None
 				self.log_data = False
-				print '[dbg] Logger shutdown completed.'
+				util.debug('Password logger shutdown completed.')
 			except Exception, j:
-				print '[dbg] Error closing logger: ', j
+				util.Error('Error closing logger: %s'%j)
 				self.log_data = False
 				return

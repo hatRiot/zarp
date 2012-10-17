@@ -1,4 +1,5 @@
 import socket, commands
+from util import Error, Msg, debug
 import re
 
 #
@@ -28,19 +29,19 @@ def initialize():
 					sock.send(pkt)
 					break	
 			except Exception, j:
-				print '[-] Connection error [%s]'%j
+				Error('Connection error [%s]'%j)
 				break
 		sock.close()
 		print '[!] Complete, checking remote address...'
 		rval = commands.getoutput('ping -c 1 -w 1 %s'%addr[0])
 		up = re.search('\d.*? received', rval)
 		if re.search('0', up.group(0)) is None:
-			print '[-] Host appears to be up'
+			Msg('Host appears to be up')
 		else:
 			print '[+] Host is not responding - it is either down or rejecting our probes.'
 	except Exception, j:
-		print '[dbg] Error: ', j		
-		print '[-] Remote host not susceptible to vulnerability.'
+		debug("Error with SMB2: %s"%j)
+		Error('Remote host not susceptible to vulnerability.')
 		return
 
 #

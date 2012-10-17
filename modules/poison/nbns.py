@@ -65,13 +65,14 @@ class NBNSSpoof:
 	def stop_call(self):
 		if self.running:
 			return False
-		print '[dbg] nbns spoofer shutdown'
+		util.debug('nbns spoofer shutdown')
 		return True
 
 	#
 	# callback shutdown
 	#
 	def shutdown(self):
+		util.Msg("Shutting down NBNS spoofer...")
 		if self.running:
 			self.running = False
 		return True

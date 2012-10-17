@@ -1,4 +1,5 @@
 import commands, re
+from util import Msg, Error
 from os import system
 from scapy.all import *
 
@@ -26,7 +27,7 @@ def initialize():
 			rval = commands.getoutput('ping -c 1 -w 1 %s'%ip)
 			up = re.search("\d.*? received", rval)
 			if re.search("0", up.group(0)) is None:
-				print '[-] Host appears to still be up.'
+				Msg('Host appears to still be up.')
 				try:
 					tmp = raw_input('[!] Try again? ')
 				except Exception:
@@ -34,10 +35,10 @@ def initialize():
 				if tmp == 'n':
 					break
 			else:
-				print '[+] Host not responding!'
+				Msg('Host not responding!')
 				break
 	except Exception, j:
-		print '[-] Error with given address.  Could not complete DoS.'
+		Error('Error with given address.  Could not complete DoS.')
 		return
 	
 def info():

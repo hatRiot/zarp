@@ -90,7 +90,7 @@ def service_scan ( block, service ):
 						smb_info(ip)
 				sr(IP(dst=ip)/TCP(flags='FA',dport=port),timeout=1)
 	except Exception, j:
-		print '[dbg] error: ', j
+		util.debug("error: %s"%j)	
 	print '\n'
 
 #
@@ -140,7 +140,7 @@ def ssh_info(ip, port):
 		print '\t  |- ',data
 		sock.close()
 	except Exception, j:
-		print '[dbg] error: ', j
+		util.debug('Error in SSH grab: %s'%j)
 		sock.close()
 	return	
 

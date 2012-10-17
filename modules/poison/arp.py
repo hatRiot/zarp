@@ -4,7 +4,7 @@ from threading import Thread
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 from scapy.all import *
 from time import sleep
-from util import Error, Msg
+from util import Error, Msg, debug
 import gc
 
 #
@@ -53,11 +53,11 @@ class ARPSpoof:
 			self.to_mac = getmacbyip(self.to_ip)
 			self.from_mac = getmacbyip(self.from_ip)
 			# send ARP replies to victim
-			print '[dbg] Beginning ARP spoof to victim...'
+			debug('Beginning ARP spoof to victim...')
 			victim_thread = Thread(target=self.respoofer, args=(self.from_ip, self.to_ip))
 			victim_thread.start()
 			# send ARP replies to spoofed address
-			print '[dbg] Beginning ARP spoof to spoofed host...'
+			debug('Beginning ARP spoof to spoofed host...')
 			target_thread = Thread(target=self.respoofer, args=(self.to_ip, self.from_ip))
 			target_thread.start()
 			self.spoofing = True
@@ -95,7 +95,7 @@ class ARPSpoof:
 	def test_stop(self):
 		if self.spoofing:
 			return False
-		print '[dbg] Stopping spoof threads'
+		debug("Stopping spoof threads..")
 		return True
 
 	#
@@ -126,7 +126,7 @@ class ARPSpoof:
 				return
 			self.dns_spoofed_pair[dns_name] = dns_spoofed
 			self.dns_spoof = True
-			print '[dbg] Starting DNS spoofer...'
+			debug('Starting DNS spoofer...')
 		except Exception:
 			return
 
@@ -144,7 +144,8 @@ class ARPSpoof:
 	def shutdown(self):
 		if not self.spoofing: 
 			return
-		print '[dbg] initiating ARP shutdown'
+		Msg("Initiating ARP shutdown...")
+		debug('initiating ARP shutdown')
 		self.spoofing = False
 		# rectify the ARP caches
 		sendp(Ether(dst=self.to_mac,src=self.from_mac)/ARP(op='who-has', 
@@ -153,9 +154,9 @@ class ARPSpoof:
 		sendp(Ether(dst=self.from_mac,src=self.to_mac)/ARP(op='who-has', 
 								psrc=self.to_ip,pdst=self.from_ip),
 						inter=1, count=3)
-		print '[dbg] ARP shutdown complete.'
+		debug('ARP shutdown complete.')
 		if self.dns_spoof:
-			print '[dbg] Stopping DNS spoofer'
+			debug('Stopping DNS spoofer')
 			self.dns_spoof = False
 		return True
 	

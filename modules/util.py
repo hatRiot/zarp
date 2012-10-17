@@ -24,7 +24,7 @@ def header():
 # Print the passed error message in red formatted text!
 #
 def Error(msg):
-	print '\033[31m[-] %s'%(msg)
+	print '\033[31m[-] %s\033[0m'%(msg)
 	if isDebug:
 		debug(msg)	
 
@@ -32,13 +32,13 @@ def Error(msg):
 # Print a warning/message in yellow formatted text!
 #
 def Msg(msg):
-	print '\033[33m[!] %s'%(msg)
+	print '\033[33m[!] %s\033[0m'%(msg)
 
 # if debugging, write to dbg file
 def debug(msg):
 	if isDebug and not os.path.islink(DEBUG_LOG):
 		with open(DEBUG_LOG, 'a+') as f:
-			f.write(format('[%s %s] %s'%(date.today().isoformat(), datetime.now().strftime("%I:%M%p"), msg)))
+			f.write(format('[%s %s] %s\n'%(date.today().isoformat(), datetime.now().strftime("%I:%M%p"), msg)))
 
 # return the next IP address following the given IP address.
 # It needs to be converted to an integer, then add 1, then converted back to an IP address
@@ -78,7 +78,7 @@ def init_app(prog, output):
 			null = open(os.devnull, 'w')
 			proc = Popen(prog, stdout=null, stderr=null)
 		except Exception,j:
-			print '[dbg] error init: ', j
+			Error("Error initializing app: %s"%j)
 			return False
 		return proc
 	# just grab output
@@ -92,7 +92,7 @@ def kill_app(proc):
 	try:
 		os.kill(proc.pid, SIGINT)
 	except Exception, j:
-		print '[dbg] error kill: ', j
+		Error("Error killing app: %s"%(j))
 		return False
 	return True
 
@@ -122,9 +122,9 @@ def enable_monitor():
 			try:
 				iface = line.split(' ')[0]
 				tmp = getoutput('airmon-ng start {0}'.format(iface))
-				print '[dbg] started \'%s\' in monitor mode'%iface
+				debug("started \'%s\' in monitor mode"%iface)
 			except Exception, j:
-				print 'error enabling monitor mode: ', j
+				Error("Error enabling monitor mode: %s"%j)
 			break
 	return get_monitor_adapter()
 
@@ -136,9 +136,9 @@ def disable_monitor():
 		adapt = get_monitor_adapter()
 		if not adapt is None:
 			tmp = getoutput('airmon-ng stop %s'%adapt)
-			print '[dbg] killed monitor adapter ', adapt 
+			debug('killed monitor adapter %s'%adapt)
 	except Exception, j:
-		print '[dbg] error killing monitor adapter: ', j
+		Error('error killing monitor adapter:%s'%j)
 
 #
 # check if a local file exists

