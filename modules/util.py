@@ -13,7 +13,7 @@ DEBUG_LOG = 'zarp_debug.log'
 
 # zarp version
 def version():
-	return 0.03
+	return "0.03A"
 
 # zarp header
 def header():
