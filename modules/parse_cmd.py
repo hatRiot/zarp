@@ -65,6 +65,7 @@ def parse(sysv):
 		tmp = SSHService()
 		tmp.initialize()
 	elif options.ftp:
+		util.Msg('Starting FTP server...')
 		tmp = FTPService()
 		tmp.initialize()
 	sys.exit(1)

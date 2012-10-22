@@ -1,7 +1,7 @@
 import os, sys, gc
 sys.path[:0] = [str(os.getcwd()) + '/modules/sniffer/', str(os.getcwd()) + '/modules/dos/', 
 				str(os.getcwd()) + '/modules/poison/', str(os.getcwd())+'/modules/scanner/',
-				str(os.getcwd()) + '/modules/parameter/'] 
+				str(os.getcwd()) + '/modules/parameter/', str(os.getcwd())+'/modules/services/'] 
 from util import Error, Msg, debug
 from arp import ARPSpoof
 from dns import DNSSpoof
@@ -11,6 +11,7 @@ from password_sniffer import PasswordSniffer
 from http_sniffer import HTTPSniffer
 from net_map import NetMap
 from wep_crack import WEPCrack
+from ftp import FTPService
 import dhcp, ndp_dos, nestea_dos, land_dos, smb2_dos,dhcp_starvation,service_scan
 import ap_scan, router_pwn, tcp_syn
 
@@ -24,6 +25,7 @@ import ap_scan, router_pwn, tcp_syn
 arp_sessions = {}
 http_sniffers = {}
 password_sniffers = {}
+services = {}
 global netscan,rogue_dhcp,nbnspoof	#dont manage 'many' of these; just overwrite the history of one
 netscan = rogue_dhcp = nbnspoof = None
 
@@ -91,8 +93,12 @@ def initialize(module):
 		tmp = NBNSSpoof()
 		if tmp.initialize():
 			nbnspoof = tmp
+	elif module == 'ftp_server':
+		tmp = FTPService()
+		tmp.initialize_bg()
+		services['ftp'] = tmp
 	else:
-		Error('[-] Module \'%s\' does not exist.'%module)
+		Error('Module \'%s\' does not exist.'%module)
 
 #
 # Dump running sessions
@@ -100,6 +106,8 @@ def initialize(module):
 def dump_sessions():
 	global arp_sessions, dns_sessions, rogue_dhcp, netscan, nbnspoof
 	print '\n\t[Running sessions]'
+
+	# dump arp poisons
 	if len(arp_sessions) > 0: print '[!] ARP POISONS [arp]:'
 	for (counter, session) in enumerate(arp_sessions):
 		print '\t[%d] %s'%(counter, session)
@@ -107,16 +115,28 @@ def dump_sessions():
 			print '\t|-> [!] DNS POISONS [dns]:'
 			for (counter,key) in enumerate(arp_sessions[session].dns_spoofed_pair):
 				print '\t|--> [%d] %s -> %s'%(counter,key,arp_sessions[session].dns_spoofed_pair[key])
+
+	# dump http sniffers
 	if len (http_sniffers) > 0: print '[!] HTTP SNIFFERS [http]:'
 	for (counter, session) in enumerate(http_sniffers):
 		print '\t[%d] %s'%(counter, session)
 		if http_sniffers[session].log_data:
 			print '\t|--> Logging to ', http_sniffers[session].log_file.name
+
+	# dump password sniffers
 	if len(password_sniffers) > 0: print '[!] PASSWORD SNIFFERS [pass]:'
 	for (counter, session) in enumerate(password_sniffers):
 		print '\t[%d] %s'%(counter, session)
 		if password_sniffers[session].log_data:
 			print '\t|--> Logging to ', password_sniffers[session].log_file.name
+	
+	# dump services
+	if len(services) > 0: print '[!] SERVICES [serv]:'
+	for (counter, session) in enumerate(services):
+		print '\t[%d] %s'%(counter, session)
+		if services[session].log_data:
+			print '\t|--> Logging to ', services[session].log_file.name
+
 	if not netscan is None:
 		# we dont save a history of scans; just the last one
 		print '\n[0] NetMap Scan [netmap]'
@@ -179,6 +199,10 @@ def stop_session(module, number):
 		  	debug("Killing password sniffer for %s"%ip)
 			if password_sniffers[ip].shutdown():
 				del(password_sniffers[ip])
+		elif module == 'serv':
+			debug('Killing service %s'%ip)
+			services[ip].shutdown()
+			del(services[ip])
 	elif module == 'all' and number == -1:
 		# this is the PANIC KILL ALL signal
 		Msg('Shutting all sessions down...')
@@ -219,6 +243,9 @@ def view_session(module, number):
 		elif module == 'arp' or module == 'dns':
 			debug("Beginning ARP/DNS dump for %s"%ip)
 			arp_sessions[ip].view()
+		elif module == 'serv':
+			Msg("Beginning Serv dump for %s"%ip)
+			services[ip].view()
 	else:
 		return
 
@@ -234,6 +261,9 @@ def start_log_session(module, number, file_location):
 		elif module == 'pass':
 			debug("Beginning password logger")
 			password_sniffers[ip].log(True, file_location)
+		elif module == 'serv':
+			debug('Beginning %s logger'%ip)
+			services[ip].log(True, file_location)
 		else:
 			Error('Module \'%s\' does not have a logger.'%module)
 	else:
@@ -252,6 +282,9 @@ def stop_log_session(module, number):
 		elif module == 'pass':
 			debug("Stopping password logger")
 			password_sniffers[ip].log(False, None)
+		elif module == 'serv':
+			debug('Stopping %s logger'%ip)
+			services[ip].log(False, None)
 		else:
 			Error('Module \'%s\' does not have a logger.'%module)
 	else:
@@ -276,6 +309,11 @@ def get_key(module, number):
 			Error('Invalid session number (0-%d)'%len(arp_sessions))
 			return None
 		return arp_sessions.keys()[number]
+	elif module == 'serv':
+		if len(services) <= number:
+			Error('Invalid session number (0-%d)'%len(services))
+			return None
+		return services.keys()[number]
 	elif module == 'none' and number == -1:
 		return None
 	return None

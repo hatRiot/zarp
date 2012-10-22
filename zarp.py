@@ -18,7 +18,7 @@ def main():
 
 	# menus
 	main_menu =    [ 'Poisoners', 'DoS Attacks', 'Sniffers', 'Scanners',
-				     'Parameter','Sessions']
+				     'Parameter','Spoofer','Sessions']
 	poison_menu =  [ 'ARP Poison', 'DNS Poison', 'DHCP Poison', 'NBNS Spoof']
 	dos_menu =     [ 'NDP', 'Nestea', 'LAND', 'TCP SYN', 'SMB2',
 					'DHCP Starve'
@@ -120,6 +120,19 @@ def main():
 				elif choice == -1:
 					pass
 		elif choice == 6:
+			while True:
+				choice = print_menu(spoofer_menu)
+				if choice == 0:
+					break
+				elif choice == 1:
+					stream.initialize('http_server')
+				elif choice == 2:
+					stream.initialize('ssh_server')
+				elif choice == 3:
+					stream.initialize('ftp_server')
+				elif choice == -1:
+					pass
+		elif choice == 7:
 			session_manager.menu()
 		elif choice == -1:
 			pass
