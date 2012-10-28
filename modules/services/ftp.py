@@ -76,7 +76,7 @@ class FTPService():
 						break
 				if self.dump: util.Msg("Received '%s:%s' from connection."%(self.usr, self.pwd))
 				if self.log_data: 
-					self.log_file.write('Received \'%s:%s\' from connection.\n'%(self.usr, self.pwd))
+					self.log_file.write('Received \'%s:%s\' from %s.\n'%(self.usr, self.pwd, str(addr)))
 				conn.close()
 		except KeyboardInterrupt:
 			pass
