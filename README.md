@@ -5,7 +5,7 @@ debug statements.  They will be removed once I near a more defined release.
 
 #[ZARP]
 <pre>
-Version 0.02
+Version 0.03A
 Network Attack Tool
 @ballastsec, @dronesec
 </pre>
@@ -44,7 +44,7 @@ These are functionally different from poisoners in that they provide a spoofed
 service.  For example, you could set up a fake SSH service or a honeypot FTP server 
 and poison a systems DNS to redirect to yours.  When you get a hit, remove the DNS 
 poison and allow it to resolve correctly.
-: Spoof HTTP Server, Spoof SSH Server :
+: HTTP, SSH, FTP : 
 	
 [PARAMETER]
 Parameter tools are for use when you're on the outside of a network.  These will 
@@ -65,26 +65,37 @@ Typing 'info [module]' will dump information and usage about the specified modul
 #[USE EXAMPLES]
 ## Command line options
 <pre>
-bryan@devbox:~/zarp$ sudo python zarp.py -h
+bryan@devbox:~/zarp$ sudo ./zarp.py --help
 Usage: zarp.py [options]
 
 Options:
-  -h, --help  show this help message and exit
-  -s SCAN     Quick network map
-  --finger    Fingerprint scan packets
-  -a          Service scan
-  -q FILTER   Quick network sniff with filter
-  -w ADAPTER  Wireless AP scan
+  -h, --help           show this help message and exit
+  -q FILTER            Quick network sniff with filter
+  --debug              Launch Zarp with error logging
+
+  Scanners:
+    -s SCAN            Quick network map
+    --finger           Fingerprint scan packets
+    -a                 Service scan
+    -w                 Wireless AP scan
+    --channel=CHANNEL  Set channel to scan on
+
+  Spoofers:
+    --nbns             NBNS Spoofing
+    --ssh              SSH server
+    --ftp              FTP server
+    --http             HTTP server
 bryan@devbox:~/zarp$ 
 </pre>
 ## Main menu
 <pre>
-bryan@devbox:~/zarp$ sudo python zarp.py
+bryan@devbox:~/zarp$ sudo ./zarp.py 
 	        [ZARP]		
-	    [Version 0.02]			
+	    [Version 0.03A]			
 	[1] Poisoners 	 [2] DoS Attacks
 	[3] Sniffers 	 [4] Scanners
-	[5] Parameter 	 [6] Sessions
+	[5] Parameter 	 [6] Spoofer
+	[7] Sessions
 
 0) Back
 > 
@@ -97,7 +108,6 @@ bryan@devbox:~/zarp$ sudo python zarp.py
 
 0) Back
 > 1
-[dbg] Received module start for:  arp
 [!] Using interface [eth2:08:00:27:2d:7a:6d]
 [!] Enter host to poison:	192.168.1.88
 [!] Enter address to spoof:	192.168.1.1
@@ -131,3 +141,4 @@ bryan@devbox:~/zarp$ sudo python zarp.py
 0) Back
 > 
 </pre>
+## 
