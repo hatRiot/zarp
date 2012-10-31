@@ -6,6 +6,7 @@ from net_map import NetMap
 from nbns import NBNSSpoof
 from ftp import FTPService
 from ssh import SSHService
+from http import HTTPService
 import service_scan, ap_scan,util
 from scapy.all import *
 
@@ -30,7 +31,7 @@ def parse(sysv):
 	spoof_group.add_option('--nbns', help='NBNS Spoofing', action='store_true',default=False,dest='nbns')
 	spoof_group.add_option('--ssh',help='SSH server', action='store_true',default=False,dest='ssh')
 	spoof_group.add_option('--ftp',help='FTP server', action='store_true',default=False,dest='ftp')
-
+	spoof_group.add_option('--http',help='HTTP server', action='store_true',default=False,dest='http')
 
 	parser.add_option_group(scan_group)
 	parser.add_option_group(spoof_group)	
@@ -68,4 +69,10 @@ def parse(sysv):
 		util.Msg('Starting FTP server...')
 		tmp = FTPService()
 		tmp.initialize()
+	elif options.http:
+		util.Msg('Starting HTTP server...')
+		tmp = HTTPService()
+		tmp.dump = True
+		tmp.initialize()
+		tmp.view()
 	sys.exit(1)

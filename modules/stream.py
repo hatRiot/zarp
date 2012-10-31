@@ -12,6 +12,7 @@ from http_sniffer import HTTPSniffer
 from net_map import NetMap
 from wep_crack import WEPCrack
 from ftp import FTPService
+from http import HTTPService
 import dhcp, ndp_dos, nestea_dos, land_dos, smb2_dos,dhcp_starvation,service_scan
 import ap_scan, router_pwn, tcp_syn
 
@@ -97,6 +98,10 @@ def initialize(module):
 		tmp = FTPService()
 		tmp.initialize_bg()
 		services['ftp'] = tmp
+	elif module == 'http_server':
+		tmp = HTTPService()
+		tmp.initialize_bg()
+		services['http'] = tmp
 	else:
 		Error('Module \'%s\' does not exist.'%module)
 
