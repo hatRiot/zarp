@@ -110,7 +110,13 @@ class HTTPService:
 class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 	def __init__(self, context, *args):
 		self.context = context
-		BaseHTTPServer.BaseHTTPRequestHandler.__init__(self, *args)
+		try:
+			BaseHTTPServer.BaseHTTPRequestHandler.__init__(self, *args)
+		except Exception as j:
+			# depending on where the pipe breaks, the error may propogate here
+			if j.errno == 32:
+				return
+			util.Error('Error: %s'%j)
 
 	def send_headers(self):
 		self.server_version = 'b4ll4sts3c http server'
@@ -157,7 +163,7 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 			else:
 				self.send_auth_headers()
 		except Exception as j:
-			if j[0] == 32:
+			if j.errono == 32:
 				# connection closed prematurely
 				return
 			util.Error('Error: %s'%j)	
