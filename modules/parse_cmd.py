@@ -27,8 +27,7 @@ def parse(sysv):
 	parser.add_option('--debug', help='Launch Zarp with error logging',action='store_true',default=False,dest='debug')
 
 	# spoof
-	spoof_group = OptionGroup(parser, "Spoofers")
-	spoof_group.add_option('--nbns', help='NBNS Spoofing', action='store_true',default=False,dest='nbns')
+	spoof_group = OptionGroup(parser, "Services")
 	spoof_group.add_option('--ssh',help='SSH server', action='store_true',default=False,dest='ssh')
 	spoof_group.add_option('--ftp',help='FTP server', action='store_true',default=False,dest='ftp')
 	spoof_group.add_option('--http',help='HTTP server', action='store_true',default=False,dest='http')
@@ -59,9 +58,6 @@ def parse(sysv):
 	elif options.wifind: 
 		util.debug("beginning wireless AP scan..")
 		ap_scan.initialize()
-	elif options.nbns:
-		tmp = NBNSSpoof()
-		tmp.initialize()	
 	elif options.ssh:
 		tmp = SSHService()
 		tmp.initialize()

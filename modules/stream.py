@@ -234,10 +234,12 @@ def stop_session(module, number):
 # Module should implement the .view() method for dumping information to.
 #
 def view_session(module, number):
-	global netscan
+	global netscan, nbnspoof
 	ip = get_key(module, number)
 	if module == 'netmap':
 		netscan.view()
+	elif module == 'nbns':
+		nbnspoof.view()
 	elif not ip is None:
 		if module == 'http':
 			debug("Beginning HTTP dump for %s"%ip)
