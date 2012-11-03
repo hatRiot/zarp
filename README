@@ -42,7 +42,7 @@ scenarios on live networks quickly, cleanly, and quietly.
 	service.  For example, you could set up a fake SSH service or a honeypot FTP server 
 	and poison a systems DNS to redirect to yours.  When you get a hit, remove the DNS 
 	poison and allow it to resolve correctly.
-	: Spoof HTTP Server, Spoof SSH Server :
+	: HTTP, FTP, SSH : 
 	
 	[PARAMETER]
 	Parameter tools are for use when you're on the outside of a network.  These will 

@@ -151,4 +151,6 @@ if __name__=="__main__":
 		if len(tmp) > 0:
 			Error('Error enabling IPv4 forwarding.')
 			sys.exit(1)
+	# load local scapy lib
+	sys.path[:0] = [str(os.getcwd()) + '/scapy'] 
 	main()

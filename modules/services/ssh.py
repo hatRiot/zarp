@@ -17,6 +17,7 @@ class SSHService:
 
 	def initialize(self):
 		util.Msg('Initializing SSH service...')
+		util.debug('SSL: %s'%ssl.OPENSSL_VERSION)
 
 		# test for openssl first
 		if not util.check_program('openssl'):
@@ -40,8 +41,11 @@ class SSHService:
 				util.Msg('Connection from %s'%str(addr))
 				ssl_con = ssl.wrap_socket(con, server_side=True,
 									certfile='cert.pem', keyfile='tmpkey.pem',
-									ssl_version=ssl.PROTOCOL_TLSv1)
+									ssl_version=ssl.PROTOCOL_SSLv23)
+				util.debug('Performing SSL handshake...')
+				ssl_con.do_handshake()
 				data = ssl_con.read()
+				print 'received: ', data
 				while data:
 					data = ssl_con.read()
 					print data
@@ -50,5 +54,5 @@ class SSHService:
 		except KeyboardInterrupt:
 			pass
 		except Exception, j:
-			print j
+			util.Error('Error: %s'%j)	
 		self.cleanup()

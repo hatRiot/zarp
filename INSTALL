@@ -1,8 +1,0 @@
-[ INSTALLING ZARP ]
-  [*] sudo ./setup.sh
-  [*] sudo python zarp.py
-
- You'll need Scapy and tcpdump.  The install script will setup scapy for you if you don't have it, but will function
- without a tcpdump install.  Use your local package manager if you run into issues and need it.
-
- Specific tools may require other packages.

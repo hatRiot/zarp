@@ -23,7 +23,7 @@ scenarios on live networks quickly, cleanly, and quietly.
 #[TOOL OVERVIEW] 
 [POISONERS]
 Various man in the middle tools provide a stepping stone for more complex attacks.
-: ARP, DNS, DHCP :
+: ARP, DNS, DHCP, NBNS :
 
 [DOS]
 Denial of service tools for rendering various systems unusable.

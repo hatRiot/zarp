@@ -3,10 +3,6 @@
 ## Copyright (C) Philippe Biondi <phil@secdev.org>
 ## This program is published under a GPLv2 license
 
-#
-# Modified by Ballast Security for the Zarp attack tool
-#
-
 import cPickle,os,sys,time,subprocess
 from select import select
 from data import *
