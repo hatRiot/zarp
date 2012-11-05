@@ -31,5 +31,5 @@ def ap_scan(adapt):
 		os.system('airodump-ng %s'%adapt)
 	except Exception, j:
 		util.Error('Error scanning: %s'%j)
+	finally:
 		util.disable_monitor()
-	util.disable_monitor()

@@ -64,6 +64,7 @@ def parse(sysv):
 	elif options.ftp:
 		util.Msg('Starting FTP server...')
 		tmp = FTPService()
+		tmp.dump = True
 		tmp.initialize()
 	elif options.http:
 		util.Msg('Starting HTTP server...')
