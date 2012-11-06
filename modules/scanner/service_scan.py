@@ -77,6 +77,9 @@ def service_scan ( block, service ):
 				elif port is 161:
 					snmp_query(ip)
 					continue
+				elif port is 53:
+					zone_transfer(ip)
+					continue
 				pkt = sr1(IP(dst=ip)/TCP(flags='S',dport=port),timeout=1)
 				if not pkt is None and pkt[TCP].getfieldval('flags') == 18L:
 					print '\t[+] %s'%(ip)
@@ -127,7 +130,11 @@ def snmp_query(ip):
 # TODO: better way than interfacing with dig?
 #
 def zone_transfer(addr):
-	pass
+	record = util.init_app("dig %s axfr"%addr, True)
+	if 'failed: connection refused.' in record:
+		util.Error('Host disallowed zone transfer')
+		return
+	print record
 
 #
 # ssh banner grab
