@@ -121,7 +121,7 @@ def dump_sessions():
 		if arp_sessions[session].dns_spoof:
 			print '\t|-> [!] DNS POISONS [dns]:'
 			for (counter,key) in enumerate(arp_sessions[session].dns_spoofed_pair):
-				print '\t|--> [%d] %s -> %s'%(counter,key,arp_sessions[session].dns_spoofed_pair[key])
+				print '\t|--> [%d] %s -> %s'%(counter,key.pattern,arp_sessions[session].dns_spoofed_pair[key])
 
 	# dump http sniffers
 	if len (http_sniffers) > 0: print '[!] HTTP SNIFFERS [http]:'
@@ -177,7 +177,7 @@ def dump_module_sessions(module):
 # Return the total number of running sessions
 #
 def get_session_count():
-	return len(arp_sessions) + len(http_sniffers)+ len(password_sniffers) + (1 if not rogue_dhcp is None else 0)
+	return len(arp_sessions) + len(http_sniffers)+ len(password_sniffers) + (1 if not rogue_dhcp is None else 0) + (1 if not nbnspoof is None else 0)
 
 #
 # Stop a specific session; this calls the .shutdown() method for the given object.

@@ -27,7 +27,7 @@ def initialize():
 #
 def ap_scan(adapt):
 	try:
-		print '[!] Scanning for access points...'
+		util.Msg('Scanning for access points...')
 		os.system('airodump-ng %s'%adapt)
 	except Exception, j:
 		util.Error('Error scanning: %s'%j)
