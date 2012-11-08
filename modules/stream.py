@@ -10,11 +10,10 @@ from nbns import NBNSSpoof
 from password_sniffer import PasswordSniffer
 from http_sniffer import HTTPSniffer
 from net_map import NetMap
-from wep_crack import WEPCrack
 from ftp import FTPService
 from http import HTTPService
 import dhcp, ndp_dos, nestea_dos, land_dos, smb2_dos,dhcp_starvation,service_scan
-import ap_scan, router_pwn, tcp_syn
+import ap_scan, router_pwn, tcp_syn, ap_crack
 
 #
 # Main data bus for interacting with the various modules.  Dumps information, initializes objects,
@@ -84,8 +83,11 @@ def initialize(module):
 	elif module == 'ap_scan':
 		return ap_scan.initialize()	
 	elif module == 'wep_crack':
-		tmp = WEPCrack()
-		tmp.initialize()
+		ap_crack.initialize('wep')
+	elif module == 'wpa_crack':
+		ap_crack.initialize('wpa')
+	elif module == 'wps_crack':
+		ap_crack.initialize('wps')
 	elif module == 'router_pwn':
 		router_pwn.initialize()
 	elif module == 'tcp_syn':

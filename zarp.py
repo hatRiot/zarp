@@ -26,7 +26,7 @@ def main():
 	sniffer_menu = [ 'HTTP Sniffer', 'Password Sniffer']
 	spoofer_menu = [ 'HTTP Server', 'SSH Server', 'FTP Server' ]
 	scanner_menu = [ 'NetMap', 'Service Scan', 'AP Scan']
-	parameter_menu = [ 'WEP Crack', 'WPA2 Crack', 'Router Pwn' ]
+	parameter_menu = [ 'WEP Crack', 'WPA2 Crack', 'WPS Crack', 'Router Pwn' ]
 	
 	running = True
 	choice = -1
@@ -114,8 +114,10 @@ def main():
 				elif choice == 1:
 					stream.initialize('wep_crack')	
 				elif choice == 2:
-					Error('Not implemented.')
+					stream.initialize('wpa_crack')	
 				elif choice == 3:
+					stream.initialize('wps_crack')
+				elif choice == 4:
 					stream.initialize('router_pwn')	
 				elif choice == -1:
 					pass
