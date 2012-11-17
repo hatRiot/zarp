@@ -67,6 +67,7 @@ class FTPService():
 		try:
 			while self.running:
 				conn, addr = self.serv_sock.accept()
+				conn.settimeout(5)
 				if self.dump: util.Msg('Connection from %s'%str(addr))
 				if self.log_data: self.log_file.write('Connection from %s\n'%str(addr))
 				self.response(conn, 220, self.motd)

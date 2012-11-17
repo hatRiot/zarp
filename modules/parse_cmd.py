@@ -15,16 +15,19 @@ from scapy.all import *
 #
 def parse(sysv):
 	parser = OptionParser()
-	
+
+	# other options
+	parser.add_option('-q', help='Quick network sniff with filter', action='store', dest='filter')
+	parser.add_option('--debug', help='Launch Zarp with error logging',action='store_true',default=False,dest='debug')
+	parser.add_option('--update', help='Update Zarp',action='store_true', default=False,dest='update')
+
 	# scanners
 	scan_group = OptionGroup(parser, "Scanners")
 	scan_group.add_option('-s', help='Quick network map', action='store', dest='scan')
 	scan_group.add_option('--finger', help='Fingerprint scan packets', action='store_true', default=False,dest='finger')
 	scan_group.add_option('-a', help='Service scan', action='store_true', default=False, dest='service')
-	parser.add_option('-q', help='Quick network sniff with filter', action='store', dest='filter')
 	scan_group.add_option('-w', help='Wireless AP scan', action='store_true', default=False,dest='wifind')
 	scan_group.add_option('--channel',help='Set channel to scan on',action='store', dest='channel')
-	parser.add_option('--debug', help='Launch Zarp with error logging',action='store_true',default=False,dest='debug')
 
 	# spoof
 	spoof_group = OptionGroup(parser, "Services")
@@ -41,7 +44,7 @@ def parse(sysv):
 		util.isDebug = True
 		return
 
-	# initiate the netmap module
+	# initiate 
 	if options.scan is not None:
 		tmp = NetMap()
 		tmp.net_mask = options.scan
@@ -50,7 +53,7 @@ def parse(sysv):
 	elif options.service:
 		service_scan.initialize()
 	elif options.filter is not None:
-		util.debug("Performing basic sniffer with filter [%s]"%options.filter)
+		util.Msg("Sniffing with filter [%s]...(ctrl^c to exit)"%options.filter)
 		try:
 			sniff(filter=options.filter,store=0, prn=lambda x: x.summary())
 		except KeyboardInterrupt,Exception:
@@ -72,4 +75,21 @@ def parse(sysv):
 		tmp.dump = True
 		tmp.initialize()
 		tmp.view()
+	elif options.update:
+		update()
 	sys.exit(1)
+
+#
+# Run update routine
+#
+def update():
+	if not util.does_file_exist('./.git/config'):
+		util.Error('Not a git repo; please checkout from Github with \n\tgit clone http://github.com/hatRiot/zarp.git\n to update.')
+	else:
+		util.Msg('Updating Zarp...')
+		ret = util.init_app('git pull git://github.com/hatRiot/zarp.git HEAD', True)
+		if 'Already up-to-date' in ret:
+			util.Msg('Zarp already up to date.')
+		else:
+			print 'Return from update: %s'%(ret)
+			util.Msg('Zarp updated to version %s'%(util.version()))
