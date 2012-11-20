@@ -3,7 +3,7 @@ import socket, ssl
 
 #
 # emulate a basic SSH service; store usernames/passwords but reject them all.
-# Certs too.
+# Certs toot.
 #
 class SSHService:
 	def __init__(self):
