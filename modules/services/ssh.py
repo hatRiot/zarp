@@ -36,10 +36,16 @@ class SSHService:
 				self.priv_key = raw_input('Enter private key path or [enter] to generate: ')
 				if len(self.priv_key) < 2:
 					self.priv_key = None
+				else:
+					# try reading the private key before starting
+					tmp = paramiko.RSAKey.from_private_key_file(self.priv_key)
 				break
+			except IOError:
+				util.Error('Error reading key.')
+				continue
 			except:
 				pass
-			
+		
 		util.Msg('Initializing SSH server...')
 		thread = Thread(target=self.initialize)
 		thread.start()
@@ -65,6 +71,8 @@ class SSHService:
 				util.debug('Generating RSA private key...')
 				tmp = util.init_app('openssl genrsa -out privkey.key 2048', True)
 				util.debug('privkey.key was generated.')
+		else:
+			self.priv_key = './privkey.key'
 
 		try:
 			server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -76,7 +84,7 @@ class SSHService:
 			while self.running:
 				con, addr = server_socket.accept()
 				
-				pkey = paramiko.RSAKey.from_private_key_file('./privkey.key')
+				pkey = paramiko.RSAKey.from_private_key_file(self.priv_key)
 				transport = paramiko.Transport(con)
 				transport.add_server_key(pkey)
 				transport.set_subsystem_handler('handler', paramiko.SFTPServer, SSHStub)
@@ -96,6 +104,9 @@ class SSHService:
 					 	continue
 					else:
 						raise Exception()
+				except IOError:
+					util.Error('There was an error reading the keyfile.')
+					return False
 				except EOFError:
 					# thrown when we dont get the key correctly, or
 					# remote host gets mad because the key changed
@@ -142,6 +153,7 @@ class SSHService:
 	def shutdown(self):
 		util.Msg('Shutting SSH server down...')
 		self.running = False
+		self.cleanup()
 		if self.log_data:
 			self.log(False, None)
 		util.Msg('SSH server shutdown.')

@@ -7,8 +7,6 @@ import stream, session_manager, parse_cmd, config
 
 #
 # Network Attack Tool; view README for more information.
-# 	[ZARP]
-#	v0.01
 #
 
 def main():
