@@ -2,6 +2,7 @@ from signal import SIGINT
 from datetime import date, datetime
 from commands import getoutput
 from subprocess import Popen
+import config
 import os, socket, fcntl, struct
 
 #
@@ -13,7 +14,7 @@ DEBUG_LOG = 'zarp_debug.log'
 
 # zarp version
 def version():
-	return "0.03A"
+	return "0.04A"
 
 # zarp header
 def header():
@@ -141,6 +142,20 @@ def disable_monitor():
 		Error('error killing monitor adapter:%s'%j)
 
 #
+# Verify that the given interface exists
+# TRUE if the adapter exists
+# FALSE if it was not found
+#
+def verify_iface(iface):
+	try:
+		tmp = init_app('ifconfig', True)
+		if not iface in tmp:
+			return False
+		return True
+	except Exception, j:
+		return False
+
+#
 # check if a local file exists
 # TRUE if it does, FALSE otherwise
 #
@@ -179,10 +194,20 @@ def print_menu(arr):
 			i += 1
 	print '\n0) Back'
 	try:
-		choice = (raw_input('> '))
+		choice = raw_input('> ')
 		if 'info' in choice:
-			Error('Module \'info\' not implemented yet.')
+			Error('\'info\' not implemented yet.')
 			#stream.view_info(choice.split(' ')[1])	
+			choice = -1
+		elif 'set' in choice:
+			opts = choice.split(' ')
+			if opts[1] is None or opts[2] is None:
+				return
+			print '[!] Setting \033[33m%s\033[0m -> \033[32m%s\033[0m..'%(opts[1], opts[2])
+			config.set(opts[1], opts[2])
+			choice = -1
+		elif 'opts' in choice:
+			config.dump()
 			choice = -1
 		elif 'quit' in choice:
 			# hard quit

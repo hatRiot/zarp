@@ -2,8 +2,8 @@
 import os, sys
 sys.path.insert(0, os.getcwd() + '/modules/')
 from util import print_menu, header, Error, Msg, debug
-import stream, session_manager, parse_cmd
 from commands import getoutput
+import stream, session_manager, parse_cmd, config
 
 #
 # Network Attack Tool; view README for more information.
@@ -15,6 +15,9 @@ def main():
 	# handle command line options first
 	if len(sys.argv) > 1:
 		parse_cmd.parse(sys.argv)
+	
+	# set up configuration 
+	config.initialize()
 
 	# menus
 	main_menu =    [ 'Poisoners', 'DoS Attacks', 'Sniffers', 'Scanners',
@@ -39,7 +42,7 @@ def main():
 			if cnt > 0:
 				Msg('You have %d sessions running.  Are you sure?'%cnt)
 				choice = raw_input('> ')
-				if choice == 'y':
+				if 'y' in choice.lower(): 
 					stream.stop_session('all', -1)
 					running = False	
 			else:

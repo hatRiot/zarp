@@ -1,10 +1,10 @@
-import traceback, re
-import logging, os, sys
+import logging, os, sys, re
 from threading import Thread
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 from scapy.all import *
 from time import sleep
 from util import Error, Msg, debug
+import config
 import gc
 
 #
@@ -20,7 +20,7 @@ class ARPSpoof:
 		# keep scapy quiet
 		conf.verb = 0
 		# addresses
-		self.local_mac = get_if_hwaddr(conf.iface)
+		self.local_mac = get_if_hwaddr(config.get('iface'))
 		self.local_ip = ''
 		self.to_ip = ''
 		self.from_ip = ''
@@ -39,16 +39,17 @@ class ARPSpoof:
 	#
 	def initialize(self):
 		try:
-			print '[!] Using interface [%s:%s]'%(conf.iface, self.local_mac)
+			Msg('[!] Using interface [%s:%s]'%(config.get('iface'), self.local_mac))
 			# get ip addresses from user
 			self.to_ip = raw_input("[!] Enter host to poison:\t")
 			self.from_ip = raw_input("[!] Enter address to spoof:\t")
 			tmp = raw_input("[!] Spoof IP {0} from victim {1}.  Is this correct? ".format(self.to_ip, self.from_ip))
-		except Exception:
+		except Exception, j:
+			debug('Error loading ARP poisoning module: %s'%(j))
 			return
 		if "n" in tmp.lower():
 			return
-		print "[!] Initializing ARP poison.."
+		Msg("[!] Initializing ARP poison..")
 		try:
 			# get mac addresses for the two victims
 			self.to_mac = getmacbyip(self.to_ip)

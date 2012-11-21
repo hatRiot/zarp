@@ -11,6 +11,7 @@ from password_sniffer import PasswordSniffer
 from http_sniffer import HTTPSniffer
 from net_map import NetMap
 from ftp import FTPService
+from ssh import SSHService
 from http import HTTPService
 import dhcp, ndp_dos, nestea_dos, land_dos, smb2_dos,dhcp_starvation,service_scan
 import ap_scan, router_pwn, tcp_syn, ap_crack
@@ -26,15 +27,18 @@ arp_sessions = {}
 http_sniffers = {}
 password_sniffers = {}
 services = {}
-global netscan,rogue_dhcp,nbnspoof	#dont manage 'many' of these; just overwrite the history of one
-netscan = rogue_dhcp = nbnspoof = None
 
+# management of only single objects
+static_singles = {'netscan': None,
+                  'rogue_dhcp': None,
+				  'nbnspoof' : None
+				}
 #
 # Initialize a poisoner and/or DoS attack and store the object
 # TODO rework this so it doesn't turn into a HUGE if/elif/elif/elif...
 #
 def initialize(module):
-	global netscan,rogue_dhcp,nbnspoof
+	global static_singles, arp_sessions, http_sniffers, password_sniffers, services
 	debug("Received module start for: %s"%(module))
 	if module == 'arp':
 		tmp = ARPSpoof() 
@@ -52,7 +56,7 @@ def initialize(module):
 	elif module == 'dhcp':
 		tmp = DHCPSpoof()
 		if tmp.initialize():
-			rogue_dhcp = tmp
+			static_singles['rogue_dhcp'] = tmp
 	elif module == 'ndp':
 		ndp_dos.initialize()	
 	elif module == 'http_sniffer':
@@ -74,8 +78,8 @@ def initialize(module):
 	elif module == 'smb2':
 		smb2_dos.initialize()
 	elif module == 'net_map':
-		netscan = NetMap()
-		netscan.initialize()
+		static_singles['netscan'] = Netmap()
+		static_singles['netscan'].initialize()
 	elif module == 'service_scan':
 		service_scan.initialize()
 	elif module == 'dhcp_starv':
@@ -95,7 +99,7 @@ def initialize(module):
 	elif module == 'nbns':
 		tmp = NBNSSpoof()
 		if tmp.initialize():
-			nbnspoof = tmp
+			static_singles['nbnspoof'] = tmp
 	elif module == 'ftp_server':
 		tmp = FTPService()
 		tmp.initialize_bg()
@@ -104,6 +108,11 @@ def initialize(module):
 		tmp = HTTPService()
 		tmp.initialize_bg()
 		services['http'] = tmp
+	elif module == 'ssh_server':
+		tmp = SSHService()
+		if not tmp.initialize_bg():
+			return
+		services['ssh'] = tmp
 	else:
 		Error('Module \'%s\' does not exist.'%module)
 
@@ -111,7 +120,7 @@ def initialize(module):
 # Dump running sessions
 #
 def dump_sessions():
-	global arp_sessions, dns_sessions, rogue_dhcp, netscan, nbnspoof
+	global arp_sessions, dns_sessions, static_singles
 	print '\n\t[Running sessions]'
 
 	# dump arp poisons
@@ -144,12 +153,12 @@ def dump_sessions():
 		if services[session].log_data:
 			print '\t|--> Logging to ', services[session].log_file.name
 
-	if not netscan is None:
+	if not static_singles['netscan'] is None:
 		# we dont save a history of scans; just the last one
 		print '\n[0] NetMap Scan [netmap]'
-	if not rogue_dhcp is None:
+	if not static_singles['rogue_dhcp'] is None:
 		print '\n[1] Rogue DHCP [dhcp]'
-	if not nbnspoof is None:
+	if not static_singles['nbnspoof'] is None:
 		print '\n[2] NBNS Spoof [nbns]'
 	print '\n'
 
@@ -157,7 +166,7 @@ def dump_sessions():
 # Dump the sessions for a specific module
 #
 def dump_module_sessions(module):
-	global arp_sessions, dns_sessions, dhcp_sessions, dhcp_spoof, nbnspoof
+	global arp_sessions, dns_sessions, static_singles 
 	if module == 'arp':
 		print '\n\t[Running ARP sessions]'
 		for (counter, session) in enumerate(arp_sessions):
@@ -168,16 +177,16 @@ def dump_module_sessions(module):
 			if session.dns_spoof:
 				print '\t[%d] %s'%(counter, session)
 	elif module == 'dhcp':
-		if not rogue_dhcp is None and rogue_dhcp.running:
+		if not static_singles['rogue_dhcp'] is None and static_singles['rogue_dhcp'].running:
 			print '[-] not yet'
 	elif module == 'nbns':
-		if not nbnspoof is None and nbnspoof.running:
+		if not static_singles['nbnspoof'] is None and static_singles['nbnspoof'].running:
 		 	print '\t[2] NBNS Spoof'
 #
 # Return the total number of running sessions
 #
 def get_session_count():
-	return len(arp_sessions) + len(http_sniffers)+ len(password_sniffers) + (1 if not rogue_dhcp is None else 0) + (1 if not nbnspoof is None else 0)
+	return len(arp_sessions) + len(http_sniffers)+ len(password_sniffers) 
 
 #
 # Stop a specific session; this calls the .shutdown() method for the given object.
@@ -186,7 +195,7 @@ def get_session_count():
 # @param number is the session number (beginning with 0)
 #
 def stop_session(module, number):
-	global rogue_dhcp, nbnspoof
+	global static_singles 
 	ip = get_key(module, number)
 	if not ip is None:
 		if module == 'arp':
@@ -222,26 +231,26 @@ def stop_session(module, number):
 
 	if module == 'dhcp':
 		# dhcp is a different story
-		if not rogue_dhcp is None:
-			rogue_dhcp.shutdown()
-			rogue_dhcp = None
+		if not static_singles['rogue_dhcp'] is None:
+			static_singles['rogue_dhcp'].shutdown()
+			static_singles['rogue_dhcp'] = None
 	elif module == 'nbns':
-		if not nbnspoof is None:
-			nbnspoof.shutdown()
-			nbnspoof = None
+		if not static_singles['nbnspoof'] is None:
+			static_singles['nbnspoof'].shutdown()
+			static_singles['nbnspoof'] = None
 	gc.collect()
 
 #
-# Some sniffers have information to dump, so for those applicable, this'll initiate it.
+# Some modules have information to dump, so for those applicable, this'll initiate it.
 # Module should implement the .view() method for dumping information to.
 #
 def view_session(module, number):
-	global netscan, nbnspoof
+	global static_singles 
 	ip = get_key(module, number)
 	if module == 'netmap':
-		netscan.view()
+		static_singles['netscan'].view()
 	elif module == 'nbns':
-		nbnspoof.view()
+		static_singles['nbnspoof'].view()
 	elif not ip is None:
 		if module == 'http':
 			debug("Beginning HTTP dump for %s"%ip)
@@ -253,7 +262,7 @@ def view_session(module, number):
 			debug("Beginning ARP/DNS dump for %s"%ip)
 			arp_sessions[ip].view()
 		elif module == 'serv':
-			Msg("Beginning Serv dump for %s"%ip)
+			Msg("Beginning service dump for %s"%ip)
 			services[ip].view()
 	else:
 		return

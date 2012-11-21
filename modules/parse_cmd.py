@@ -5,8 +5,8 @@ from optparse import OptionParser, OptionGroup
 from net_map import NetMap
 from nbns import NBNSSpoof
 from ftp import FTPService
-from ssh import SSHService
 from http import HTTPService
+from ssh import SSHService
 import service_scan, ap_scan,util
 from scapy.all import *
 
@@ -62,7 +62,9 @@ def parse(sysv):
 		util.debug("beginning wireless AP scan..")
 		ap_scan.initialize()
 	elif options.ssh:
+		util.Msg('Starting SSH server...')
 		tmp = SSHService()
+		tmp.dump = True
 		tmp.initialize()
 	elif options.ftp:
 		util.Msg('Starting FTP server...')
