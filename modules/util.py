@@ -4,7 +4,6 @@ from commands import getoutput
 from subprocess import Popen
 import config
 import os, socket, fcntl, struct
-import sys
 
 #
 # Class houses utility functions
@@ -15,7 +14,7 @@ DEBUG_LOG = 'zarp_debug.log'
 
 # zarp version
 def version():
-	return "0.04A"
+	return "0.04B"
 
 # zarp header
 def header():
