@@ -126,30 +126,30 @@ def dump_sessions():
 	# dump arp poisons
 	if len(arp_sessions) > 0: print '[!] ARP POISONS [arp]:'
 	for (counter, session) in enumerate(arp_sessions):
-		print '\t[%d] %s'%(counter, session)
+		print '\t\033[32m[%d] %s\033[0m'%(counter, session)
 		if arp_sessions[session].dns_spoof:
 			print '\t|-> [!] DNS POISONS [dns]:'
 			for (counter,key) in enumerate(arp_sessions[session].dns_spoofed_pair):
-				print '\t|--> [%d] %s -> %s'%(counter,key.pattern,arp_sessions[session].dns_spoofed_pair[key])
+				print '\t|--> \033[32m[%d] %s -> %s\033[0m'%(counter,key.pattern,arp_sessions[session].dns_spoofed_pair[key])
 
 	# dump http sniffers
 	if len (http_sniffers) > 0: print '[!] HTTP SNIFFERS [http]:'
 	for (counter, session) in enumerate(http_sniffers):
-		print '\t[%d] %s'%(counter, session)
+		print '\t\033[32m[%d] %s\033[0m'%(counter, session)
 		if http_sniffers[session].log_data:
 			print '\t|--> Logging to ', http_sniffers[session].log_file.name
 
 	# dump password sniffers
 	if len(password_sniffers) > 0: print '[!] PASSWORD SNIFFERS [pass]:'
 	for (counter, session) in enumerate(password_sniffers):
-		print '\t[%d] %s'%(counter, session)
+		print '\t\033[32m[%d] %s\033[0m'%(counter, session)
 		if password_sniffers[session].log_data:
 			print '\t|--> Logging to ', password_sniffers[session].log_file.name
 	
 	# dump services
 	if len(services) > 0: print '[!] SERVICES [serv]:'
 	for (counter, session) in enumerate(services):
-		print '\t[%d] %s'%(counter, session)
+		print '\t\033[32m[%d] %s\033[0m'%(counter, session)
 		if services[session].log_data:
 			print '\t|--> Logging to ', services[session].log_file.name
 
@@ -186,7 +186,8 @@ def dump_module_sessions(module):
 # Return the total number of running sessions
 #
 def get_session_count():
-	return len(arp_sessions) + len(http_sniffers)+ len(password_sniffers) 
+	tmp = len(arp_sessions) + len(http_sniffers)+ len(password_sniffers) 
+	return tmp
 
 #
 # Stop a specific session; this calls the .shutdown() method for the given object.

