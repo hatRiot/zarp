@@ -4,6 +4,7 @@ from commands import getoutput
 from subprocess import Popen
 import config
 import os, socket, fcntl, struct
+import sys
 
 #
 # Class houses utility functions
@@ -18,8 +19,11 @@ def version():
 
 # zarp header
 def header():
-	print "\t        [\033[31mZARP\033[0m]\t\t" #red
-	print "\t    [\033[32mVersion %s\033[0m]\t\t\t"%(version()) #yellow
+	print '\t\033[32m ____   __   ____  ____'
+	print '\t(__  ) / _\ (  _ \(  _ \''
+	print '\t / _/ /    \ )   / ) __/'
+	print '\t(____)\_/\_/(__\_)(__)\033[0m'
+	print "\t    [\033[33mVersion %s\033[0m]\t\t\t"%(version())
 
 #
 # Print the passed error message in red formatted text!

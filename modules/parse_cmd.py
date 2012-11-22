@@ -93,4 +93,5 @@ def update():
 		if 'Already up-to-date' in ret:
 			util.Msg('Zarp already up to date.')
 		else:
-			util.Msg('Zarp updated to version %s'%(util.version()))
+			from util import version
+			util.Msg('Zarp updated to version %s'%(version()))
