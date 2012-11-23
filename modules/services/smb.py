@@ -153,7 +153,7 @@ class SMBService:
 		socker = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		socker.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		socker.settimeout(3)
-		socker.bind(('192.168.1.42', 445))
+		socker.bind(('', 445))
 		socker.listen(5)
 		while True:
 			try:
