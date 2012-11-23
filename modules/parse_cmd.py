@@ -7,6 +7,7 @@ from nbns import NBNSSpoof
 from ftp import FTPService
 from http import HTTPService
 from ssh import SSHService
+from smb import SMBService
 import service_scan, ap_scan,util
 from scapy.all import *
 
@@ -34,6 +35,7 @@ def parse(sysv):
 	spoof_group.add_option('--ssh',help='SSH server', action='store_true',default=False,dest='ssh')
 	spoof_group.add_option('--ftp',help='FTP server', action='store_true',default=False,dest='ftp')
 	spoof_group.add_option('--http',help='HTTP server', action='store_true',default=False,dest='http')
+	spoof_group.add_option('--smb', help='SMB listener',action='store_true',default=False,dest='smb')
 
 	parser.add_option_group(scan_group)
 	parser.add_option_group(spoof_group)	
@@ -77,6 +79,10 @@ def parse(sysv):
 		tmp.dump = True
 		tmp.initialize()
 		tmp.view()
+	elif options.smb:
+		util.Msg('Starting SMB listener...')
+		tmp = SMBService()
+		tmp.initialize()
 	elif options.update:
 		update()
 	sys.exit(1)
