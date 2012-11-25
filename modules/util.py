@@ -23,6 +23,8 @@ def header():
 	print '\t / _/ /    \ )   / ) __/'
 	print '\t(____)\_/\_/(__\_)(__)\033[0m'
 	print "\t    [\033[33mVersion %s\033[0m]\t\t\t"%(version())
+	if isDebug:
+		print '\t      \033[34m[DEBUGGING]\033[0m'
 
 #
 # Print the passed error message in red formatted text!

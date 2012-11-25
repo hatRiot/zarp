@@ -15,6 +15,11 @@ from scapy.all import *
 # Provides an interface for parsing cli options.  Only certain modules are supported here (for now).
 #
 def parse(sysv):
+	# parse debug first so the header isn't dumped twice 
+	if 'debug' in sysv[1]:
+		util.isDebug = True
+		return
+
 	parser = argparse.ArgumentParser(description=util.header()) 
 
 	# other options
@@ -38,11 +43,6 @@ def parse(sysv):
 	spoof_group.add_argument('--smb', help='SMB listener',action='store_true',default=False,dest='smb')
 
 	options = parser.parse_args()
-	
-	# debug check; for right now must be run in interactive mode
-	if options.debug:
-		util.isDebug = True
-		return
 
 	# initiate 
 	if options.scan is not None:
