@@ -1,7 +1,7 @@
 import sys, os
 sys.path[:0] = [str(os.getcwd()) + '/modules/poison/', str(os.getcwd()) + '/modules/scanner/',
 		        str(os.getcwd()) + '/modules/services/']
-from optparse import OptionParser, OptionGroup
+import argparse
 from net_map import NetMap
 from nbns import NBNSSpoof
 from ftp import FTPService
@@ -15,31 +15,29 @@ from scapy.all import *
 # Provides an interface for parsing cli options.  Only certain modules are supported here (for now).
 #
 def parse(sysv):
-	parser = OptionParser()
+	parser = argparse.ArgumentParser(description=util.header()) 
 
 	# other options
-	parser.add_option('-q', help='Quick network sniff with filter', action='store', dest='filter')
-	parser.add_option('--debug', help='Launch Zarp with error logging',action='store_true',default=False,dest='debug')
-	parser.add_option('--update', help='Update Zarp',action='store_true', default=False,dest='update')
+	parser.add_argument('-q', help='Quick network sniff with filter', action='store', dest='filter')
+	parser.add_argument('--debug', help='Launch Zarp with error logging',action='store_true',default=False,dest='debug')
+	parser.add_argument('--update', help='Update Zarp',action='store_true', default=False,dest='update')
 
 	# scanners
-	scan_group = OptionGroup(parser, "Scanners")
-	scan_group.add_option('-s', help='Quick network map', action='store', dest='scan')
-	scan_group.add_option('--finger', help='Fingerprint scan packets', action='store_true', default=False,dest='finger')
-	scan_group.add_option('-a', help='Service scan', action='store_true', default=False, dest='service')
-	scan_group.add_option('-w', help='Wireless AP scan', action='store_true', default=False,dest='wifind')
-	scan_group.add_option('--channel',help='Set channel to scan on',action='store', dest='channel')
+	scan_group = parser.add_argument_group("Scanners")
+	scan_group.add_argument('-s', help='Quick network map', action='store', dest='scan')
+	scan_group.add_argument('--finger', help='Fingerprint scan packets', action='store_true', default=False,dest='finger')
+	scan_group.add_argument('-a', help='Service scan', action='store_true', default=False, dest='service')
+	scan_group.add_argument('-w', help='Wireless AP scan', action='store_true', default=False,dest='wifind')
+	scan_group.add_argument('--channel',help='Set channel to scan on',action='store', dest='channel')
 
 	# spoof
-	spoof_group = OptionGroup(parser, "Services")
-	spoof_group.add_option('--ssh',help='SSH server', action='store_true',default=False,dest='ssh')
-	spoof_group.add_option('--ftp',help='FTP server', action='store_true',default=False,dest='ftp')
-	spoof_group.add_option('--http',help='HTTP server', action='store_true',default=False,dest='http')
-	spoof_group.add_option('--smb', help='SMB listener',action='store_true',default=False,dest='smb')
+	spoof_group = parser.add_argument_group("Services")
+	spoof_group.add_argument('--ssh',help='SSH server', action='store_true',default=False,dest='ssh')
+	spoof_group.add_argument('--ftp',help='FTP server', action='store_true',default=False,dest='ftp')
+	spoof_group.add_argument('--http',help='HTTP server', action='store_true',default=False,dest='http')
+	spoof_group.add_argument('--smb', help='SMB listener',action='store_true',default=False,dest='smb')
 
-	parser.add_option_group(scan_group)
-	parser.add_option_group(spoof_group)	
-	(options, args) = parser.parse_args(sysv)
+	options = parser.parse_args()
 	
 	# debug check; for right now must be run in interactive mode
 	if options.debug:
