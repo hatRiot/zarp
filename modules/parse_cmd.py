@@ -82,6 +82,7 @@ def parse(sysv):
 	elif options.smb:
 		util.Msg('Starting SMB listener...')
 		tmp = SMBService()
+		tmp.dump = True
 		tmp.initialize()
 	elif options.update:
 		update()
