@@ -78,7 +78,7 @@ def initialize(module):
 	elif module == 'smb2':
 		smb2_dos.initialize()
 	elif module == 'net_map':
-		static_singles['netscan'] = Netmap()
+		static_singles['netscan'] = NetMap()
 		static_singles['netscan'].initialize()
 	elif module == 'service_scan':
 		service_scan.initialize()
