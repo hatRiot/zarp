@@ -8,6 +8,7 @@ from ftp import FTPService
 from http import HTTPService
 from ssh import SSHService
 from smb import SMBService
+from access_point import APService
 import service_scan, ap_scan,util
 from scapy.all import *
 
@@ -41,6 +42,7 @@ def parse(sysv):
 	spoof_group.add_argument('--ftp',help='FTP server', action='store_true',default=False,dest='ftp')
 	spoof_group.add_argument('--http',help='HTTP server', action='store_true',default=False,dest='http')
 	spoof_group.add_argument('--smb', help='SMB listener',action='store_true',default=False,dest='smb')
+	spoof_group.add_argument('--wap', help='Wireless Access Point', action='store_true',default=False,dest='wap')
 
 	options = parser.parse_args()
 
@@ -81,6 +83,10 @@ def parse(sysv):
 		util.Msg('Starting SMB listener...')
 		tmp = SMBService()
 		tmp.dump = True
+		tmp.initialize()
+	elif options.wap:
+		util.Msg('Starting wireless access point...')
+		tmp = APService()
 		tmp.initialize()
 	elif options.update:
 		update()
