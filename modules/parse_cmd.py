@@ -19,6 +19,7 @@ def parse(sysv):
 	# parse debug first so the header isn't dumped twice 
 	if 'debug' in sysv[1]:
 		util.isDebug = True
+		util.debug('Zarp debug session started.')
 		return
 
 	parser = argparse.ArgumentParser(description=util.header()) 
@@ -100,6 +101,11 @@ def update():
 		util.Error('Not a git repo; please checkout from Github with \n\tgit clone http://github.com/hatRiot/zarp.git\n to update.')
 	else:
 		util.Msg('Updating Zarp...')
+		ret = util.init_app('git branch -a | grep \'* dev\'', True)
+		if len(ret) > 3:
+			util.Error('You appear to be on the dev branch.  Please switch off dev to update.')
+			return
+
 		ret = util.init_app('git pull git://github.com/hatRiot/zarp.git HEAD', True)
 		if 'Already up-to-date' in ret:
 			util.Msg('Zarp already up to date.')

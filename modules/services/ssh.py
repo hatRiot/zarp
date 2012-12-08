@@ -1,5 +1,4 @@
 import util, os, socket
-import traceback, sys
 from threading import Thread
 from time import sleep
 from stubssh import SSHStub, SSHHandler
@@ -15,7 +14,6 @@ class SSHService:
 		self.dump = False
 		self.log_data = False
 		self.log_file = None
-		self.fail = False
 
 	#
 	# If we weren't given a private key, remove the temp we generated
@@ -116,7 +114,6 @@ class SSHService:
 		except KeyboardInterrupt:
 			pass
 		except Exception as j:
-			traceback.print_exc(file=sys.stdout)
 			util.Error('Error with server: %s'%j)
 		finally:
 			self.running = False

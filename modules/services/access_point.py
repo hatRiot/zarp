@@ -17,6 +17,10 @@ class APService:
 	
 	# init bg
 	def initialize_bg(self):
+		if not util.check_program('airbase-ng'):
+			util.Error('\'airbase-ng\' not found in local path.')
+			return False
+
 		while True:
 			try:
 				tmp = raw_input('[!] Enter ESSID [%s]: '%self.ap_essid)
@@ -31,7 +35,7 @@ class APService:
 		util.Msg('Initializing access point..')
 		thread = Thread(target=self.initialize)
 		thread.start()
-		return
+		return True
 
 	# init
 	def initialize(self):

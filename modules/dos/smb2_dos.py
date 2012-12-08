@@ -17,9 +17,9 @@ def initialize():
 		try:
 			print '[!] Waiting for connection...'
 			sock.listen(1)
+			connection, addr = sock.accept()
 		except KeyboardInterrupt:
 			return
-		connection, addr = sock.accept()
 		print '[!] Connection from %s, waiting for negotiation...'%str(addr)
 		while True:
 			try:
