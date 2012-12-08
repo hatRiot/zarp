@@ -13,6 +13,7 @@ from net_map import NetMap
 from ftp import FTPService
 from ssh import SSHService
 from http import HTTPService
+from access_point import APService
 import dhcp, ndp_dos, nestea_dos, land_dos, smb2_dos,dhcp_starvation,service_scan
 import ap_scan, router_pwn, tcp_syn, ap_crack
 
@@ -113,6 +114,10 @@ def initialize(module):
 		if not tmp.initialize_bg():
 			return
 		services['ssh'] = tmp
+	elif module == 'access_point':
+		tmp = APService()
+		tmp.initialize_bg()
+		services['wireless ap'] = tmp
 	else:
 		Error('Module \'%s\' does not exist.'%module)
 

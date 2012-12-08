@@ -25,7 +25,7 @@ def main():
 					'DHCP Starve'
 				   ]
 	sniffer_menu = [ 'HTTP Sniffer', 'Password Sniffer']
-	spoofer_menu = [ 'HTTP Server', 'SSH Server', 'FTP Server' ]
+	spoofer_menu = [ 'HTTP Server', 'SSH Server', 'FTP Server', 'Access Point' ]
 	scanner_menu = [ 'NetMap', 'Service Scan', 'AP Scan']
 	parameter_menu = [ 'WEP Crack', 'WPA2 Crack', 'WPS Crack', 'Router Pwn' ]
 	
@@ -133,6 +133,8 @@ def main():
 					stream.initialize('ssh_server')
 				elif choice == 3:
 					stream.initialize('ftp_server')
+				elif choice == 4:
+					stream.initialize('access_point')
 				elif choice == -1:
 					pass
 		elif choice == 7:
