@@ -6,14 +6,13 @@ from threading import Thread
 
 #
 # Module sniffs poisoned traffic for passwords, essentially just parsing payloads for the USERNAME or PASSWORD
-# flag.  Also decrypts SSL traffic so we can snag SSH credentials.
+# flag. 
 #
 class PasswordSniffer:
 	def __init__(self):
 		self.source = None
 		self.sniff = False
 		self.dump_data = False
-		# do we want to log passwords to a pot?
 		self.log_data = False
 		self.log_file = None
 
@@ -61,7 +60,6 @@ class PasswordSniffer:
 	# Parse packet payloads for username/passwords
 	#
 	def dump(self, pkt):
-		print pkt.show()
 		if self.dump_data and not pkt is None:
 			# http
 			if pkt.haslayer(TCP) and pkt.getlayer(TCP).dport == 80 and pkt.haslayer(Raw):
@@ -83,7 +81,7 @@ class PasswordSniffer:
 				if not prnt is None: 
 					util.Msg(prnt)
 					if self.log_data: self.log_file.write(prnt)
-			# TODO: ssh, smb(?), other protos....
+			# TODO: other protos....
 
 	#
 	# stop the password sniffer

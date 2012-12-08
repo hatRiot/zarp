@@ -10,6 +10,7 @@ class Configuration:
 	def __init__(self):
 		self.opts = {
 					'iface' : conf.iface,
+					'debug' : util.isDebug
 					}
 
 CONFIG = None
@@ -32,12 +33,14 @@ def dump():
 def set(key, value):
 	global CONFIG
 	if key in CONFIG.opts:
-		# sometimes we need to verify the value being put 
-		# into the dic
+		# sometimes we gotta do stuff with the key
 		if key == 'iface':
 			if not util.verify_iface(value):
 				util.Error('\'%s\' is not a valid interface.'%(value))
 				return
+		elif key == 'debug':
+		  	value = util.isDebug if evalBool(value) is None else evalBool(value)
+		  	util.isDebug = value
 		CONFIG.opts[key] = value
 	else:
 		util.Error('Key "%s" not found.  \'opts\' for options.'%(key))
@@ -46,3 +49,13 @@ def set(key, value):
 def get(key):
 	if key in CONFIG.opts:
 		return CONFIG.opts[key]
+
+#
+# Keep set/unsetting booleans consistent.
+#
+def evalBool(value):
+	if value in ['True', 'true']:
+		return True
+	elif value in ['False', 'false']:
+		return False
+	return None
