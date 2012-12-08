@@ -68,11 +68,13 @@ def service_scan ( block, service ):
 	# processing off if we need to do service specific querying
 	try:
 		(ans, unans) = arping(block)
+		if 67 in service:
+			dhcp_scan()
 		for s,r in ans:
 			ip = r[ARP].getfieldval('psrc')
+			print '\t[+] %s'%(ip)
 			for port in service:
 				if port is 67: 
-					dhcp_scan()
 					continue
 				elif port is 161:
 					snmp_query(ip)
@@ -82,7 +84,6 @@ def service_scan ( block, service ):
 					continue
 				pkt = sr1(IP(dst=ip)/TCP(flags='S',dport=port),timeout=1)
 				if not pkt is None and pkt[TCP].getfieldval('flags') == 18L:
-					print '\t[+] %s'%(ip)
 					print '\t  %d \t %s'%(pkt[TCP].sport, 'open')
 					if port is services['ftp']:
 						ftp_info(ip)
@@ -94,7 +95,6 @@ def service_scan ( block, service ):
 				sr(IP(dst=ip)/TCP(flags='FA',dport=port),timeout=1)
 	except Exception, j:
 		util.debug("error: %s"%j)	
-	print '\n'
 
 #
 # Scan for DHCP servers
@@ -123,7 +123,7 @@ def snmp_query(ip):
 	pkt = IP(dst=ip)/UDP(sport=161)
 	pkt /= SNMP(community='public', PDU=SNMPget(varbindlist=[SNMPvarbind(oid=ASN1_OID('1.3.6.1.2.1.1.1.0'))]))
 	recv = sr1(pkt)
-	print '[+] SNMP Dump\n ', recv[SNMP].show()
+	print '\t[+] SNMP Dump\n ', recv[SNMP].show()
 
 #
 # DNS zone transfer 

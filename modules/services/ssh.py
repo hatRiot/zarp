@@ -1,6 +1,8 @@
 import util, os, socket
+import traceback, sys
 from threading import Thread
 from time import sleep
+from stubssh import SSHStub, SSHHandler
 
 #
 # emulate a basic SSH service; store usernames/passwords but reject them all.
@@ -71,7 +73,6 @@ class SSHService:
 				util.debug('Generating RSA private key...')
 				tmp = util.init_app('openssl genrsa -out privkey.key 2048', True)
 				util.debug('privkey.key was generated.')
-		else:
 			self.priv_key = './privkey.key'
 
 		try:
@@ -83,11 +84,10 @@ class SSHService:
 
 			while self.running:
 				con, addr = server_socket.accept()
-				
 				pkey = paramiko.RSAKey.from_private_key_file(self.priv_key)
 				transport = paramiko.Transport(con)
 				transport.add_server_key(pkey)
-				transport.set_subsystem_handler('handler', paramiko.SFTPServer, SSHStub)
+				transport.set_subsystem_handler('handler', paramiko.SFTPServer, SSHHandler)
 
 				context = { 'dump' : self.dump, 'log_data' : self.log_data,
 							'log_file': self.log_file }
@@ -116,6 +116,7 @@ class SSHService:
 		except KeyboardInterrupt:
 			pass
 		except Exception as j:
+			traceback.print_exc(file=sys.stdout)
 			util.Error('Error with server: %s'%j)
 		finally:
 			self.running = False
@@ -158,28 +159,3 @@ class SSHService:
 			self.log(False, None)
 		util.Msg('SSH server shutdown.')
 
-#
-# Handler for credentials
-#
-try:
-	class SSHStub (paramiko.ServerInterface):
-		def __init__(self, context, *args):
-			self.context = context
-			paramiko.ServerInterface.__init__(self, *args)
-	
-		# handle credentials and always reject 
-		def check_auth_password(self, username, password):
-			if self.context['dump']:
-				util.Msg('Received login attempt: %s:%s'%(username, password))
-			if self.context['log_data']:
-				self.context['log_file'].write('Received login: %s:%s\n'%(username, password))
-			return paramiko.AUTH_FAILED
-		def check_channel_request(self, kind, chanid):
-			return paramiko.OPEN_SUCCEEDED
-except NameError as j:
-	if 'paramiko' in j.message:
-		# we're going to catch this later, but with the way python parses classes
-		# we need to skip it for now.
-		pass
-	else:
-		util.Error('Error: %s'%j.message)
