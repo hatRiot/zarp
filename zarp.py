@@ -19,15 +19,15 @@ def main():
 
 	# menus
 	main_menu =    [ 'Poisoners', 'DoS Attacks', 'Sniffers', 'Scanners',
-				     'Parameter','Spoofer','Sessions']
+				     'Parameter','Services','Sessions']
 	poison_menu =  [ 'ARP Poison', 'DNS Poison', 'DHCP Poison', 'NBNS Spoof']
 	dos_menu =     [ 'NDP', 'Nestea', 'LAND', 'TCP SYN', 'SMB2',
 					'DHCP Starve'
 				   ]
-	sniffer_menu = [ 'HTTP Sniffer', 'Password Sniffer']
-	spoofer_menu = [ 'HTTP Server', 'SSH Server', 'FTP Server', 'Access Point' ]
+	sniffer_menu = [ 'HTTP Sniffer', 'Password Sniffer', 'Traffic Sniffer']
+	service_menu = [ 'HTTP Server', 'SSH Server', 'FTP Server', 'SMB Listener', 'Access Point' ]
 	scanner_menu = [ 'NetMap', 'Service Scan', 'AP Scan']
-	parameter_menu = [ 'WEP Crack', 'WPA2 Crack', 'WPS Crack', 'Router Pwn' ]
+	parameter_menu = [ 'WEP Crack', 'WPA2 Crack', 'WPS Crack', 'Router Pwn', 'Pass-The-Hash' ]
 	
 	running = True
 	choice = -1
@@ -92,6 +92,8 @@ def main():
 					stream.initialize('http_sniffer')
 				elif choice == 2:
 					stream.initialize('password_sniffer')
+				elif choice == 3:
+					stream.initialize('traffic_sniffer')
 				elif choice == -1:
 					pass
 		elif choice == 4:
@@ -120,11 +122,14 @@ def main():
 					stream.initialize('wps_crack')
 				elif choice == 4:
 					stream.initialize('router_pwn')	
+				elif choice == 5:
+					util.Error('Module not yet implemented')
+					#stream.initialize('pass_the_hash')
 				elif choice == -1:
 					pass
 		elif choice == 6:
 			while True:
-				choice = print_menu(spoofer_menu)
+				choice = print_menu(service_menu)
 				if choice == 0:
 					break
 				elif choice == 1:
@@ -134,6 +139,8 @@ def main():
 				elif choice == 3:
 					stream.initialize('ftp_server')
 				elif choice == 4:
+					stream.initialize('smb')
+				elif choice == 5:
 					stream.initialize('access_point')
 				elif choice == -1:
 					pass
@@ -143,7 +150,7 @@ def main():
 			pass
 
 	
-# Application entry
+# Application entry; dependency checks, etc.
 if __name__=="__main__":
 	# perm check
 	if int(os.getuid()) > 0:

@@ -9,6 +9,7 @@ from dhcp import DHCPSpoof
 from nbns import NBNSSpoof
 from password_sniffer import PasswordSniffer
 from http_sniffer import HTTPSniffer
+from traffic_sniffer import TrafficSniffer
 from net_map import NetMap
 from ftp import FTPService
 from ssh import SSHService
@@ -28,6 +29,7 @@ import ap_scan, router_pwn, tcp_syn, ap_crack
 arp_sessions = {}
 http_sniffers = {}
 password_sniffers = {}
+traffic_sniffers = {}
 services = {}
 
 # management of only single objects
@@ -71,8 +73,14 @@ def initialize(module):
 		tmp = PasswordSniffer()
 		to_ip = tmp.initialize()
 		if not to_ip is None:
-			debug("Storing session for %s"%to_ip)
+			debug("Storing sniffer for %s"%to_ip)
 			password_sniffers[to_ip] = tmp
+	elif module == 'traffic_sniffer':
+		tmp = TrafficSniffer()
+		to_ip = tmp.initialize()
+		if not to_ip is None:
+			debug('Storing sniffer for %s'%to_ip)
+			traffic_sniffers[to_ip] = tmp
 	elif module == 'nestea':
 		nestea_dos.initialize()
 	elif module == 'land':
@@ -156,6 +164,13 @@ def dump_sessions():
 		if password_sniffers[session].log_data:
 			print '\t|--> Logging to ', password_sniffers[session].log_file.name
 	
+	# dump traffic sniffers
+	if len(traffic_sniffers) > 0: print '[!] TRAFFIC SNIFFERS [traff]:'
+	for (counter, session) in enumerate(traffic_sniffers):
+		print '\t\033[32m[%d] %s\033[0m'%(counter, session)
+		if traffic_sniffers[session].log_data:
+			print '\t|--> Logging to ', traffic_sniffers[session].log_file.name
+
 	# dump services
 	if len(services) > 0: print '[!] SERVICES [serv]:'
 	for (counter, session) in enumerate(services):
@@ -197,6 +212,7 @@ def dump_module_sessions(module):
 #
 def get_session_count():
 	tmp = len(arp_sessions) + len(http_sniffers)+ len(password_sniffers) 
+	tmp += len(traffic_sniffers)
 	return tmp
 
 #
@@ -226,6 +242,10 @@ def stop_session(module, number):
 		  	debug("Killing password sniffer for %s"%ip)
 			if password_sniffers[ip].shutdown():
 				del(password_sniffers[ip])
+		elif module == 'traff':
+			debug('Killing traffic sniffer for %s'%ip)
+			if traffic_sniffers[ip].shutdown():
+				del(traffic_sniffers[ip])
 		elif module == 'serv':
 			debug('Killing service %s'%ip)
 			services[ip].shutdown()
@@ -262,6 +282,8 @@ def view_session(module, number):
 		static_singles['netscan'].view()
 	elif module == 'nbns':
 		static_singles['nbnspoof'].view()
+	elif module == 'dhcp':
+		static_singles['rogue_dhcp'].view()
 	elif not ip is None:
 		if module == 'http':
 			debug("Beginning HTTP dump for %s"%ip)
@@ -269,6 +291,9 @@ def view_session(module, number):
 		elif module == 'pass':
 			debug("Beginning password dump for %s"%ip)
 			password_sniffers[ip].view()
+		elif module == 'traff':
+			debug('Beginning traffic dump for %s'%ip)
+			traffic_sniffers[ip].view()
 		elif module == 'arp' or module == 'dns':
 			debug("Beginning ARP/DNS dump for %s"%ip)
 			arp_sessions[ip].view()
@@ -333,6 +358,11 @@ def get_key(module, number):
 			Error('Invalid session number (0-%d)'%len(password_sniffers))
 			return None
 		return password_sniffers.keys()[number]
+	elif module == 'traff':
+		if len(traffic_sniffers) <= number:
+			Error('Invalid session number (0-%d)'%len(traffic_sniffers))
+			return None
+		return traffic_sniffers.keys()[number]
 	elif module == 'arp' or module == 'dns':
 		if len(arp_sessions) <= number:
 			Error('Invalid session number (0-%d)'%len(arp_sessions))
