@@ -109,6 +109,8 @@ def update():
 		ret = util.init_app('git pull git://github.com/hatRiot/zarp.git HEAD', True)
 		if 'Already up-to-date' in ret:
 			util.Msg('Zarp already up to date.')
+		elif 'fatal' in ret:
+			util.Error('Error updating Zarp: %s'%ret)
 		else:
 			from util import version
 			util.Msg('Zarp updated to version %s'%(version()))
