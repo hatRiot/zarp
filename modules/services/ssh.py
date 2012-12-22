@@ -1,7 +1,11 @@
 import util, os, socket
 from threading import Thread
 from time import sleep
-from stubssh import SSHStub, SSHHandler
+
+try:
+	from stubssh import SSHStub, SSHHandler
+except:
+	pass
 
 #
 # emulate a basic SSH service; store usernames/passwords but reject them all.
