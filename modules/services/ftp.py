@@ -24,7 +24,7 @@ class FTPService():
 	# combos and deny access
 	#
 	def process_com(self, con, data):
-		cmd = data.split(' ')[0]
+		cmd = data.split(' ')[0].strip()
 		if cmd == 'USER':
 			usr = data.split(' ')[1]
 			if usr is None:
