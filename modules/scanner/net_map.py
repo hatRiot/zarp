@@ -1,4 +1,5 @@
-import socket, time
+import socket
+from datetime import datetime
 from util import Error
 from scapy.all import *
 
@@ -28,9 +29,9 @@ class NetMap:
 		conf.verb = 0
 		print '[!] Beginning host scan with netmask %s...'%(self.net_mask)
 		try:
-			start = time.clock()	
-			(ans, unans) = srp(Ether(dst="ff:ff:ff:ff:ff:ff")/ARP(pdst=self.net_mask),timeout=1, inter=0.1)
-			elapsed = (time.clock() - start)
+			start = datetime.now() 
+			(ans, unans) = srp(Ether(dst="ff:ff:ff:ff:ff:ff")/ARP(pdst=self.net_mask),timeout=1, inter=0.1,multi=True)
+			elapsed = (datetime.now() - start).seconds
 			print '[!] Scan of %s completed in %s seconds with %d hosts responding.'%(self.net_mask,elapsed,len(ans))
 			for s,r in ans:
 			 	ip = r[ARP].getfieldval('psrc')
