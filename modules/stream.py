@@ -265,7 +265,8 @@ def stop_session(module, number):
 			password_sniffers[i].shutdown()
 		for key in static_singles:
 			if not static_singles[key] is None:
-				static_singles[key].shutdown()
+				if hasattr(static_singles[key], 'shutdown'):
+					static_singles[key].shutdown()
 
 	if module == 'dhcp':
 		# dhcp is a different story

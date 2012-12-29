@@ -58,6 +58,6 @@ class NetMap:
 	# Dump all the available hosts found
 	#
 	def view(self):
-		print '\n\t[!] Available hosts in range %s:'%self.net_mask
+		print '\n\t\033[32m[!] Available hosts in range %s:\033[0m'%self.net_mask
 		for mac in self.available_hosts.keys():
 			print '\t%s : %s'%(mac,self.available_hosts[mac])
