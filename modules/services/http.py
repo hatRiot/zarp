@@ -1,6 +1,6 @@
 import util
 import BaseHTTPServer
-import base64
+import base64, socket
 from threading import Thread
 
 #
@@ -112,11 +112,9 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 		self.context = context
 		try:
 			BaseHTTPServer.BaseHTTPRequestHandler.__init__(self, *args)
-		except Exception as j:
-			# depending on where the pipe breaks, the error may propogate here
-			if j.errno == 32:
-				return
-			util.Error('Error: %s'%j)
+			self.server.socket.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
+		except Exception, j:
+			pass
 
 	def send_headers(self):
 		self.server_version = 'b4ll4sts3c http server'
@@ -162,7 +160,7 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 				self.send_auth_headers()
 			else:
 				self.send_auth_headers()
-		except Exception as j:
+		except Exception, j:
 			if j.errono == 32:
 				# connection closed prematurely
 				return
