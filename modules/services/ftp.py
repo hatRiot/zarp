@@ -6,7 +6,9 @@ from threading import Thread
 #
 class FTPService():
 	def __init__(self):
-		self.motd = 'b4ll4stS3c FTP Server v1.4\r\n'
+		self.motd = 'b4ll4stS3c FTP Server v1.4'
+		self.usr = None
+		self.pwd = None
 		self.running = False
 		self.serv_sock = None
 		self.dump = False
@@ -24,20 +26,17 @@ class FTPService():
 	# combos and deny access
 	#
 	def process_com(self, con, data):
-		cmd = data.split(' ')[0]
+		cmd = data.split(' ')[0].strip()
 		if cmd == 'USER':
 			usr = data.split(' ')[1]
 			if usr is None:
 				self.response(con, 503, 'Incorrect username.')
-				return True
 			self.usr = usr.rstrip()
 			self.response(con, 331, 'Specify password.')
-			return True
 		elif cmd == 'PASS':
 			psswd = data.split(' ')[1]
 			if psswd is None:
 				self.response(con, 503, 'Incorrect password.')
-				return True
 			self.pwd = psswd.rstrip()
 			self.response(con, 530, 'Incorrect credentials')
 			return False
@@ -57,32 +56,44 @@ class FTPService():
 	def initialize(self):
 		self.running = True
 		self.serv_sock = socket.socket()
+		self.serv_sock.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
 		try:
 			self.serv_sock.bind(('', 21))
 		except:
 			util.Error('Cannot bind to address.')
 			return
-		self.serv_sock.listen(1)
 
+		self.serv_sock.listen(1)
 		try:
 			while self.running:
 				conn, addr = self.serv_sock.accept()
-				conn.settimeout(5)
 				if self.dump: util.Msg('Connection from %s'%str(addr))
 				if self.log_data: self.log_file.write('Connection from %s\n'%str(addr))
 				self.response(conn, 220, self.motd)
-				while self.running:
-					data = conn.recv(256)
-					if len(data) > 0 and not self.process_com(conn, data):
+
+				while self.running: 
+					try:
+						data = conn.recv(256)
+						if len(data) > 0 and not self.process_com(conn, data):
+							break
+					except socket.error:
 						break
-				if self.dump: util.Msg("Received '%s:%s' from connection."%(self.usr, self.pwd))
+
+				if self.dump: 
+					util.Msg("Received '\033[32m%s:%s\033[33m' from connection."%(self.usr, self.pwd))
 				if self.log_data: 
 					self.log_file.write('Received \'%s:%s\' from %s.\n'%(self.usr, self.pwd, str(addr)))
+	
+				if self.dump: util.Msg('\'%s\' disconnected.\n'%(addr[0]))
 				conn.close()
 		except KeyboardInterrupt:
-			pass
+			self.running = False	
+		except socket.error:
+		 	# timeout/broken pipe
+	 		pass
 		except Exception, j:
 			pass	
+
 		self.serv_sock.close()
 
 	#

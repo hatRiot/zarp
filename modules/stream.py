@@ -211,8 +211,12 @@ def dump_module_sessions(module):
 # Return the total number of running sessions
 #
 def get_session_count():
+	global static_singles
+
 	tmp = len(arp_sessions) + len(http_sniffers)+ len(password_sniffers) 
 	tmp += len(traffic_sniffers)
+	tmp += (1 if not static_singles['rogue_dhcp'] is None else 0)
+	tmp += (1 if not static_singles['nbnspoof'] is None else 0)
 	return tmp
 
 #
@@ -259,6 +263,10 @@ def stop_session(module, number):
 			http_sniffers[i].shutdown()
 		for i in password_sniffers:
 			password_sniffers[i].shutdown()
+		for key in static_singles:
+			if not static_singles[key] is None:
+				if hasattr(static_singles[key], 'shutdown'):
+					static_singles[key].shutdown()
 
 	if module == 'dhcp':
 		# dhcp is a different story
