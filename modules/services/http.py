@@ -1,6 +1,7 @@
 import util
 import BaseHTTPServer
 import base64, socket
+from service import Service
 from threading import Thread
 
 #
@@ -8,15 +9,12 @@ from threading import Thread
 # This can be used to harvest usernames/passwords from users not paying any attention.
 #
 
-class HTTPService:
+class HTTPService(Service):
 	def __init__(self):
 		self.server = 'B4114stS3c HTTP Server v3.1'
 		self.httpd = None
-		self.running = False
 		self.root = None
-		self.dump = False
-		self.log_data = False
-		self.log_file = None
+		super(HTTPService,self).__init__('HTTP')
 	
 	#
 	# initialize in bg; for interfacing with
@@ -46,51 +44,6 @@ class HTTPService:
 		except Exception, j:
 			util.Error("Error: %s"%j)
 			return
-
-	#
-	# start/stop logger
-	# OPT for logging NOT OPT to disable
-	#
-	def log(self, opt, log_loc):
-		if opt and not self.log_data:
-			try:
-				util.debug('Starting HTTP logger')
-				self.log_file = open(log_loc, 'w+')
-			except Exception, j:
-				util.Error('Error opening log file: %s'%j)
-				self.log_file = None
-				return
-			self.log_data = True
-		elif not opt and self.log_data:
-			try:
-				self.log_file.close()
-				self.log_file = None
-				self.log_data = False
-				util.debug('HTTP logger shutdown complete.')
-			except Exception, j:
-				util.Error('Error closing logger: %s'%j)
-
-	#
-	# dump connection info
-	#
-	def view(self):
-		try:
-			while True:
-				self.dump = True
-		except KeyboardInterrupt:
-			self.dump = False
-			return
-
-	#
-	# shutdown http server
-	#
-	def shutdown(self):
-		util.Msg('Shutting HTTP service down')
-		if self.running:
-			self.running = False
-		if self.log_data:
-			self.log(False, None)
-		util.Msg('HTTP down.')
 
 	#
 	# a little magic since we've got to have a request handler class
@@ -168,6 +121,7 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 			return
 		except KeyboardInterrupt:
 			return
+
 	# override logger
 	def log_message(self, format, *args):
 		if self.context['dump'] or self.context['log_data']:

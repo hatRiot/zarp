@@ -1,19 +1,17 @@
 import util, socket
+from service import Service
 from threading import Thread
 
 #
 # emulate a single-threaded FTP service
 #
-class FTPService():
+class FTPService(Service):
 	def __init__(self):
 		self.motd = 'b4ll4stS3c FTP Server v1.4'
 		self.usr = None
 		self.pwd = None
-		self.running = False
 		self.serv_sock = None
-		self.dump = False
-		self.log_data = False
-		self.log_file = None
+		super(FTPService,self).__init__('FTP')
 	
 	#
 	# format a response to the client
@@ -95,51 +93,4 @@ class FTPService():
 			pass	
 
 		self.serv_sock.close()
-
-	#
-	# dump connection information
-	#
-	def view(self):
-		try:
-			while True:
-				self.dump = True
-		except KeyboardInterrupt:
-			self.dump = False
-			return
-
-	#
-	# Start logging, or stop logging
-	# OPT for logging NOT OPT to disable
-	#
-	def log(self, opt, log_loc):
-		if opt and not self.log_data:
-			try:
-				util.debug('Starting FTP logger')
-				self.log_file = open(log_loc, 'w+')
-			except Exception, j:
-				util.Error('Error opening log file: %s'%j)
-				self.log_file = None
-				return
-			self.log_data = True
-		elif not opt and self.log_data:
-			try:
-				self.log_file.close()
-				self.log_file = None
-				self.log_data = False
-				util.debug('FTP logger shutdown complete.')
-			except Exception, j:
-				util.Error('Error closing logger: %s'%j)
-
-	#
-	# shutdown ftp service
-	#
-	def shutdown(self):
-		util.Msg('Shutting FTP service down')
-		self.running = False
-		try:
-			self.serv_sock.shutdown(2)
-		except Exception, r:
-			print r
-		if self.log_data:
-			self.log(False, None)
-		util.Msg('FTP shutdown.')
+		self.serv_sock.shutdown(2)

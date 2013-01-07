@@ -1,5 +1,6 @@
 import util, os, socket
 from threading import Thread
+from service import Service
 from time import sleep
 
 try:
@@ -11,13 +12,10 @@ except:
 # emulate a basic SSH service; store usernames/passwords but reject them all.
 # Certs too.
 #
-class SSHService:
+class SSHService(Service):
 	def __init__(self):
-		self.running = False
 		self.priv_key = None
-		self.dump = False
-		self.log_data = False
-		self.log_file = None
+		super(SSHService,self).__init__('SSH')
 
 	#
 	# If we weren't given a private key, remove the temp we generated
@@ -122,41 +120,3 @@ class SSHService:
 		finally:
 			self.running = False
 			self.cleanup()
-	
-	# dump connections/passwords
-	def view(self):
-		try:
-			while True:
-				self.dump = True
-		except KeyboardInterrupt:
-			self.dump = False
-
-	# logging
-	def log(self, opt, log_loc):
-		if opt and not self.log_data:
-			try:
-				util.debug('Starting SSH logger.')
-				self.log_file = open(log_loc, 'w+')
-			except Exception, j:
-				util.Error('Error opening log file: %s'%j)
-				self.log_file = None
-				return
-			self.log_data = True
-		elif not opt and self.log_data:
-			try:
-				self.log_file.close()
-				self.log_file = None
-				self.log_data = False
-				util.debug('SSH logger shutdown complete.')
-			except Exception, j:
-				util.Error('Error closing logger: %s'%j)
-
-	# stop the server
-	def shutdown(self):
-		util.Msg('Shutting SSH server down...')
-		self.running = False
-		self.cleanup()
-		if self.log_data:
-			self.log(False, None)
-		util.Msg('SSH server shutdown.')
-
