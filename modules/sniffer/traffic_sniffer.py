@@ -1,17 +1,14 @@
+import util
+from sniffer import Sniffer
 from scapy.all import *
 from threading import Thread
-import util
 
 #
 # Simple sniffer for dumping host traffic; mainly for debug
 #
-class TrafficSniffer:
+class TrafficSniffer(Sniffer):
 	def __init__(self):
-		self.sniff = False
-		self.source = None
-		self.dump_data = False
-		self.log_data = False
-		self.log_file = None
+		super(TrafficSniffer, self).__init__('Traffic sniffer')
 	
 	# init
 	def initialize(self):
@@ -45,27 +42,5 @@ class TrafficSniffer:
 	def dump(self, pkt):
 		if self.dump_data and not pkt is None:
 			print pkt.summary()
-
-	# shutdown sniffer			
-	def shutdown(self):
-		if self.sniff:
-			self.sniff = False
-		util.debug('Traffic sniffer shutting down.')
-		return True
-
-	# stopper callback
-	def stop_callback(self):
-		if self.sniff:
-			return False
-		util.debug('Traffic sniffer shutdown')
-		return True
-
-	# dump traffic
-	def view(self):
-		try:
-			util.Msg('Dumping traffic...')
-			while True:
-				self.dump_data = True
-		except KeyboardInterrupt:
-			self.dump_data = False
-			return
+		if self.log_data:
+			self.log_file.write(pkt.summary()+'\n')

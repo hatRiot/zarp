@@ -312,6 +312,9 @@ def start_log_session(module, number, file_location):
 		elif module == 'pass':
 			debug("Beginning password logger")
 			password_sniffers[ip].log(True, file_location)
+		elif module == 'traff':
+			debug('Beginning traffic logger')
+			traffic_sniffers[ip].log(True, file_location)
 		elif module == 'serv':
 			debug('Beginning %s logger'%ip)
 			services[ip].log(True, file_location)
@@ -333,6 +336,9 @@ def stop_log_session(module, number):
 		elif module == 'pass':
 			debug("Stopping password logger")
 			password_sniffers[ip].log(False, None)
+		elif module == 'traff':
+			debug('Stopping traffic logger')
+			traffic_sniffers[ip].log(False, None)
 		elif module == 'serv':
 			debug('Stopping %s logger'%ip)
 			services[ip].log(False, None)
