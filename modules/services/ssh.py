@@ -23,7 +23,7 @@ class SSHService:
 	# If we weren't given a private key, remove the temp we generated
 	#
 	def cleanup(self):
-		if self.priv_key is None:
+		if self.priv_key == './privkey.key':
 			os.system('rm -f privkey.key')
 	
 	# dispatch as a thread; this is called from gui
