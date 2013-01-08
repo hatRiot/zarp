@@ -11,7 +11,7 @@ from threading import Thread
 #
 class PasswordSniffer(Sniffer):
 	def __init__(self):
-		super(PasswordSniffer, self).__init__('Password sniffer')
+		super(PasswordSniffer, self).__init__('Password')
 
 	#
 	# The only applied filter for the sniffer is the source address; the rest is fair game for parsing

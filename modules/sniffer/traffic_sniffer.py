@@ -8,7 +8,7 @@ from threading import Thread
 #
 class TrafficSniffer(Sniffer):
 	def __init__(self):
-		super(TrafficSniffer, self).__init__('Traffic sniffer')
+		super(TrafficSniffer, self).__init__('Traffic')
 	
 	# init
 	def initialize(self):

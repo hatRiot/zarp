@@ -34,7 +34,7 @@ class Sniffer(object):
 	def stop_callback(self):
 		if self.sniff:
 			return False
-		util.debug('%s shutdown...'%self.which_sniffer)
+		util.debug('%s sniffer shutdown...'%self.which_sniffer)
 		return True
 
 	#
@@ -45,7 +45,7 @@ class Sniffer(object):
 			self.sniff = False
 		if self.log_data:
 			self.log(False, None)
-		util.debug('%s shutting down'%self.which_sniffer)
+		util.debug('%s sniffer shutting down'%self.which_sniffer)
 		return True
 
 	#
