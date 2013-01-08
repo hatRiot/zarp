@@ -1,23 +1,12 @@
 import os, sys, gc
-sys.path[:0] = [str(os.getcwd()) + '/modules/sniffer/', str(os.getcwd()) + '/modules/dos/', 
-				str(os.getcwd()) + '/modules/poison/', str(os.getcwd())+'/modules/scanner/',
-				str(os.getcwd()) + '/modules/parameter/', str(os.getcwd())+'/modules/services/'] 
+
 from util import Error, Msg, debug
-from arp import ARPSpoof
-from dns import DNSSpoof
-from dhcp import DHCPSpoof
-from nbns import NBNSSpoof
-from password_sniffer import PasswordSniffer
-from http_sniffer import HTTPSniffer
-from traffic_sniffer import TrafficSniffer
-from net_map import NetMap
-from ftp import FTPService
-from ssh import SSHService
-from http import HTTPService
-from access_point import APService
-from smb import SMBService
-import dhcp, ndp_dos, nestea_dos, land_dos, smb2_dos,dhcp_starvation,service_scan
-import ap_scan, router_pwn, tcp_syn, ap_crack
+from poison import *
+from sniffer import *
+from services import *
+from parameter import *
+from dos import *
+from scanner import *
 
 #
 # Main data bus for interacting with the various modules.  Dumps information, initializes objects,
@@ -45,7 +34,7 @@ def initialize(module):
 	global static_singles, arp_sessions, http_sniffers, password_sniffers, services
 	debug("Received module start for: %s"%(module))
 	if module == 'arp':
-		tmp = ARPSpoof() 
+		tmp = arp.ARPSpoof() 
 		to_ip = tmp.initialize()
 		if not to_ip is None:
 			debug("Storing session for %s"%to_ip)
@@ -58,25 +47,25 @@ def initialize(module):
 		if not ip is None:
 			arp_sessions[ip].init_dns_spoof()
 	elif module == 'dhcp':
-		tmp = DHCPSpoof()
+		tmp = dhcp.DHCPSpoof()
 		if tmp.initialize():
 			static_singles['rogue_dhcp'] = tmp
 	elif module == 'ndp':
 		ndp_dos.initialize()	
 	elif module == 'http_sniffer':
-		tmp = HTTPSniffer()
+		tmp = http_sniffer.HTTPSniffer()
 		to_ip = tmp.initialize()
 		if not to_ip is None:
 			debug("Storing sniffer for %s"%to_ip)
 			http_sniffers[to_ip] = tmp
 	elif module == 'password_sniffer':
-		tmp = PasswordSniffer()
+		tmp = password_sniffer.PasswordSniffer()
 		to_ip = tmp.initialize()
 		if not to_ip is None:
 			debug("Storing sniffer for %s"%to_ip)
 			password_sniffers[to_ip] = tmp
 	elif module == 'traffic_sniffer':
-		tmp = TrafficSniffer()
+		tmp = traffic_sniffer.TrafficSniffer()
 		to_ip = tmp.initialize()
 		if not to_ip is None:
 			debug('Storing sniffer for %s'%to_ip)
@@ -88,7 +77,7 @@ def initialize(module):
 	elif module == 'smb2':
 		smb2_dos.initialize()
 	elif module == 'net_map':
-		static_singles['netscan'] = NetMap()
+		static_singles['netscan'] = net_map.NetMap()
 		static_singles['netscan'].initialize()
 	elif module == 'service_scan':
 		service_scan.initialize()
@@ -107,28 +96,28 @@ def initialize(module):
 	elif module == 'tcp_syn':
 		tcp_syn.initialize()
 	elif module == 'nbns':
-		tmp = NBNSSpoof()
+		tmp = nbns.NBNSSpoof()
 		if tmp.initialize():
 			static_singles['nbnspoof'] = tmp
 	elif module == 'ftp_server':
-		tmp = FTPService()
+		tmp = ftp.FTPService()
 		tmp.initialize_bg()
 		services['ftp'] = tmp
 	elif module == 'http_server':
-		tmp = HTTPService()
+		tmp = http.HTTPService()
 		tmp.initialize_bg()
 		services['http'] = tmp
 	elif module == 'ssh_server':
-		tmp = SSHService()
+		tmp = ssh.SSHService()
 		if not tmp.initialize_bg():
 			return
 		services['ssh'] = tmp
 	elif module == 'access_point':
-		tmp = APService()
+		tmp = access_point.APService()
 		if tmp.initialize_bg():
 			services['wireless ap'] = tmp
 	elif module == 'smb':
-		tmp = SMBService()
+		tmp = smb.SMBService()
 		tmp.initialize_bg()
 		services['smb'] = tmp
 	else:
@@ -323,6 +312,9 @@ def start_log_session(module, number, file_location):
 		elif module == 'pass':
 			debug("Beginning password logger")
 			password_sniffers[ip].log(True, file_location)
+		elif module == 'traff':
+			debug('Beginning traffic logger')
+			traffic_sniffers[ip].log(True, file_location)
 		elif module == 'serv':
 			debug('Beginning %s logger'%ip)
 			services[ip].log(True, file_location)
@@ -344,6 +336,9 @@ def stop_log_session(module, number):
 		elif module == 'pass':
 			debug("Stopping password logger")
 			password_sniffers[ip].log(False, None)
+		elif module == 'traff':
+			debug('Stopping traffic logger')
+			traffic_sniffers[ip].log(False, None)
 		elif module == 'serv':
 			debug('Stopping %s logger'%ip)
 			services[ip].log(False, None)

