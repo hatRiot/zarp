@@ -1,7 +1,6 @@
-import stream 
-import util
+import stream, util
+import re
 from sniffer import Sniffer
-from re import findall
 from threading import Thread
 from scapy.all import *
 
@@ -10,9 +9,11 @@ from scapy.all import *
 #
 class HTTPSniffer(Sniffer):
 	def __init__(self):
-		self.verbs = [ 'Site Only', 'Request String', 'Request and Payload' ]
+		self.verbs = [ 'Site Only', 'Request String', 'Request and Payload',
+					   'Custom Regex' ]
 		self.verb = 0
-		super(HTTPSniffer,self).__init__('HTTP sniffer')
+		self.regex = None
+		super(HTTPSniffer,self).__init__('HTTP')
 
 	#
 	# Sniffs for HTTP traffic by checking the destination port (for now)
@@ -37,10 +38,15 @@ class HTTPSniffer(Sniffer):
 				if self.verb >= len(self.verbs): 
 					util.Error('Input incorrect.')
 					continue
+
+				if self.verb is 3:
+					self.regex = raw_input('[!] Enter regex: ')
+					self.regex = re.compile(self.regex)
 				break
 			except KeyboardInterrupt:
 				return
-			except:
+			except Exception, j:
+				print type(j)
 				pass
 
 		util.Msg('Output dumping in \'%s\' verbosity.'%self.verbs[self.verb])
@@ -58,16 +64,21 @@ class HTTPSniffer(Sniffer):
 	# format output as per verb level 
 	#
 	def pull_output(self, pkt):
-		data = None
-		if self.verb is 1:
+		data = pkt.getlayer(Raw).load
+		if self.verb is 0:
 			# parse the site only
-			payload = pkt.getlayer(Raw).load
-			data = findall('Host: (.*)', payload)[0]
+			data = re.findall('Host: (.*)', data)
+			if len(data) > 0: data = data[0]
+			else: data = None
+		elif self.verb is 1:
+			data = data.split('\n')
+			if len(data) > 0: data = data[0]
+			else: data = None
 		elif self.verb is 2:
-			payload = pkt.getlayer(Raw).load
-			data = payload.split('\n')[0]
+			pass
 		elif self.verb is 3:
-			data = pkt.getlayer(Raw).load
+			data = self.regex.search(data)
+			if not data is None: data = data.group(0)
 		return data
 
 	#
@@ -78,9 +89,9 @@ class HTTPSniffer(Sniffer):
 			if pkt.haslayer(Raw):
 				if self.dump_data or self.log_data:
 					data = self.pull_output(pkt)
-					if self.dump_data:
+					if self.dump_data and not data is None:
 						print data
-					if self.log_data:
+					if self.log_data and not data is None:
 						self.log_file.write(data)
 		except KeyboardInterrupt:
 			self.dump_data = False
