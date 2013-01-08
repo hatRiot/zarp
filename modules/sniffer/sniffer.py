@@ -53,7 +53,7 @@ class Sniffer(object):
 	#
 	def view(self):
 		try:
-			util.Msg('Dumping %s...'%self.which_sniffer)
+			util.Msg('Dumping %s from %s...'%(self.which_sniffer, self.source))
 			while True:
 				self.dump_data = True
 		except KeyboardInterrupt:

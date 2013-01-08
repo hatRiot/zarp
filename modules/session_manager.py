@@ -36,7 +36,7 @@ def menu():
 			file_path = raw_input('> ')
 			if file_path is None:
 				return
-			if util.does_file_exist(file_path):
+			if util.does_file_exist(file_path) or os.path.islink(file_path):
 				util.Error('File already exists.')
 				return
 			util.Msg('Module must be a sniffer or valid logging module.')
@@ -51,7 +51,7 @@ def menu():
 			except Exception, j:
 				util.Error('Error logging to given file')
 				return
-			if tmp == 'n':
+			if 'n' in tmp.lower(): 
 				return
 			stream.start_log_session(module, int(number), file_path)
 		elif choice == 4:
