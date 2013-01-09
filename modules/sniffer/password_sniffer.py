@@ -23,7 +23,6 @@ class PasswordSniffer(Sniffer):
 	# initialize the sniffer
 	#
 	def initialize(self):
-		self.source = raw_input('[!] Enter address to sniff passwords from: ')
 		tmp = raw_input('[!] Sniff passwords from %s.  Is this correct? '%self.source)
 		if 'n' in tmp.lower():
 			return None

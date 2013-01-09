@@ -26,8 +26,6 @@ class HTTPSniffer(Sniffer):
 	# initialize the sniffer by getting the source address from the user
 	#
 	def initialize(self):
-		self.source = raw_input('[!] Enter address to listen for HTTP packets from: ')
-
 		while True:
 			try:
 				util.Msg('Enter verbosity level: ')

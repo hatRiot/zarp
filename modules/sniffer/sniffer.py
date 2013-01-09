@@ -1,4 +1,4 @@
-import util
+import util, config
 import abc
 
 #
@@ -9,12 +9,14 @@ class Sniffer(object):
 	__metaclass__ = abc.ABCMeta
 
 	def __init__(self, module):
-		self.which_sniffer = module # sniffer title 
-		self.source = None          # source to sniff from
-		self.sniff = False          # sniffing is on/off
-		self.dump_data = False      # dump output to screen
-		self.log_data = False       # logging on/off
-		self.log_file = None        # logging file
+		self.which_sniffer = module           # sniffer title 
+		self.source = config.get('ip_addr')   # source to sniff from
+		self.sniff = False          		  # sniffing is on/off
+		self.dump_data = False      		  # dump output to screen
+		self.log_data = False       		  # logging on/off
+		self.log_file = None        		  # logging file
+		# retrieve the source IP
+		self.get_ip()
 
 	@abc.abstractmethod
 	def dump(self, pkt):
@@ -28,6 +30,19 @@ class Sniffer(object):
 	def initialize(self):
 		pass
 	
+	#
+	# Retrieve the IP address to listen on; default to default adapter IP
+	#
+	def get_ip(self):
+		try:
+			tmp = raw_input('[!] Enter address to listen on [%s]: '%self.source)
+		except:
+			return 
+			
+		if tmp.strip() != '':
+			self.source = tmp
+		return
+
 	#
 	# Initiate a sniffer shutdown
 	#

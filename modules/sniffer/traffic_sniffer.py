@@ -12,10 +12,8 @@ class TrafficSniffer(Sniffer):
 	
 	# init
 	def initialize(self):
-		srs = None
 		while True:
 			try:
-				self.source = raw_input('[!] Enter address to sniff: ')
 				tmp = raw_input('[!] Sniff traffic from %s.  Is this correct? '%self.source)
 				if 'n' in tmp.lower():
 					break	
@@ -24,15 +22,13 @@ class TrafficSniffer(Sniffer):
 				sniff_thread = Thread(target=self.traffic_sniffer)
 				sniff_thread.start()
 
-				srs = self.source
 				break
 			except KeyboardInterrupt:
-				srs = None
 				break
 			except Exception, j:
 				print j
 				continue
-		return srs
+		return self.source 
 
 	# sniff traffic
 	def traffic_sniffer(self):

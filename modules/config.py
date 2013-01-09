@@ -1,6 +1,7 @@
-import util, logging
+import util, logging, sys
 logging.getLogger('scapy.runtime').setLevel(logging.ERROR)
 from scapy.all import *
+from collections import namedtuple
 
 #
 # Main configuration class; set through the 'set' command
@@ -9,8 +10,9 @@ from scapy.all import *
 class Configuration:
 	def __init__(self):
 		self.opts = {
-					'iface' : conf.iface,
-					'debug' : util.isDebug
+					'iface'  : conf.iface,
+					'debug'  : util.isDebug,
+					'ip_addr': util.get_local_ip(conf.iface)
 					}
 
 CONFIG = None
@@ -23,11 +25,15 @@ def initialize():
 # dump settings
 def dump():
 	global CONFIG
-	print '\t\033[33m##|SETTING|\033[0m\t\033[32m|VALUE|##\033[0m'
-	for k, v in CONFIG.opts.iteritems():
-		print '\t%-10s\t %-25s'%(k, v)
-		print '\t-----\t\t ------'
-	print '\n'
+
+	# format the table data
+	Setting = namedtuple('Setting', ['Key', 'Value']) 
+	table = []
+	for i in CONFIG.opts.keys():
+		data = Setting(i, CONFIG.opts[i])
+		table.append(data)
+	# pass it to be printed
+	pptable(table)
 
 # set the key to value
 def set(key, value):
@@ -40,7 +46,7 @@ def set(key, value):
 				return
 		elif key == 'debug':
 		  	value = util.isDebug if evalBool(value) is None else evalBool(value)
-		  	util.isDebug = value
+		  	util.isDebug = str(value)
 		CONFIG.opts[key] = value
 	else:
 		util.Error('Key "%s" not found.  \'opts\' for options.'%(key))
@@ -59,3 +65,33 @@ def evalBool(value):
 	elif value in ['False', 'false']:
 		return False
 	return None
+
+#
+# Print a formatted table given the sequence
+# of tuples
+#
+def pptable(rows):
+	if len(rows) > 1:
+		headers = rows[0]._fields
+		lens = []
+		for i in range(len(rows[0])):
+			lens.append(len(max([x[i] for x in rows] + [headers[i]],
+						key=lambda x:len(str(x)))))
+		formats = []
+		hformats = []
+		for i in range(len(rows[0])):
+			formats.append('%%%ds'%lens[i])
+			hformats.append("%%-%ds" % lens[i])
+		pattern = " | ".join(formats)
+		hpattern = " | ".join(hformats)
+		separator = "-+-".join(['-' * n for n in lens])
+		print '\t\033[32m' + hpattern % tuple(headers) + '\033[0m'
+		print '\t' + separator
+		for line in rows:
+			print '\t' + pattern % tuple(line)
+		print '\t' + separator
+	elif len(rows) == 1:
+		row = rows[0]
+		hwidth = len(max(row._fields,key=lambda x:len(x)))
+		for i in range(len(row)):
+			print "%*s = %s" % (hwidth, row._fields[i],row[i])
