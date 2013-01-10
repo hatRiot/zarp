@@ -38,6 +38,8 @@ class DHCPSpoof:
 			thread.start()
 			self.running = True
 			return True
+		except KeyboardInterrupt:
+			return False
 		except Exception, j:
 			util.Error('[-] Error: %s'%j)
 			return False

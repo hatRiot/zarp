@@ -46,7 +46,7 @@ def set(key, value):
 				return
 		elif key == 'debug':
 		  	value = util.isDebug if evalBool(value) is None else evalBool(value)
-		  	util.isDebug = str(value)
+		  	util.isDebug = value
 		CONFIG.opts[key] = value
 	else:
 		util.Error('Key "%s" not found.  \'opts\' for options.'%(key))
@@ -60,9 +60,9 @@ def get(key):
 # Keep set/unsetting booleans consistent.
 #
 def evalBool(value):
-	if value in ['True', 'true']:
+	if value in ['True', 'true', '1']:
 		return True
-	elif value in ['False', 'false']:
+	elif value in ['False', 'false', '0']:
 		return False
 	return None
 

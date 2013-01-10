@@ -36,6 +36,8 @@ class Sniffer(object):
 	def get_ip(self):
 		try:
 			tmp = raw_input('[!] Enter address to listen on [%s]: '%self.source)
+		except KeyboardInterrupt:
+			return
 		except:
 			return 
 			

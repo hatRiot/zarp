@@ -24,10 +24,10 @@ class TrafficSniffer(Sniffer):
 
 				break
 			except KeyboardInterrupt:
-				break
+				return	
 			except Exception, j:
-				print j
-				continue
+				util.Error('Error with sniffer: %s'%j)	
+				return	
 		return self.source 
 
 	# sniff traffic
