@@ -57,6 +57,8 @@ class APService(Service):
 						  ]
 			ap_proc = util.init_app(airbase_cmd, False)
 			while self.running: pass
+		except KeyboardInterrupt:
+			self.running = False
 		except Exception, er:
 			util.Error('Error with wireless AP: %s'%er)
 		finally:
