@@ -17,7 +17,8 @@ class TrafficSniffer(Sniffer):
 				tmp = raw_input('[!] Sniff traffic from %s.  Is this correct? '%self.source)
 				if 'n' in tmp.lower():
 					break	
-
+				
+				self.sniff_filter = "src {0} or dst {0}".format(self.source)
 				self.sniff = True
 				sniff_thread = Thread(target=self.traffic_sniffer)
 				sniff_thread.start()
@@ -29,10 +30,6 @@ class TrafficSniffer(Sniffer):
 				util.Error('Error with sniffer: %s'%j)	
 				return	
 		return self.source 
-
-	# sniff traffic
-	def traffic_sniffer(self):
-		sniff(filter='src %s or dst %s'%(self.source, self.source), store=0, prn=self.dump, stopper=self.stop_callback, stopperTimeout=3)
 
 	# just dump the data and print the summary
 	def dump(self, pkt):

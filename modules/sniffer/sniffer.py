@@ -1,5 +1,6 @@
 import util, config
 import abc
+from scapy.all import sniff
 
 #
 # Abstract Sniffer
@@ -13,6 +14,7 @@ class Sniffer(object):
 		self.source = config.get('ip_addr')   # source to sniff from
 		self.sniff = False          		  # sniffing is on/off
 		self.dump_data = False      		  # dump output to screen
+		self.sniff_filter = None		      # filter for the traffic sniffer
 		self.log_data = False       		  # logging on/off
 		self.log_file = None        		  # logging file
 		# retrieve the source IP
@@ -22,14 +24,21 @@ class Sniffer(object):
 	def dump(self, pkt):
 		pass
 
-	@abc.abstractmethod
-	def traffic_sniffer(self):
-		pass
 
 	@abc.abstractmethod
 	def initialize(self):
 		pass
 	
+	#
+	# Sniff traffic with the appropriate 
+	#
+	def traffic_sniffer(self):
+		if self.sniff_filter is None:
+			raise NotImplementedError, "sniff_filter not initialized!"
+
+		sniff(filter=self.sniff_filter,store=0,prn=self.dump,stopper=self.stop_callback,
+						stopperTimeout=3)
+
 	#
 	# Retrieve the IP address to listen on; default to default adapter IP
 	#

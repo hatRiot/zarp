@@ -184,6 +184,17 @@ def get_local_ip(adapter):
 		)[20:24])
 
 #
+# I havent found a neat way to pull RAW bytes out of Scapy packets,
+# so I just wrote a small utility function for it.
+#
+def get_layer_bytes(layer):
+	arr = []
+	layer = layer.encode('hex')
+	for (f, s) in zip(layer[0::2], layer[1::2]):
+		arr.append(f + s)
+	return arr
+		
+#
 # Helper for the interface.
 # arr is a list of items for display
 #
@@ -214,7 +225,7 @@ def print_menu(arr):
 		elif 'opts' in choice:
 			config.dump()
 			choice = -1
-		elif 'quit' in choice:
+		elif 'quit' in choice or 'exit' in choice:
 			# hard quit
 			os._exit(1)
 		else:

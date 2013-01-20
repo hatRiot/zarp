@@ -14,23 +14,19 @@ class PasswordSniffer(Sniffer):
 		super(PasswordSniffer, self).__init__('Password')
 
 	#
-	# The only applied filter for the sniffer is the source address; the rest is fair game for parsing
-	#
-	def traffic_sniffer(self):
-		sniff(filter="src %s"%self.source, store=0,prn=self.dump, stopper=self.stop_callback, stopperTimeout=3)
-
-	#
 	# initialize the sniffer
 	#
 	def initialize(self):
 		tmp = raw_input('[!] Sniff passwords from %s.  Is this correct? '%self.source)
 		if 'n' in tmp.lower():
 			return None
+
+		self.sniff_filter = "src %s"%self.source
 		self.sniff = True
 		sniff_thread = Thread(target=self.traffic_sniffer)
 		sniff_thread.start()
 		return self.source
-
+	
 	#
 	# Parse packet payloads for username/passwords
 	#

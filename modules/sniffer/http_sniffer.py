@@ -16,13 +16,6 @@ class HTTPSniffer(Sniffer):
 		super(HTTPSniffer,self).__init__('HTTP')
 
 	#
-	# Sniffs for HTTP traffic by checking the destination port (for now)
-	# TODO: https
-	#
-	def traffic_sniffer(self):
-		sniff(filter="tcp and dst port 80 and src %s"%self.source, store=0, prn=self.dump, 
-					stopper=self.stop_callback,stopperTimeout=3)
-	#
 	# initialize the sniffer by getting the source address from the user
 	#
 	def initialize(self):
@@ -53,6 +46,8 @@ class HTTPSniffer(Sniffer):
 
 		if 'n' in tmp.lower(): 
 			return None
+
+		self.sniff_filter = "tcp and dst port 80 and src %s"%self.source
 		self.sniff = True
 		sniff_thread = Thread(target=self.traffic_sniffer)
 		sniff_thread.start()

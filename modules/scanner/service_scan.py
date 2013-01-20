@@ -10,16 +10,19 @@ from scapy.all import *
 #
 
 services = {
-		    'ftp' : 21,
-		    'ssh' : 22,
-			'telnet':23,
-			'smtp' : 25,
-			'dns' : 53,
-			'dhcp' : 67,
-			'http' : 80,
-			'pop3' : 110,
-			'snmp' : 161,
-			'smb' : 445
+		     'ftp': 21,
+		     'ssh': 22,
+		  'telnet':23,
+			'smtp': 25,
+			 'dns': 53,
+			'dhcp': 67,
+			'http': 80,
+			'pop3': 110,
+			'snmp': 161,
+			 'smb': 445,
+		   'mysql': 3306,
+		   'mssql': 1433,
+		'postgres': 5432
 		    }
 
 def initialize():
@@ -95,7 +98,7 @@ def service_scan ( block, service ):
 				sr(IP(dst=ip)/TCP(flags='FA',dport=port),timeout=1)
 	except Exception, j:
 		util.debug("error: %s"%j)	
-
+	print '\n'
 #
 # Scan for DHCP servers
 #
