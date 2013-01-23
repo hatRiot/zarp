@@ -158,8 +158,10 @@ class ARPSpoof:
 			thread.start()
 		except KeyboardInterrupt:
 			return
+		except re.error:
+			Error('Invalid regex given.')
 		except Exception, j:
-			print j
+			Error('Error: %s'%j)	
 			return
 
 	#
