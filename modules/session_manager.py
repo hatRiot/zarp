@@ -1,6 +1,6 @@
 import string
 import stream, util
-from os import system
+from os import system,path
 
 #
 # Module provides the front end for interacting with sessions
@@ -36,7 +36,7 @@ def menu():
 			file_path = raw_input('> ')
 			if file_path is None:
 				return
-			if util.does_file_exist(file_path) or os.path.islink(file_path):
+			if util.does_file_exist(file_path) or path.islink(file_path):
 				util.Error('File already exists.')
 				return
 			util.Msg('Module must be a sniffer or valid logging module.')
