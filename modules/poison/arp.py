@@ -41,6 +41,8 @@ class ARPSpoof:
 			self.to_ip = raw_input("[!] Enter host to poison:\t")
 			self.from_ip = raw_input("[!] Enter address to spoof:\t")
 			tmp = raw_input("[!] Spoof IP {0} from victim {1}.  Is this correct? ".format(self.to_ip, self.from_ip))
+		except KeyboardInterrupt:
+			return None
 		except Exception, j:
 			debug('Error loading ARP poisoning module: %s'%(j))
 			return None
@@ -154,6 +156,8 @@ class ARPSpoof:
 			Msg('Starting DNS spoofer...')
 			thread = Thread(target=self.dns_sniffer)
 			thread.start()
+		except KeyboardInterrupt:
+			return
 		except Exception, j:
 			print j
 			return

@@ -93,4 +93,3 @@ class FTPService(Service):
 			pass	
 
 		self.serv_sock.close()
-		self.serv_sock.shutdown(2)

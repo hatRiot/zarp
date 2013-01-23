@@ -12,31 +12,24 @@ class TrafficSniffer(Sniffer):
 	
 	# init
 	def initialize(self):
-		srs = None
 		while True:
 			try:
-				self.source = raw_input('[!] Enter address to sniff: ')
 				tmp = raw_input('[!] Sniff traffic from %s.  Is this correct? '%self.source)
 				if 'n' in tmp.lower():
 					break	
-
+				
+				self.sniff_filter = "src {0} or dst {0}".format(self.source)
 				self.sniff = True
 				sniff_thread = Thread(target=self.traffic_sniffer)
 				sniff_thread.start()
 
-				srs = self.source
 				break
 			except KeyboardInterrupt:
-				srs = None
-				break
+				return	
 			except Exception, j:
-				print j
-				continue
-		return srs
-
-	# sniff traffic
-	def traffic_sniffer(self):
-		sniff(filter='src %s or dst %s'%(self.source, self.source), store=0, prn=self.dump, stopper=self.stop_callback, stopperTimeout=3)
+				util.Error('Error with sniffer: %s'%j)	
+				return	
+		return self.source 
 
 	# just dump the data and print the summary
 	def dump(self, pkt):

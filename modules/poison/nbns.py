@@ -45,6 +45,8 @@ class NBNSSpoof:
 				if 'n' in tmp.lower():
 					return
 				break
+			except KeyboardInterrupt:
+				return False
 			except:
 				pass
 
