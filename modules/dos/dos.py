@@ -21,7 +21,7 @@ class DoS(object):
 	#
 	def is_alive(self):
 		if not self.target is None:
-			rval = init_app('ping -c 1 -w 1 %s'%addr[0], True)
+			rval = init_app('ping -c 1 -w 1 %s'%self.target, True)
 			up = search('\d.*? received', rval)
 			if search('0', up.group(0)) is None:
 				return True

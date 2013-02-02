@@ -44,7 +44,7 @@ class SMB2DoS(DoS):
 			sock.close()
 			
 			if self.is_alive():
-				Msg('Host appears to be up')
+				util.Msg('Host appears to be up')
 			else:
 				util.Msg('Host is not responding - it is either down or rejecting our probes.')
 		except Exception, j:
