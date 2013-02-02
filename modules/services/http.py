@@ -1,25 +1,25 @@
 import util
 import BaseHTTPServer
-import base64, socket
+import base64
+import socket
 from service import Service
 from threading import Thread
 
-#
-# Emulate an HTTP server.  If no default page is entered, a auth realm will be presented instead.
-# This can be used to harvest usernames/passwords from users not paying any attention.
-#
 __name__='HTTP Server'
 class HTTPService(Service):
+	"""Emulate an HTTP server.  If no default page is entered, an auth 
+	   realm will be presented instead.  This can be used to harvest
+	   usernames/passwords from users not paying attention.
+	"""
+
 	def __init__(self):
 		self.server = 'B4114stS3c HTTP Server v3.1'
 		self.httpd = None
 		self.root = None
 		super(HTTPService,self).__init__('HTTP')
 	
-	#
-	# initialize in bg; for interfacing with
-	#
 	def initialize_bg(self):
+		"""Initialize the server in the background"""
 		try:
 			util.Msg('[enter] for default credential prompt.')
 			self.root = raw_input('[+] Enter root file: ')
@@ -32,24 +32,20 @@ class HTTPService(Service):
 		return True
 
 	def initialize(self):
-		self.httpd = BaseHTTPServer.HTTPServer(('', 80), self.handler)
+		"""Initialize the server"""
+		self.httpd = ZarpHTTPServer(('',80), self.handler)
 		self.running = True
-		
 		try:
-			self.httpd.socket.settimeout(5)
-			while self.running:
-				self.httpd.handle_request()
-		except KeyboardInterrupt:
+			self.httpd.serve()
+		except socket.error, KeyboardInterrupt:
 			self.running = False
-			return
-		except Exception, j:
-			util.Error("Error: %s"%j)
-			return
+		except Exception, e:
+			util.Error('Error: %s'%e)
+			self.running = False
+		self.shutdown()
 
-	#
-	# a little magic since we've got to have a request handler class
-	#
 	def handler(self, *args):
+		"""Magic for passing context into the request handler"""
 		context = { 
 				'root': self.root,
 				'dump': self.dump,
@@ -57,11 +53,48 @@ class HTTPService(Service):
 				'log_file' : self.log_file
 				  }
 		RequestHandler(context, *args)
-		
-#
-# handle HTTP requests; just HEAD/GET right now.  POST if needed be.
-#
+
+	def shutdown(self):
+		"""Shutdown the HTTP server"""
+		if self.running:
+			self.httpd.stop()
+
+class ZarpHTTPServer(BaseHTTPServer.HTTPServer):
+	""" Custom implementation because you can't cleanly shutdown
+		a BaseHTTPServer with a timeout.
+	"""
+
+	def server_bind(self):
+		"""Overload the binded server so we can set a timeout
+		   on the local socket
+		"""
+		BaseHTTPServer.HTTPServer.server_bind(self)
+		self.socket.settimeout(5)
+		self.run = True
+
+	def stop(self):
+		"""Stop the HTTP server"""
+		try:
+		   	self.run = False
+			self.socket.close()
+		except Exception, e:
+			util.Error('Error closing HTTP socket: %s'%e)
+
+	def serve(self):
+		"""Serve up the server, bail when we're done running"""
+		try:
+			while True: 
+				self.handle_request()
+				if not self.run:
+					raise socket.error
+		except:
+			raise socket.error
+
 class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
+	""" Request handler for HEAD/GET.  POST will be added if necessary,
+		maybe harvesting POST data?
+	"""
+
 	def __init__(self, context, *args):
 		self.context = context
 		try:
@@ -71,6 +104,7 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 			pass
 
 	def send_headers(self):
+		"""Send the HTTP headers"""
 		self.server_version = 'b4ll4sts3c http server'
 		self.sys_version = 'v3.1'
 		self.send_response(200)
@@ -78,15 +112,18 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 		self.end_headers()
 
 	def send_auth_headers(self):
+		"""Send the auth header"""
 		self.send_response(401)
 		self.send_header('WWW-Authenticate', 'Basic realm=\"Security Realm\"')
 		self.send_header('Content-type', 'text/html')
 		self.end_headers()
 
 	def do_HEAD(self):
+		"""Send headers on HEAD"""
 		self.send_headers()
 
 	def do_GET(self):
+		"""Handle GET"""
 		try:
 			# go away
 			if self.path == '/favicon.ico':
@@ -124,8 +161,8 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 		except KeyboardInterrupt:
 			return
 
-	# override logger
 	def log_message(self, format, *args):
+		"""override logger"""
 		if self.context['dump'] or self.context['log_data']:
 			tmp = ''
 			for i in args:
