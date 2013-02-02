@@ -1,12 +1,12 @@
 import stream, util
 import re
 from sniffer import Sniffer
-from threading import Thread
 from scapy.all import *
 
 #
 # Module sniffs incoming traffic for any HTTP traffic and dumps it.
 #
+__name__ = 'HTTP Sniffer'
 class HTTPSniffer(Sniffer):
 	def __init__(self):
 		self.verbs = [ 'Site Only', 'Request String', 'Request and Payload',
@@ -49,8 +49,7 @@ class HTTPSniffer(Sniffer):
 
 		self.sniff_filter = "tcp and dst port 80 and src %s"%self.source
 		self.sniff = True
-		sniff_thread = Thread(target=self.traffic_sniffer)
-		sniff_thread.start()
+		self.sniff_thread.start()
 		return self.source
 	
 	#
@@ -80,12 +79,9 @@ class HTTPSniffer(Sniffer):
 	def dump(self, pkt):
 		try:
 			if pkt.haslayer(Raw):
-				if self.dump_data or self.log_data:
-					data = self.pull_output(pkt)
-					if self.dump_data and not data is None:
-						print data
-					if self.log_data and not data is None:
-						self.log_file.write(data)
+				data = self.pull_output(pkt)
+				if not data is None:
+					self.log_msg(data)
 		except KeyboardInterrupt:
 			self.dump_data = False
 			return

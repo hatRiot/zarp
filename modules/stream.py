@@ -1,12 +1,6 @@
-import os, sys, gc
-
+import gc
 from util import Error, Msg, debug
-from poison import *
-from sniffer import *
-from services import *
-from parameter import *
-from dos import *
-from scanner import *
+from collections import OrderedDict
 
 #
 # Main data bus for interacting with the various modules.  Dumps information, initializes objects,
@@ -15,387 +9,195 @@ from scanner import *
 # All around boss.
 #
 
-arp_sessions = {}
-http_sniffers = {}
-password_sniffers = {}
-traffic_sniffers = {}
-services = {}
+# main struct; ordered dictionary
+HOUSE = OrderedDict()
 
-# management of only single objects
-static_singles = {'netscan': None,
-                  'rogue_dhcp': None,
-				  'nbnspoof' : None
-				}
-#
-# Initialize a poisoner and/or DoS attack and store the object
-# TODO rework this so it doesn't turn into a HUGE if/elif/elif/elif...
-#
-def initialize(module):
-	global static_singles, arp_sessions, http_sniffers, password_sniffers, services
-	debug("Received module start for: %s"%(module))
-	if module == 'arp':
-		tmp = arp.ARPSpoof() 
+def initialize(module, TYPE):
+	""" Initialize a module and load it into the global HOUSE
+		variable.  TYPE should be one of the corresponding strings
+		from 'zarp'.  MODULE should be an instance of the loaded
+		module.
+	"""
+	global HOUSE
+	debug("Received module start for: %s"%(module.__name__))
+	if not 'service' in HOUSE:
+		# services will always be 0
+		HOUSE['service'] = {}
+	if TYPE is 'POISON': 
+		if not module.__name__ in HOUSE:
+			HOUSE[module.__name__] = {}
+		tmp = module()
 		to_ip = tmp.initialize()
 		if not to_ip is None:
-			debug("Storing session for %s"%to_ip)
-			arp_sessions[to_ip] = tmp
-		del(tmp)
-	elif module == 'dns':
-		dump_module_sessions('arp')
-		(module, number) = get_session_input()
-		ip = get_key(module,number)
-		if not ip is None:
-			arp_sessions[ip].init_dns_spoof()
-	elif module == 'dhcp':
-		tmp = dhcp.DHCPSpoof()
-		if tmp.initialize():
-			static_singles['rogue_dhcp'] = tmp
-	elif module == 'ndp':
-		ndp_dos.initialize()	
-	elif module == 'http_sniffer':
-		tmp = http_sniffer.HTTPSniffer()
+			debug('Storing session for %s'%to_ip)
+			HOUSE[module.__name__][to_ip] = tmp
+	elif TYPE is 'SNIFFER':
+		if not module.__name__ in HOUSE:
+			HOUSE[module.__name__] = {}
+		tmp = module() 
 		to_ip = tmp.initialize()
 		if not to_ip is None:
-			debug("Storing sniffer for %s"%to_ip)
-			http_sniffers[to_ip] = tmp
-	elif module == 'password_sniffer':
-		tmp = password_sniffer.PasswordSniffer()
-		to_ip = tmp.initialize()
-		if not to_ip is None:
-			debug("Storing sniffer for %s"%to_ip)
-			password_sniffers[to_ip] = tmp
-	elif module == 'traffic_sniffer':
-		tmp = traffic_sniffer.TrafficSniffer()
-		to_ip = tmp.initialize()
-		if not to_ip is None:
-			debug('Storing sniffer for %s'%to_ip)
-			traffic_sniffers[to_ip] = tmp
-	elif module == 'nestea':
-		nestea_dos.initialize()
-	elif module == 'land':
-		land_dos.initialize()
-	elif module == 'smb2':
-		smb2_dos.initialize()
-	elif module == 'net_map':
-		static_singles['netscan'] = net_map.NetMap()
-		static_singles['netscan'].initialize()
-	elif module == 'service_scan':
-		service_scan.initialize()
-	elif module == 'dhcp_starv':
-		dhcp_starvation.initialize()
-	elif module == 'ap_scan':
-		return ap_scan.initialize()	
-	elif module == 'wep_crack':
-		ap_crack.initialize('wep')
-	elif module == 'wpa_crack':
-		ap_crack.initialize('wpa')
-	elif module == 'wps_crack':
-		ap_crack.initialize('wps')
-	elif module == 'router_pwn':
-		router_pwn.initialize()
-	elif module == 'tcp_syn':
-		tcp_syn.initialize()
-	elif module == 'nbns':
-		tmp = nbns.NBNSSpoof()
-		if tmp.initialize():
-			static_singles['nbnspoof'] = tmp
-	elif module == 'ftp_server':
-		tmp = ftp.FTPService()
-		tmp.initialize_bg()
-		services['ftp'] = tmp
-	elif module == 'http_server':
-		tmp = http.HTTPService()
-		tmp.initialize_bg()
-		services['http'] = tmp
-	elif module == 'ssh_server':
-		tmp = ssh.SSHService()
-		if not tmp.initialize_bg():
-			return
-		services['ssh'] = tmp
-	elif module == 'access_point':
-		tmp = access_point.APService()
-		if tmp.initialize_bg():
-			services['wireless ap'] = tmp
-	elif module == 'smb':
-		tmp = smb.SMBService()
-		tmp.initialize_bg()
-		services['smb'] = tmp
-	else:
-		Error('Module \'%s\' does not exist.'%module)
+			debug('Storing sniffer session for %s'%to_ip)
+			HOUSE[module.__name__][to_ip] = tmp
+	elif TYPE is 'DOS':
+		tmp = module()
+		tmp.initialize()
+	elif TYPE is 'SERVICE':
+		tmp = module()
+		if module.__name__ in HOUSE['service']:
+			Error('\'%s\' is already running.'%module.__name__)
+		else:
+			if tmp.initialize_bg():
+				HOUSE['service'][module.__name__] = tmp
+	elif TYPE is 'SCANNER':
+		tmp = module()
+		tmp.initialize()
+	elif TYPE is 'PARAMETER':
+		tmp = module()
+		tmp.initialize()
 
-#
-# Dump running sessions
-#
 def dump_sessions():
-	global arp_sessions, dns_sessions, static_singles
+	"""Format and print the currently running modules.
+	"""
+	global HOUSE
 	print '\n\t[Running sessions]'
 
-	# dump arp poisons
-	if len(arp_sessions) > 0: print '[!] ARP POISONS [arp]:'
-	for (counter, session) in enumerate(arp_sessions):
-		print '\t\033[32m[%d] %s\033[0m'%(counter, session)
-		if arp_sessions[session].dns_spoof:
-			print '\t|-> [!] DNS POISONS [dns]:'
-			for (counter,key) in enumerate(arp_sessions[session].dns_spoofed_pair):
-				print '\t|--> \033[32m[%d] %s -> %s\033[0m'%(counter,key.pattern,arp_sessions[session].dns_spoofed_pair[key])
-
-	# dump http sniffers
-	if len (http_sniffers) > 0: print '[!] HTTP SNIFFERS [http]:'
-	for (counter, session) in enumerate(http_sniffers):
-		print '\t\033[32m[%d] %s\033[0m'%(counter, session)
-		if http_sniffers[session].log_data:
-			print '\t|--> Logging to ', http_sniffers[session].log_file.name
-
-	# dump password sniffers
-	if len(password_sniffers) > 0: print '[!] PASSWORD SNIFFERS [pass]:'
-	for (counter, session) in enumerate(password_sniffers):
-		print '\t\033[32m[%d] %s\033[0m'%(counter, session)
-		if password_sniffers[session].log_data:
-			print '\t|--> Logging to ', password_sniffers[session].log_file.name
+	if 'service' in HOUSE:
+		# services first
+		tmp = HOUSE['service']
+		if len(tmp) > 0: print '[0] Services'
+		for (cnt,service) in enumerate(tmp):
+			print '\t\033[32m[%d] %s\033[0m'%(cnt,tmp[service].session_view())
+			if tmp[service].log_data:
+				print '\t--> \033[32mLogging to %s\033[0m'%(tmp[service].log_file.name)
 	
-	# dump traffic sniffers
-	if len(traffic_sniffers) > 0: print '[!] TRAFFIC SNIFFERS [traff]:'
-	for (counter, session) in enumerate(traffic_sniffers):
-		print '\t\033[32m[%d] %s\033[0m'%(counter, session)
-		if traffic_sniffers[session].log_data:
-			print '\t|--> Logging to ', traffic_sniffers[session].log_file.name
-
-	# dump services
-	if len(services) > 0: print '[!] SERVICES [serv]:'
-	for (counter, session) in enumerate(services):
-		print '\t\033[32m[%d] %s\033[0m'%(counter, session)
-		if services[session].log_data:
-			print '\t|--> Logging to ', services[session].log_file.name
-
-	if not static_singles['netscan'] is None:
-		# we dont save a history of scans; just the last one
-		print '\n[0] NetMap Scan [netmap]'
-	if not static_singles['rogue_dhcp'] is None:
-		print '\n[1] Rogue DHCP [dhcp]'
-	if not static_singles['nbnspoof'] is None:
-		print '\n[2] NBNS Spoof [nbns]'
+	for (cnt,key) in enumerate(HOUSE.keys()):
+		if key is 'service':
+			continue
+		if len(HOUSE[key]) > 0: print '[%d] %s'%(cnt, key)
+		for (cnt,obj) in enumerate(HOUSE[key]):
+			print '\t\033[32m[%d] %s\033[0m'%(cnt, HOUSE[key][obj].session_view())
+			if hasattr(HOUSE[key][obj], 'log_data'):
+				if HOUSE[key][obj].log_data:
+					print '\t|--> Logging to ', HOUSE[key][obj].log_file.name
 	print '\n'
 
-#
-# Dump the sessions for a specific module
-#
 def dump_module_sessions(module):
-	global arp_sessions, dns_sessions, static_singles 
-	if module == 'arp':
-		print '\n\t[Running ARP sessions]'
-		for (counter, session) in enumerate(arp_sessions):
-			print '\t[%d] %s'%(counter, session)
-	elif module == 'dns':
-		print '\n\t[Running DNS sessions]'
-		for (counter, session) in enumerate(arp_sessions):
-			if session.dns_spoof:
-				print '\t[%d] %s'%(counter, session)
-	elif module == 'dhcp':
-		if not static_singles['rogue_dhcp'] is None and static_singles['rogue_dhcp'].running:
-			print '[-] not yet'
-	elif module == 'nbns':
-		if not static_singles['nbnspoof'] is None and static_singles['nbnspoof'].running:
-		 	print '\t[2] NBNS Spoof'
-#
-# Return the total number of running sessions
-#
-def get_session_count():
-	global static_singles
+	"""Dump running sessions for a module.
+	   @param module is the module to dump.
+	"""
+	global HOUSE 
+	if not module in HOUSE.keys(): 
+		Error('Module \'%s\' not found.'%module)
+		return
+	else:
+		mod = HOUSE[module] 
+	
+	print '[!] %s'%module
+	for (cnt,obj) in enumerate(mod.keys()):
+		print '\t[%d] %s'%(cnt, obj)
 
-	tmp = len(arp_sessions) + len(http_sniffers)+ len(password_sniffers) 
-	tmp += len(traffic_sniffers)
-	tmp += (1 if not static_singles['rogue_dhcp'] is None else 0)
-	tmp += (1 if not static_singles['nbnspoof'] is None else 0)
+def get_session_count():
+	""" Return a count of the number of running sessions
+	"""
+	global HOUSE
+	tmp = 0
+	if len(HOUSE.keys()) > 0:
+		for key in HOUSE.keys():
+			tmp += len(HOUSE[key])
 	return tmp
 
-#
-# Stop a specific session; this calls the .shutdown() method for the given object.
-# All modules are required to implement this method.
-# @param module is the module
-# @param number is the session number (beginning with 0)
-#
 def stop_session(module, number):
-	global static_singles 
-	ip = get_key(module, number)
-	if not ip is None:
-		if module == 'arp':
-			debug("Killing ARP session for %s"%ip)
-			if arp_sessions[ip].shutdown():
-				del(arp_sessions[ip])
-		elif module == 'dns':
-		  	debug("Killing DNS sessions for %s"%ip)
-			arp_sessions[ip].stop_dns_spoof()
-		elif module == 'ndp':
-		  	Error("NDP not implemented")
-		elif module == 'http':
-		  	debug("Killing HTTP sniffer for %s"%ip)
-			if http_sniffers[ip].shutdown():
-				del(http_sniffers[ip])
-		elif module == 'pass':
-		  	debug("Killing password sniffer for %s"%ip)
-			if password_sniffers[ip].shutdown():
-				del(password_sniffers[ip])
-		elif module == 'traff':
-			debug('Killing traffic sniffer for %s'%ip)
-			if traffic_sniffers[ip].shutdown():
-				del(traffic_sniffers[ip])
-		elif module == 'serv':
-			debug('Killing service %s'%ip)
-			services[ip].shutdown()
-			del(services[ip])
-	elif module == 'all' and number == -1:
-		# this is the PANIC KILL ALL signal
-		Msg('Shutting all sessions down...')
-		for i in arp_sessions:
-			arp_sessions[i].shutdown()
-		for i in http_sniffers:
-			http_sniffers[i].shutdown()
-		for i in password_sniffers:
-			password_sniffers[i].shutdown()
-		for key in static_singles:
-			if not static_singles[key] is None:
-				if hasattr(static_singles[key], 'shutdown'):
-					static_singles[key].shutdown()
+	""" Stop a specific session; calls the respective module's
+ 		shutdown() method.
+		@param module is the module number
+		@param number is the session number
+	"""
+	global HOUSE 
 
-	if module == 'dhcp':
-		# dhcp is a different story
-		if not static_singles['rogue_dhcp'] is None:
-			static_singles['rogue_dhcp'].shutdown()
-			static_singles['rogue_dhcp'] = None
-	elif module == 'nbns':
-		if not static_singles['nbnspoof'] is None:
-			static_singles['nbnspoof'].shutdown()
-			static_singles['nbnspoof'] = None
+	if module == 'all' and number == -1:
+		# kill all
+		for key in HOUSE.keys():
+			for entry in HOUSE[key]:
+				HOUSE[key][entry].shutdown()
+	else:
+		(mod, mod_inst) = get_mod_num(module, number)
+		if not mod is None and not mod_inst is None:
+			HOUSE[mod][mod_inst].shutdown()
+			del(HOUSE[mod][mod_inst])
+			if len(HOUSE[mod].keys()) is 0:
+				del(HOUSE[mod])
+		else:
+			return
 	gc.collect()
 
-#
-# Some modules have information to dump, so for those applicable, this'll initiate it.
-# Module should implement the .view() method for dumping information to.
-#
 def view_session(module, number):
-	global static_singles 
-	ip = get_key(module, number)
-	if module == 'netmap':
-		static_singles['netscan'].view()
-	elif module == 'nbns':
-		static_singles['nbnspoof'].view()
-	elif module == 'dhcp':
-		static_singles['rogue_dhcp'].view()
-	elif not ip is None:
-		if module == 'http':
-			debug("Beginning HTTP dump for %s"%ip)
-			http_sniffers[ip].view()
-		elif module == 'pass':
-			debug("Beginning password dump for %s"%ip)
-			password_sniffers[ip].view()
-		elif module == 'traff':
-			debug('Beginning traffic dump for %s'%ip)
-			traffic_sniffers[ip].view()
-		elif module == 'arp' or module == 'dns':
-			debug("Beginning ARP/DNS dump for %s"%ip)
-			arp_sessions[ip].view()
-		elif module == 'serv':
-			Msg("Beginning service dump for %s"%ip)
-			services[ip].view()
-	else:
-		return
+	"""Initializes a module's view
+		@param module is the module number
+		@param number is the session number
+	"""
+	global HOUSE
+	
+	mod = get_module(module, number)
+	if hasattr(mod, 'view'):
+		mod.view()
 
-#
-# Start logging a session
-#
-def start_log_session(module, number, file_location):
-	ip = get_key(module, number)
-	if not ip is None:
-		if module == 'http':
-			debug("Beginning HTTP logger")
-			http_sniffers[ip].log(True, file_location)
-		elif module == 'pass':
-			debug("Beginning password logger")
-			password_sniffers[ip].log(True, file_location)
-		elif module == 'traff':
-			debug('Beginning traffic logger')
-			traffic_sniffers[ip].log(True, file_location)
-		elif module == 'serv':
-			debug('Beginning %s logger'%ip)
-			services[ip].log(True, file_location)
+def toggle_log(module, number, file_loc, toggle):
+	"""Toggle the logger of a module
+	   @param module is the module number
+	   @param number is the session number
+	   @param file_loc is a string containing the file path
+	   @param toggle is True to turn on logging or False to turn off
+	"""
+	(mod, mod_inst) = get_mod_num(module, number)
+	if not mod is None and not mod_inst is None and hasattr(HOUSE[mod][mod_inst], 'log'):
+		if toggle:
+			# enable
+			HOUSE[mod][mod_inst].log(True, file_loc)
 		else:
-			Error('Module \'%s\' does not have a logger.'%module)
+			# disable
+			HOUSE[mod][mod_inst].log(False, None)
 	else:
-		Error('%s session \'%s\' could not be found.'%(module, number))
-		Error('Logging canceled.')
+		Error('Module does not have a logger or doesn\'t exist.')
 
-#
-# Stop logging a session 
-#
-def stop_log_session(module, number):
-	ip = get_key(module, number)
-	if not ip is None:
-		if module == 'http':
-			debug("Stopping HTTP logger")
-			http_sniffers[ip].log(False, None)
-		elif module == 'pass':
-			debug("Stopping password logger")
-			password_sniffers[ip].log(False, None)
-		elif module == 'traff':
-			debug('Stopping traffic logger')
-			traffic_sniffers[ip].log(False, None)
-		elif module == 'serv':
-			debug('Stopping %s logger'%ip)
-			services[ip].log(False, None)
-		else:
-			Error('Module \'%s\' does not have a logger.'%module)
-	else:
-		Error('%s session \'%s\' could not be found.'%(module, number))
-		Error('Logging could not be stopped.')
-#
-# Internal function for grabbing IP address from a module/index
-#
-def get_key(module, number):
-	if module == 'http':
-		if len(http_sniffers) <= number:
-			Error('Invalid session number (0-%d)'%len(http_sniffers))
-			return None
-		return http_sniffers.keys()[number]
-	elif module == 'pass':
-		if len(password_sniffers) <= number:
-			Error('Invalid session number (0-%d)'%len(password_sniffers))
-			return None
-		return password_sniffers.keys()[number]
-	elif module == 'traff':
-		if len(traffic_sniffers) <= number:
-			Error('Invalid session number (0-%d)'%len(traffic_sniffers))
-			return None
-		return traffic_sniffers.keys()[number]
-	elif module == 'arp' or module == 'dns':
-		if len(arp_sessions) <= number:
-			Error('Invalid session number (0-%d)'%len(arp_sessions))
-			return None
-		return arp_sessions.keys()[number]
-	elif module == 'serv':
-		if len(services) <= number:
-			Error('Invalid session number (0-%d)'%len(services))
-			return None
-		return services.keys()[number]
-	elif module == 'none' and number == -1:
-		return None
-	return None
-
-#
-# read in the module/number for interacting with a specific running module
-#
 def get_session_input():
+	""" Helper for obtaining module and session numbers
+	"""
 	try:
 		tmp = raw_input('[module] [number]> ')
 		(module, number) = tmp.split(' ')
 		if not module is None and not number is None:
-			return (str(module), int(number))
+			return (int(module), int(number))
 	except Exception: 
 		Error('Must specify [module] followed by [number]\n')
 		return (None, None)
 
-#
-# view a modules information
-#
+def get_module(module, number):
+	""" Retrieve an instance of a running session
+		@param module is the module number
+		@param number is the session number
+	"""
+	(mod, mod_inst) = get_mod_num(module, number)
+	if not mod is None and not mod_inst is None:
+		return HOUSE[mod][mod_inst]
+	return None
+
+def get_mod_num(module, number):
+	"""Fetch the module and number instances given their
+	   indexes.
+	   @param module is the module index
+	   @param number is the module session index
+	"""
+	if len(HOUSE.keys()) > module:
+		mod = HOUSE.keys()[module]
+		if len(HOUSE[mod].keys()) > number:
+			mod_instance = HOUSE[mod].keys()[number]
+			return (mod, mod_instance)
+	return (None, None)
+
 def view_info (module):
-	if module == 'http':
-		HTTPSniffer().info()	
+	""" Obtains help information for a module
+		@param module is the module number
+	"""
+	print 'Received info start for ', module
+	pass	

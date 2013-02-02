@@ -15,6 +15,7 @@ class SSHStub(paramiko.ServerInterface):
 			util.Msg('Received login attempt: %s:%s'%(username, password))
 		if self.context['log_data']:
 			self.context['log_file'].write('Received login: %s:%s\n'%(username, password))
+			self.context['log_file'].flush()
 		return paramiko.AUTH_FAILED
 
 	def check_channel_request(self, kind, chanid):

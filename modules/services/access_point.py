@@ -7,7 +7,7 @@ from service import Service
 # Implements a fake wireless access point for harvesting credentials/keys/etc
 # Requires airbase-ng
 #
-
+__name__='Access Point'
 class APService(Service):
 	def __init__(self):
 		self.ap_essid = 'zoopzop'
@@ -56,6 +56,7 @@ class APService(Service):
 						self.mon_adapt
 						  ]
 			ap_proc = util.init_app(airbase_cmd, False)
+			util.Msg('Access point %s running.'%self.ap_essid)
 			while self.running: pass
 		except KeyboardInterrupt:
 			self.running = False

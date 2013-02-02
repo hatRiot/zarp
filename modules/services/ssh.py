@@ -12,6 +12,7 @@ except:
 # emulate a basic SSH service; store usernames/passwords but reject them all.
 # Certs too.
 #
+__name__='SSH Server'
 class SSHService(Service):
 	def __init__(self):
 		self.priv_key = None
@@ -78,12 +79,19 @@ class SSHService(Service):
 		try:
 			server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, True)
+			server_socket.settimeout(5)
 			server_socket.bind(('0.0.0.0', 22))
 			server_socket.listen(1)
 			self.running = True
 
 			while self.running:
-				con, addr = server_socket.accept()
+				try:
+					con, addr = server_socket.accept()
+				except KeyboardInterrupt:
+					return
+				except:
+					# timeout
+					continue
 				pkey = paramiko.RSAKey.from_private_key_file(self.priv_key)
 				transport = paramiko.Transport(con)
 				transport.add_server_key(pkey)

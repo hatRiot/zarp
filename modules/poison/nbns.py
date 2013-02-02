@@ -1,6 +1,7 @@
 import re
 from threading import Thread
 from scapy.all import *
+from poison import Poison
 import util, config
 
 #
@@ -8,8 +9,8 @@ import util, config
 # Requests are matched based on Python's regex parser.  Careful!
 # http://www.packetstan.com/2011/03/nbns-spoofing-on-your-way-to-world.html
 #
-
-class NBNSSpoof:
+__name__ = "NBNS Poison"
+class NBNSSpoof(Poison):
 	def __init__(self):
 		conf.verb = 0
 		self.local_mac = get_if_hwaddr(config.get('iface'))
@@ -17,6 +18,7 @@ class NBNSSpoof:
 		self.redirect = None
 		self.running = False
 		self.dump = False
+		super(NBNSSpoof,self).__init__('NBNS Poison')
 
 	#
 	# callback for packets; match 

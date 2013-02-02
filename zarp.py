@@ -1,15 +1,64 @@
 #! /usr/local/bin/python
-import os, sys
+import os
+import sys
 sys.path.insert(0, os.getcwd() + '/modules/')
 from util import print_menu, header, Error, Msg, debug
 from commands import getoutput
-import stream, session_manager, parse_cmd, config
+import stream
+import session_manager
+import parse_cmd
+import config
+# module loading
+import importlib
+import modules.dos
+import modules.poison
+import modules.scanner
+import modules.services
+import modules.sniffer
+import modules.parameter
 
-#
-# Network Attack Tool; view README for more information.
-#
+class LoadedModules:
+	""" Load modules
+	"""
+	def __init__(self):
+		self.total      = 0
+		self.poison     = []
+		self.dos        = []
+		self.sniffers   = []
+		self.services   = []
+		self.scanner    = []
+		self.parameter  = []
 
+	def load(self):
+		for module in modules.dos.__all__:
+			mod = importlib.import_module('modules.dos.%s'%module, 'modules.dos')
+			self.dos.append(mod)
+			self.total += 1
+		for module in modules.poison.__all__:
+			mod = importlib.import_module('modules.poison.%s'%module, 'modules.poison')
+			self.poison.append(mod)
+			self.total += 1
+		for module in modules.scanner.__all__:
+			mod = importlib.import_module('modules.scanner.%s'%module, 'modules.scanner')
+			self.scanner.append(mod)
+			self.total += 1
+		for module in modules.services.__all__:
+			mod = importlib.import_module('modules.services.%s'%module, 'modules.services')
+			self.services.append(mod)
+			self.total += 1
+		for module in modules.sniffer.__all__:
+			mod = importlib.import_module('modules.sniffer.%s'%module, 'modules.sniffer')
+			self.sniffers.append(mod)
+			self.total += 1
+		for module in modules.parameter.__all__:
+			mod = importlib.import_module('modules.parameter.%s'%module, 'modules.parameter')
+			self.parameter.append(mod)
+			self.total += 1
+	
 def main():
+	""" Zarp entry point
+	"""
+
 	# handle command line options first
 	if len(sys.argv) > 1:
 		parse_cmd.parse(sys.argv)
@@ -20,14 +69,11 @@ def main():
 	# menus
 	main_menu =    [ 'Poisoners', 'DoS Attacks', 'Sniffers', 'Scanners',
 				     'Parameter','Services','Sessions']
-	poison_menu =  [ 'ARP Poison', 'DNS Poison', 'DHCP Poison', 'NBNS Spoof']
-	dos_menu =     [ 'NDP', 'Nestea', 'LAND', 'TCP SYN', 'SMB2',
-					'DHCP Starve'
-				   ]
-	sniffer_menu = [ 'HTTP Sniffer', 'Password Sniffer', 'Traffic Sniffer']
-	service_menu = [ 'HTTP Server', 'SSH Server', 'FTP Server', 'SMB Listener', 'Access Point' ]
-	scanner_menu = [ 'NetMap', 'Service Scan', 'AP Scan']
-	parameter_menu = [ 'WEP Crack', 'WPA2 Crack', 'WPS Crack', 'Router Pwn', 'Pass-The-Hash' ]
+	
+	# load modules
+	loader = LoadedModules()
+	loader.load()
+	Msg('Loaded %d modules.'%loader.total)
 	
 	running = True
 	choice = -1
@@ -41,6 +87,7 @@ def main():
 				Msg('You have %d sessions running.  Are you sure?'%cnt)
 				choice = raw_input('> ')
 				if 'y' in choice.lower(): 
+					Msg('Shutting all sessions down...')
 					stream.stop_session('all', -1)
 					running = False	
 			else:
@@ -49,107 +96,98 @@ def main():
 				running = False
 		elif choice == 1:
 			while True:
-				choice = print_menu(poison_menu)
+				choice = print_menu([x.__name__ for x in loader.poison])
 				if choice == 0:
 					break
-				elif choice == 1:
-					stream.initialize('arp')
-				elif choice == 2:
-					stream.initialize('dns')
-				elif choice == 3:
-					stream.initialize('dhcp')
-				elif choice == 4:
-					stream.initialize('nbns')
 				elif choice == -1:
 					pass
+				elif choice > len(loader.poison):
+					continue
+				else:
+					sclass = get_subclass(loader.poison[choice-1], modules.poison.poison.Poison)
+					stream.initialize(sclass, 'POISON')
 		elif choice == 2:
 			while True:
-				choice = print_menu(dos_menu)
-				if choice == 1:
-					stream.initialize('ndp')
-				elif choice == 2:
-					stream.initialize('nestea')
-				elif choice == 3:
-					stream.initialize('land')
-				elif choice == 4:
-					stream.initialize('tcp_syn')
-				elif choice == 5:
-					stream.initialize('smb2')
-				elif choice == 6:
-					stream.initialize('dhcp_starv')
-				elif choice == 0:
+				choice = print_menu([x.__name__ for x in loader.dos])
+				if choice == 0:
 					break
 				elif choice == -1:
 					pass
+				elif choice > len(loader.dos):
+					continue
 				else:
-					os.system('clear')
+					sclass = get_subclass(loader.dos[choice-1], modules.dos.dos.DoS)
+					stream.initialize(sclass, 'DOS')
 		elif choice == 3:
 			while True:
-				choice = print_menu(sniffer_menu)
+				choice = print_menu([x.__name__ for x in loader.sniffers])
 				if choice == 0:
 					break
-				elif choice == 1:
-					stream.initialize('http_sniffer')
-				elif choice == 2:
-					stream.initialize('password_sniffer')
-				elif choice == 3:
-					stream.initialize('traffic_sniffer')
 				elif choice == -1:
 					pass
+				elif choice > len(loader.sniffers):
+					continue
+				else:
+					sclass = get_subclass(loader.sniffers[choice-1], modules.sniffer.sniffer.Sniffer)
+					stream.initialize(sclass, 'SNIFFER')	
 		elif choice == 4:
 			while True:
-				choice = print_menu(scanner_menu)
+				choice = print_menu([x.__name__ for x in loader.scanner])
 				if choice == 0:
 					break
-				elif choice == 1:
-					stream.initialize('net_map')
-				elif choice == 2:
-					stream.initialize('service_scan')
-				elif choice == 3:
-					stream.initialize('ap_scan')
 				elif choice == -1:
-					pass
+					pass	
+				elif choice > len(loader.scanner):
+					continue
+				else:
+					sclass = get_subclass(loader.scanner[choice-1],modules.scanner.scanner.Scanner)
+					stream.initialize(sclass, 'SCANNER')
 		elif choice == 5:
 			while True:
-				choice = print_menu(parameter_menu)
+				choice = print_menu([x.__name__ for x in loader.parameter])
 				if choice == 0:
 					break
-				elif choice == 1:
-					stream.initialize('wep_crack')	
-				elif choice == 2:
-					stream.initialize('wpa_crack')	
-				elif choice == 3:
-					stream.initialize('wps_crack')
-				elif choice == 4:
-					stream.initialize('router_pwn')	
-				elif choice == 5:
-					util.Error('Module not yet implemented')
-					#stream.initialize('pass_the_hash')
 				elif choice == -1:
 					pass
+				elif choice > len(loader.parameter):
+					continue
+				else:
+					sclass = get_subclass(loader.parameter[choice-1],modules.parameter.parameter.Parameter)
+					stream.initialize(sclass, 'PARAMETER')
 		elif choice == 6:
 			while True:
-				choice = print_menu(service_menu)
+				choice = print_menu([x.__name__ for x in loader.services])
 				if choice == 0:
 					break
-				elif choice == 1:
-					stream.initialize('http_server')
-				elif choice == 2:
-					stream.initialize('ssh_server')
-				elif choice == 3:
-					stream.initialize('ftp_server')
-				elif choice == 4:
-					stream.initialize('smb')
-				elif choice == 5:
-					stream.initialize('access_point')
 				elif choice == -1:
 					pass
+				elif choice > len(loader.services):
+					continue
+				else:
+					sclass = get_subclass(loader.services[choice-1], modules.services.service.Service)
+					stream.initialize(sclass, 'SERVICE')
 		elif choice == 7:
 			session_manager.menu()
 		elif choice == -1:
 			pass
 
-	
+#
+# Return overloaded class of loaded module
+#
+def get_subclass(module, base_class): 
+	""" Return overloaded classes of loaded module
+		@param module is the loaded user module
+		@param is the base class it should be overloading
+	"""
+	for name in dir(module):
+		obj = getattr(module, name)
+		try:
+			if issubclass(obj, base_class) and obj != base_class:
+				return obj
+		except:
+			pass
+	return None
+
 # Application entry; dependency checks, etc.
 if __name__=="__main__":
 	# perm check

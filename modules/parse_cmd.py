@@ -9,13 +9,16 @@ from http import HTTPService
 from ssh import SSHService
 from smb import SMBService
 from access_point import APService
-import service_scan, ap_scan,util
+from ap_scan import APScan
+import service_scan,util
 from scapy.all import *
 
-#
-# Provides an interface for parsing cli options.  Only certain modules are supported here (for now).
-#
 def parse(sysv):
+	""" Provides an interface for parsing CLI options.
+		As of now (v.10) this is set manually; eventually
+		it will be refactored to allow modules to set their
+		own CLI interfaces.
+	"""
 	# parse debug first so the header isn't dumped twice 
 	if 'debug' in sysv[1]:
 		util.isDebug = True
@@ -63,6 +66,8 @@ def parse(sysv):
 			util.Msg("Exiting sniffer..")
 	elif options.wifind: 
 		util.debug("beginning wireless AP scan..")
+		ap_scan = APScan()
+		if options.channel: ap_scan.channel = options.channel
 		ap_scan.initialize()
 	elif options.ssh:
 		util.Msg('Starting SSH server...')
@@ -79,7 +84,6 @@ def parse(sysv):
 		tmp = HTTPService()
 		tmp.dump = True
 		tmp.initialize()
-		tmp.view()
 	elif options.smb:
 		util.Msg('Starting SMB listener...')
 		tmp = SMBService()
@@ -93,10 +97,9 @@ def parse(sysv):
 		update()
 	sys.exit(1)
 
-#
-# Run update routine
-#
 def update():
+	"""Run update routine
+	"""
 	if not util.does_file_exist('./.git/config'):
 		util.Error('Not a git repo; please checkout from Github with \n\tgit clone http://github.com/hatRiot/zarp.git\n to update.')
 	else:

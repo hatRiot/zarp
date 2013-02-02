@@ -1,11 +1,11 @@
-import util
+from util import Error
 from sniffer import Sniffer
 from scapy.all import *
-from threading import Thread
 
 #
-# Simple sniffer for dumping host traffic; mainly for debug
+# Simple sniffer for dumping host traffic
 #
+__name__ = 'Traffic Sniffer'
 class TrafficSniffer(Sniffer):
 	def __init__(self):
 		super(TrafficSniffer, self).__init__('Traffic')
@@ -20,20 +20,16 @@ class TrafficSniffer(Sniffer):
 				
 				self.sniff_filter = "src {0} or dst {0}".format(self.source)
 				self.sniff = True
-				sniff_thread = Thread(target=self.traffic_sniffer)
-				sniff_thread.start()
-
+				self.sniff_thread.start()
 				break
 			except KeyboardInterrupt:
 				return	
 			except Exception, j:
-				util.Error('Error with sniffer: %s'%j)	
+				Error('Error with sniffer: %s'%j)	
 				return	
 		return self.source 
 
 	# just dump the data and print the summary
 	def dump(self, pkt):
-		if self.dump_data and not pkt is None:
-			print pkt.summary()
-		if self.log_data:
-			self.log_file.write(pkt.summary()+'\n')
+		if not pkt is None:
+			self.log_msg(pkt.summary())

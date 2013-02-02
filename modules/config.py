@@ -1,13 +1,12 @@
-import util, logging, sys
+import util
+import logging 
 logging.getLogger('scapy.runtime').setLevel(logging.ERROR)
 from scapy.all import *
 from collections import namedtuple
 
-#
-# Main configuration class; set through the 'set' command
-#	set KEY VALUE
-#
 class Configuration:
+	""" Main configuration; just holds options
+	"""
 	def __init__(self):
 		self.opts = {
 					'iface'  : conf.iface,
@@ -17,13 +16,16 @@ class Configuration:
 
 CONFIG = None
 
-# initialize config
 def initialize():
+	""" Initializes local config object
+	"""
 	global CONFIG
 	CONFIG = Configuration()
 
-# dump settings
 def dump():
+	""" Dumps out the current settings in a pretty
+		table
+	"""
 	global CONFIG
 
 	# format the table data
@@ -35,8 +37,11 @@ def dump():
 	# pass it to be printed
 	pptable(table)
 
-# set the key to value
 def set(key, value):
+	""" Sets the key to the vale
+		@param key is the configuration key
+		@param value is what to set it to
+	"""
 	global CONFIG
 	if key in CONFIG.opts:
 		# sometimes we gotta do stuff with the key
@@ -51,26 +56,27 @@ def set(key, value):
 	else:
 		util.Error('Key "%s" not found.  \'opts\' for options.'%(key))
 
-# get a key
 def get(key):
+	"""Fetch a config value
+	   @param key is the config key value
+	"""
 	if key in CONFIG.opts:
 		return CONFIG.opts[key]
 
-#
-# Keep set/unsetting booleans consistent.
-#
 def evalBool(value):
+	"""User input is evil
+	   @param value is the value to evaluate
+	""" 
 	if value in ['True', 'true', '1']:
 		return True
 	elif value in ['False', 'false', '0']:
 		return False
 	return None
 
-#
-# Print a formatted table given the sequence
-# of tuples
-#
 def pptable(rows):
+	""" Pretty print a table
+		@param rows is a sequence of tuples
+	"""
 	if len(rows) > 1:
 		headers = rows[0]._fields
 		lens = []

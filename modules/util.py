@@ -3,7 +3,10 @@ from datetime import date, datetime
 from commands import getoutput
 from subprocess import Popen
 import config
-import os, socket, fcntl, struct
+import os
+import socket
+import fcntl
+import struct
 
 #
 # Class houses utility functions
@@ -12,12 +15,12 @@ import os, socket, fcntl, struct
 isDebug = False
 DEBUG_LOG = 'zarp_debug.log'
 
-# zarp version
 def version():
-	return "0.05"
+	"""Zarp version"""
+	return "0.10"
 
-# zarp header
 def header():
+	"""Zarp header"""
 	print '\t\033[32m ____   __   ____  ____'
 	print '\t(__  ) / _\ (  _ \(  _ \''
 	print '\t / _/ /    \ )   / ) __/'
@@ -26,58 +29,62 @@ def header():
 	if isDebug:
 		print '\t      \033[34m[DEBUGGING]\033[0m'
 
-#
-# Print the passed error message in red formatted text!
-#
 def Error(msg):
+	"""Prints the given message and, if debugging is on,
+	   logs it.
+	"""
 	print '\033[31m[-] %s\033[0m'%(msg)
 	if isDebug:
 		debug(msg)	
 
-#
-# Print a warning/message in yellow formatted text!
-#
 def Msg(msg):
+	"""Prints a warning message"""
 	print '\033[33m[!] %s\033[0m'%(msg)
 
-# if debugging, write to dbg file
 def debug(msg):
+	"""If debugging is enabled, write the given string
+	   to the debug file
+	"""
 	if isDebug and not os.path.islink(DEBUG_LOG):
 		with open(DEBUG_LOG, 'a+') as f:
 			f.write(format('[%s %s] %s\n'%(date.today().isoformat(), datetime.now().strftime("%I:%M%p"), msg)))
 
-# return the next IP address following the given IP address.
-# It needs to be converted to an integer, then add 1, then converted back to an IP address
 def next_ip(ip):
+	"""Return the next IP address following the given IP address.
+	   It needs to be converted to an integer, then add 1, 
+	   then converted back to an IP address
+	"""
 	ip2int = lambda ipstr: struct.unpack('!I', socket.inet_aton(ipstr))[0]
 	int2ip = lambda n: socket.inet_ntoa(struct.pack('!I', n))
 	return int2ip(ip2int(ip) + 1)
 
-# Check if a given IP address is lies within the given netmask
-# TRUE if 'ip' falls within 'mask'
-# FALSE otherwise
 def is_in_subnet(ip, mask):
+	"""Check if a given IP address is lies within the given netmask
+	   TRUE if 'ip' falls within 'mask'
+       FALSE otherwise
+	"""
 	ipaddr = int(''.join([ '%02x' % int(x) for x in ip.split('.')]), 16)
 	netstr,bits = net.split('/')
 	netaddr = int(''.join([ '%02x' % int(x) for x in netstr.split('.')]), 16)
 	mask = (0xffffffff << (32 - int(bits))) & 0xffffffff
 	return (ipaddr & mask) == (netaddr & mask)	
 
-# verify if an app is installed (and pathed) properly 
 def check_program(prog):
+	"""Check if program is installed and pathed properly"""
 	tmp = init_app('which {0}'.format(prog), True)
-	if len(tmp) > len(prog) and '/' in tmp:
+	if len(tmp) > 0 and '/' in tmp:
 		return True
 	else:
 		return False
 
-# initialize an application 
-# PROG is the full command with args
-# OUTPUT true if output should be returned
-#		 false if output should be dumped to null.  This will
-#		 return a process handle and is meant for initializing 
-#		 background processes.  Use wisely.
 def init_app(prog, output):
+	"""inititalize an application 
+	   PROG is the full command with args
+       OUTPUT true if output should be returned 
+	   false if output should be dumped to null.  This will
+	   return a process handle and is meant for initializing 
+	   background processes.  Use wisely.
+	"""
 	# dump output to null
 	if not output:
 		try:
@@ -91,10 +98,8 @@ def init_app(prog, output):
 	else:
 		return getoutput(prog)
 
-#
-# kill an application
-#
 def kill_app(proc):
+	"""Kill a process"""
 	try:
 		os.kill(proc.pid, SIGINT)
 	except Exception, j:
@@ -102,11 +107,10 @@ def kill_app(proc):
 		return False
 	return True
 
-#
-# Try and automatically detect which adapter is in monitor mode
-# NONE if there are none
-#
 def get_monitor_adapter():
+	"""Try and automatically detect which adapter is in monitor mode.
+       NONE if there are none.
+	"""
 	tmp = init_app('iwconfig', True)
 	iface = None
 	for line in tmp.split('\n'):	
@@ -117,27 +121,28 @@ def get_monitor_adapter():
 				return line.split(' ')[0]
 	return None
 
-#
-# Enable monitor mode on the wireless adapter
-#
-def enable_monitor():
+def enable_monitor(channel=None):
+	"""Enable monitor mode on the wireless adapter
+	   CHANNEL is the channel to monitor on.
+	"""
 	tmp = init_app('iwconfig', True)
 	iface = None
 	for line in tmp.split('\n'):
 		if line.startswith('wlan'):
 			try:
 				iface = line.split(' ')[0]
-				tmp = getoutput('airmon-ng start {0}'.format(iface))
+				if channel is None:
+					tmp = getoutput('airmon-ng start {0}'.format(iface))
+				else:
+					tmp = getoutput('airmon-ng start {0} {1}'.format(iface,channel))
 				debug("started \'%s\' in monitor mode"%iface)
 			except Exception, j:
 				Error("Error enabling monitor mode: %s"%j)
 			break
 	return get_monitor_adapter()
 
-#
-# Kill the monitoring adapter
-#
 def disable_monitor():
+	"""Kill the monitoring adapter"""
 	try:
 		adapt = get_monitor_adapter()
 		if not adapt is None:
@@ -146,12 +151,9 @@ def disable_monitor():
 	except Exception, j:
 		Error('error killing monitor adapter:%s'%j)
 
-#
-# Verify that the given interface exists
-# TRUE if the adapter exists
-# FALSE if it was not found
-#
 def verify_iface(iface):
+	"""Verify that the given interface exists
+	"""
 	try:
 		tmp = init_app('ifconfig', True)
 		if not iface in tmp:
@@ -160,22 +162,20 @@ def verify_iface(iface):
 	except Exception, j:
 		return False
 
-#
-# check if a local file exists
-# TRUE if it does, FALSE otherwise
-#
 def does_file_exist(fle):
+	"""Check if a local file exists.
+	"""
 	try:
 		with open(fle) as f: pass
 	except IOError:
 		return False
 	return True
 
-#
-# get the main adapters IP
-# ADAPTER is the local interface adapter to grab it from
-#
 def get_local_ip(adapter):
+	""" Return the IP address of an adapter.
+		@param adapter is the adapter to fetch from.
+		I do not know how portable this is yet.
+	"""
 	s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 	return socket.inet_ntoa(fcntl.ioctl(
 			s.fileno(),
@@ -184,21 +184,39 @@ def get_local_ip(adapter):
 		)[20:24])
 
 #
-# I havent found a neat way to pull RAW bytes out of Scapy packets,
-# so I just wrote a small utility function for it.
 #
 def get_layer_bytes(layer):
+	"""I havent found a neat way to pull RAW bytes out of Scapy packets,
+	   so I just wrote a small utility function for it.
+	"""
 	arr = []
 	layer = layer.encode('hex')
 	for (f, s) in zip(layer[0::2], layer[1::2]):
 		arr.append(f + s)
 	return arr
-		
-#
-# Helper for the interface.
-# arr is a list of items for display
-#
+	
+def background():
+	""" Drops the user back into their shell environment.
+		'exit' brings them back.
+	"""
+	Msg('\'exit\' when you\'re done..')
+	if 'SUDO_USER' in os.environ:
+		usr = os.environ['SUDO_USER']
+	else:
+		# hacky?
+		usr = init_app('who -m | awk \'{print $1;}\'', True)
+	
+	shell = os.environ['SHELL'] if 'SHELL' in os.environ else '/bin/bash'
+	if check_program(shell):
+		os.system('su -c %s %s'%(shell, usr))
+	else:
+		os.system('su -c /bin/sh %s'%usr)
+	
 def print_menu(arr):
+	"""Main menu printer
+	   @param arr is the menu array to print.  Fetches input, 
+		parses and built-in command keywords, and returns the selected idx.
+	"""
 	i = 0
 	while i < len(arr):
 		# if there are more than 6 items in the list, add another column
@@ -213,7 +231,6 @@ def print_menu(arr):
 		choice = raw_input('> ')
 		if 'info' in choice:
 			Error('\'info\' not implemented yet.')
-			#stream.view_info(choice.split(' ')[1])	
 			choice = -1
 		elif 'set' in choice:
 			opts = choice.split(' ')
@@ -228,6 +245,8 @@ def print_menu(arr):
 		elif 'quit' in choice or 'exit' in choice:
 			# hard quit
 			os._exit(1)
+		elif 'bg' in choice:
+			background()
 		else:
 			choice = int(choice)
 	except Exception:

