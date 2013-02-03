@@ -2,16 +2,15 @@ from util import Error
 from sniffer import Sniffer
 from scapy.all import *
 
-#
-# Simple sniffer for dumping host traffic
-#
 __name__ = 'Traffic Sniffer'
 class TrafficSniffer(Sniffer):
+	"""Simple sniffer for dumping host traffic
+	"""
 	def __init__(self):
 		super(TrafficSniffer, self).__init__('Traffic')
 	
-	# init
 	def initialize(self):
+		""" Initialize sniffer """
 		while True:
 			try:
 				tmp = raw_input('[!] Sniff traffic from %s.  Is this correct? '%self.source)
@@ -29,7 +28,7 @@ class TrafficSniffer(Sniffer):
 				return	
 		return self.source 
 
-	# just dump the data and print the summary
 	def dump(self, pkt):
+		""" Sniffer callback; print summary """
 		if not pkt is None:
 			self.log_msg(pkt.summary())

@@ -1,13 +1,13 @@
-import stream, util
+import stream
+import util
 import re
 from sniffer import Sniffer
 from scapy.all import *
 
-#
-# Module sniffs incoming traffic for any HTTP traffic and dumps it.
-#
 __name__ = 'HTTP Sniffer'
 class HTTPSniffer(Sniffer):
+	"""HTTP sniffer that allows various verbosity levels
+	"""
 	def __init__(self):
 		self.verbs = [ 'Site Only', 'Request String', 'Request and Payload',
 					   'Custom Regex' ]
@@ -15,10 +15,8 @@ class HTTPSniffer(Sniffer):
 		self.regex = None
 		super(HTTPSniffer,self).__init__('HTTP')
 
-	#
-	# initialize the sniffer by getting the source address from the user
-	#
 	def initialize(self):
+		"""Initialize the sniffer"""
 		while True:
 			try:
 				util.Msg('Enter verbosity level: ')
@@ -52,10 +50,10 @@ class HTTPSniffer(Sniffer):
 		self.sniff_thread.start()
 		return self.source
 	
-	#
-	# format output as per verb level 
-	#
 	def pull_output(self, pkt):
+		""" Based on what verbosity level is set, parse
+			the packet and return formatted data.
+		"""
 		data = pkt.getlayer(Raw).load
 		if self.verb is 0:
 			# parse the site only
@@ -73,10 +71,8 @@ class HTTPSniffer(Sniffer):
 			if not data is None: data = data.group(0)
 		return data
 
-	#
-	# dump the formatted payload 
-	#
 	def dump(self, pkt):
+		""" Dump the formatted payload """
 		try:
 			if pkt.haslayer(Raw):
 				data = self.pull_output(pkt)

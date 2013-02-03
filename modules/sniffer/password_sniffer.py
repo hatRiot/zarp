@@ -4,19 +4,14 @@ from sniffer import Sniffer
 from re import findall
 from scapy.all import *
 
-#
-# Module sniffs poisoned traffic for passwords, essentially just parsing payloads for the USERNAME or PASSWORD
-# flag. 
-#
 __name__ = "Password Sniffer"
 class PasswordSniffer(Sniffer):
+	""" Sniff and parse passwords from various protocols """
 	def __init__(self):
 		super(PasswordSniffer, self).__init__('Password')
 
-	#
-	# initialize the sniffer
-	#
 	def initialize(self):
+		""" initialize sniffer """
 		tmp = raw_input('[!] Sniff passwords from %s.  Is this correct? '%self.source)
 		if 'n' in tmp.lower():
 			return None
@@ -26,10 +21,8 @@ class PasswordSniffer(Sniffer):
 		self.sniff_thread.start()
 		return self.source
 	
-	#
-	# Parse packet payloads for username/passwords
-	#
 	def dump(self, pkt):
+		"""Packet callback; parse packets"""
 		if not pkt is None:
 			# http
 			if pkt.haslayer(TCP) and pkt.getlayer(TCP).dport == 80 and pkt.haslayer(Raw):
