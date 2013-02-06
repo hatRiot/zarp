@@ -12,10 +12,6 @@ class DatabaseInfo:
 		self.mysql_state = 0	# state of the MySQL protocol
 		self.mysql_usr = None
 		self.mysql_hsh = None
-		self.pg_usr = None
-		self.pg_hsh = None
-		self.mssql_usr = None
-		self.mssql_hsh = None
 
 __name__ = 'Database Sniffer'
 class DatabaseSniffer(Sniffer):
@@ -39,7 +35,7 @@ class DatabaseSniffer(Sniffer):
 			except:
 				pass
 
-		self.sniff_filter = "tcp and (port 3306 or port 5432 or port 1433) and (src %s or dst %s)"\
+		self.sniff_filter = "tcp and (port 3306 or port 5432) and (src %s or dst %s)"\
 							%(self.source,self.source)
 		self.sniff = True
 		self.sniff_thread.start()
@@ -56,9 +52,6 @@ class DatabaseSniffer(Sniffer):
 		# postgres - tested with 9.0.11 
 		elif pkt[TCP].sport == 5432 or pkt[TCP].dport == 5432:
 			self.parse_postgres(pkt[TCP].payload)
-		# mssql - NOT IMPLEMENTED
-		elif pkt[TCP].sport == 1433 or pkt[TCP].dport == 1433:
-			self.parse_mssql(pkt[TCP].payload)	
 
 	def parse_mysql(self, raw):
 		""" Parse MySQL data; not the best way, but most 
@@ -205,7 +198,3 @@ class DatabaseSniffer(Sniffer):
 				while idx < len(startup)-1:	
 					self.log_msg('\t%s -> %s'%(startup[idx], startup[idx+1]))
 					idx += 2
-
-	def parse_mssql(self, raw):
-		"""Parse MSSQL packet"""
-		pass
