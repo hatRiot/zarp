@@ -1,5 +1,6 @@
 import util
 import parser_mysql
+import parser_postgres
 from scapy.all import *
 from sniffer import Sniffer
 from collections import namedtuple
@@ -52,7 +53,7 @@ class DatabaseSniffer(Sniffer):
 		# mysql -tested with 5.5.27, 4.1.21
 		if pkt[TCP].sport == 3306 or pkt[TCP].dport == 3306:
 			self.parse_mysql(pkt[TCP].payload)
-		# postgres - NOT IMPLEMENTED 
+		# postgres - tested with 9.0.11 
 		elif pkt[TCP].sport == 5432 or pkt[TCP].dport == 5432:
 			self.parse_postgres(pkt[TCP].payload)
 		# mssql - NOT IMPLEMENTED
@@ -163,8 +164,47 @@ class DatabaseSniffer(Sniffer):
 				self.dbi.mysql_state = 3
 	
 	def parse_postgres(self, raw):
-		"""Parse PostgreSQL packet"""
-		pass
+		"""Parse PostgreSQL packet.  psql is less insane."""
+		raw = util.get_layer_bytes(str(raw))
+		if len(raw) <= 1:
+			return
+
+		message_type = raw[0]
+		if message_type == '70':
+			# password message
+			plen = parser_postgres.endian_int(raw[1:5])
+			password = ''
+			for i in xrange(plen-5):
+				password += raw[5+i].decode('hex')
+			self.log_msg('Password hash: %s'%password)
+		elif message_type == '51':
+			# simple query
+			query = parser_postgres.parse_query(raw)
+			self.log_msg('Query: %s'%query)
+		elif message_type == '54':
+			# query response
+			(columns, rows) = parser_postgres.parse_response(raw)
+			self.log_msg(columns)
+			for row in rows:
+				self.log_msg(row)
+		elif message_type == '58':
+			self.log_msg('User quit.\n')
+		elif message_type == '45':
+			self.log_msg('Error: %s'%parser_postgres.parse_error(raw))
+		elif message_type == '52':
+			if not parser_postgres.database_exists(raw):
+				self.log_msg('Invalid database.')
+		elif message_type == '00':
+			# startup/other
+			if parser_postgres.is_ssl(raw):
+				self.log_msg('SSL request!')
+			else:
+				startup = parser_postgres.parse_startup(raw)
+				self.log_msg('Startup packet:')
+				idx = 0
+				while idx < len(startup)-1:	
+					self.log_msg('\t%s -> %s'%(startup[idx], startup[idx+1]))
+					idx += 2
 
 	def parse_mssql(self, raw):
 		"""Parse MSSQL packet"""

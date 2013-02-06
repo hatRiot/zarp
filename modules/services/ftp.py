@@ -62,7 +62,7 @@ class FTPService(Service):
 			util.Error('Cannot bind to address.')
 			return
 
-		self.server_sock.settimeout(5)
+		self.server_sock.settimeout(3)
 		self.server_sock.listen(1)
 		try:
 			while self.running: 

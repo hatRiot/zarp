@@ -188,7 +188,8 @@ def get_response(pkt):
 			struct = parse_layer(column)
 			columns.append(struct)
 			tmp += 1
-		except:
+		except Exception, e:
+		  	util.debug('Error parsing mysql: %s'%e)
 			return (None,None)
 
 	# parse returned data
@@ -201,6 +202,7 @@ def get_response(pkt):
 					break
 				response.append(parse_response_data(layer,num))
 				layers += 1
-			except:
+			except Exception, e:
+				util.debug('Error parsing mysql: %s'%e)
 				break
 	return (columns, response)

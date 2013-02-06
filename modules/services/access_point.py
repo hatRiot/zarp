@@ -9,13 +9,17 @@ from service import Service
 #
 __name__='Access Point'
 class APService(Service):
+	"""Implements a fake wireless access points that supports passthru; or,
+	   forwarding traffic from the fake AP to another iface.
+	"""
+
 	def __init__(self):
 		self.ap_essid = 'zoopzop'
 		self.mon_adapt = None
 		super(APService,self).__init__('Access Point')
 	
-	# init bg
 	def initialize_bg(self):
+		"""Initialize in background thread"""
 		if not util.check_program('airbase-ng'):
 			util.Error('\'airbase-ng\' not found in local path.')
 			return False
@@ -36,8 +40,8 @@ class APService(Service):
 		thread.start()
 		return True
 
-	# init
 	def initialize(self):
+		"""Initialize AP"""
 		if not util.check_program('airbase-ng'):
 			util.Error('\'airbase-ng\' not found in local path.')
 			return False

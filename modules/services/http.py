@@ -69,7 +69,7 @@ class ZarpHTTPServer(BaseHTTPServer.HTTPServer):
 		   on the local socket
 		"""
 		BaseHTTPServer.HTTPServer.server_bind(self)
-		self.socket.settimeout(5)
+		self.socket.settimeout(3)
 		self.run = True
 
 	def stop(self):

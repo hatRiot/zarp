@@ -14,6 +14,7 @@ import struct
 
 isDebug = False
 DEBUG_LOG = 'zarp_debug.log'
+buffered = None
 
 def version():
 	"""Zarp version"""
@@ -213,10 +214,19 @@ def background():
 		os.system('su -c /bin/sh %s'%usr)
 	
 def print_menu(arr):
+	global buffered
 	"""Main menu printer
 	   @param arr is the menu array to print.  Fetches input, 
 		parses and built-in command keywords, and returns the selected idx.
 	"""
+
+	if not buffered is None:
+		# buffered input, return
+		if len(buffered) > 0: 
+			return buffered.pop(0)
+		else:	
+			buffered = None
+
 	i = 0
 	while i < len(arr):
 		# if there are more than 6 items in the list, add another column
@@ -248,7 +258,13 @@ def print_menu(arr):
 		elif 'bg' in choice:
 			background()
 		else:
-			choice = int(choice)
+			# buffered input
+			choice = choice.split(' ')
+			if len(choice) > 1: 
+				buffered = []
+				for entry in choice[1:]:
+					buffered.append(int(entry))
+			choice = int(choice[0])
 	except Exception:
 		os.system('clear')
 		choice = -1
