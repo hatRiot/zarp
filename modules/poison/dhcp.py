@@ -140,8 +140,9 @@ class DHCPSpoof(Poison):
 			print '\t\033[32m[+] %s\033[0m'%self.spoofed_hosts[key].to_ip
 
 		try:
-			while True:
-				self.dump_data = True
+			self.dump_data = True
+			raw_input()
+			self.dump_data = False
 		except KeyboardInterrupt:
 			self.dump_data = False
 			return

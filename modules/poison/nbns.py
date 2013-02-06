@@ -79,8 +79,10 @@ class NBNSSpoof(Poison):
 	def view(self):
 		"""Dump packets"""
 		try:
-			while True:
-				self.dump = True
+			util.Msg('Dumping NBNS poisons...')
+			self.dump = True
+			raw_input()
+			self.dump = False
 		except KeyboardInterrupt:
 			self.dump = False
 			return

@@ -73,8 +73,9 @@ class Service(object):
 	def view(self):
 		try:
 			util.Msg('Dumping output from service \'%s\'...'%self.which)
-			while True:
-				self.dump = True
+			self.dump = True
+			raw_input()
+			self.dump = False
 		except KeyboardInterrupt:
 			self.dump = False
 			return

@@ -85,8 +85,9 @@ class Sniffer(object):
 		""" View output """
 		try:
 			util.Msg('Dumping %s from %s...'%(self.which, self.source))
-			while True:
-				self.dump_data = True
+			self.dump_data = True
+			raw_input()
+			self.dump_data = False
 		except KeyboardInterrupt:
 			self.dump_data = False
 			return
