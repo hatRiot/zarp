@@ -2,6 +2,7 @@ import util
 import BaseHTTPServer
 import base64
 import socket
+from time import sleep
 from service import Service
 from threading import Thread
 
@@ -29,15 +30,23 @@ class HTTPService(Service):
 		util.Msg('Running HTTP server')
 		http_thread = Thread(target=self.initialize)
 		http_thread.start()
-		return True
+
+		sleep(1)
+		if self.running:
+			return True
+		else:
+			return False
 
 	def initialize(self):
 		"""Initialize the server"""
-		self.httpd = ZarpHTTPServer(('',80), self.handler)
-		self.running = True
 		try:
+			self.httpd = ZarpHTTPServer(('',80), self.handler)
+			self.running = True
 			self.httpd.serve()
 		except socket.error, KeyboardInterrupt:
+			self.running = False
+		except PortBoundException:
+			util.Error("Port 80 is already bound.")
 			self.running = False
 		except Exception, e:
 			util.Error('Error: %s'%e)
@@ -68,8 +77,11 @@ class ZarpHTTPServer(BaseHTTPServer.HTTPServer):
 		"""Overload the binded server so we can set a timeout
 		   on the local socket
 		"""
-		BaseHTTPServer.HTTPServer.server_bind(self)
-		self.socket.settimeout(3)
+		try:
+			BaseHTTPServer.HTTPServer.server_bind(self)
+			self.socket.settimeout(3)
+		except:
+			raise PortBoundException	
 		self.run = True
 
 	def stop(self):
@@ -173,3 +185,6 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 			if self.context['log_data']:
 				self.context['log_file'].write(self.address_string() + tmp + '\n')
 				self.context['log_file'].flush()
+
+class PortBoundException(Exception):
+	pass

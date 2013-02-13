@@ -140,6 +140,7 @@ def view_session(module, number):
 	
 	mod = get_module(module, number)
 	if hasattr(mod, 'view'):
+		Msg('[enter] when finished')
 		mod.view()
 
 def toggle_log(module, number, file_loc, toggle):
