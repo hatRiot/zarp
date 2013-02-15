@@ -42,11 +42,10 @@ def initialize(module, TYPE):
 	elif TYPE is 'DOS':
 		tmp_mod.initialize()
 	elif TYPE is 'SERVICE':
-		tmp = module()
 		if module.__name__ in HOUSE['service']:
 			Error('\'%s\' is already running.'%module.__name__)
 		else:
-			if tmp.initialize_bg():
+			if tmp_mod.initialize_bg():
 				HOUSE['service'][module.__name__] = tmp_mod
 	elif TYPE is 'SCANNER':
 		tmp_mod.initialize()
