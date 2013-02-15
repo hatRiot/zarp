@@ -171,9 +171,6 @@ def main():
 		elif choice == -1:
 			pass
 
-#
-# Return overloaded class of loaded module
-#
 def get_subclass(module, base_class): 
 	""" Return overloaded classes of loaded module
 		@param module is the loaded user module

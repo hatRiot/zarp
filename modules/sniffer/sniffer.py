@@ -98,7 +98,7 @@ class Sniffer(object):
 			self.log_file.write(msg)
 			self.log_file.flush()
 
-	def log(self, opt, log_loc):
+	def log(self, opt, log_loc=None):
 		"""Log sniffer output to a file """
 		if opt and not self.log_data:
 			try:
