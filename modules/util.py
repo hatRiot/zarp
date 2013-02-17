@@ -197,7 +197,21 @@ def get_layer_bytes(layer):
 	for (f, s) in zip(layer[0::2], layer[1::2]):
 		arr.append(f + s)
 	return arr
-	
+
+def get_subclass(module, base_class):
+	"""Return overloaded classes of loaded module.
+	   @param module is the loaded user module
+	   @param base_class is the class it should be overloading
+	"""
+	for name in dir(module):
+		obj = getattr(module, name)
+		try:
+			if issubclass(obj,base_class) and obj != base_class:
+				return obj
+		except:
+			pass
+	return None
+
 def background():
 	""" Drops the user back into their shell environment.
 		'exit' brings them back.

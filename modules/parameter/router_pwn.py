@@ -1,45 +1,48 @@
-import os
-from sys import path
-path.insert(0, os.getcwd() + '/modules/parameter/routers/')
-import dlink, cisco, linksys, netgear, util
+import importlib
+import routers
+import util
+from routers.router_vuln import RouterVuln
 from parameter import Parameter
-
-#
-# Router exploits and vulnerabilities.
-#
 
 __name__='Router Pwn'
 class RouterPwn(Parameter):
+	""" Router pwn module for managing and pwning routers
+	"""
+
 	def __init__(self):
+		self.routers = {}
 		super(RouterPwn,self).__init__('RouterPwn')
 
+	def load(self):
+		"""Load router modules"""
+		for router in routers.__all__:
+			# relative to zarp.py
+			mod = importlib.import_module('modules.parameter.routers.%s'%router)
+			self.routers[router] = []
+			for vuln in mod.__all__: 
+				v = importlib.import_module('modules.parameter.routers.%s.%s'%(router,vuln))
+				if not hasattr(v, '__router__') or not hasattr(v,'__vuln__'):
+					continue
+				self.routers[router].append(v)	
+
 	def initialize(self):
-		menu = [ 'dlink', 'netgear',
-				 'linksys', 'cisco' ]
+		self.load()
 		while True:
-			choice = util.print_menu(menu)
-			if choice == 1:
-				choice = util.print_menu(dlink.vulnerabilities())
-				if choice == 0:
-					continue
-				dlink.run(choice)
-			elif choice == 2:
-				choice = util.print_menu(netgear.vulnerabilities())
-				if choice == 0:
-					continue
-				netgear.run(choice)
-			elif choice == 3:
-				choice = util.print_menu(linksys.vulnerabilities())
-				if choice == 0:
-					continue
-				linksys.run(choice)
-			elif choice == 4:
-				choice = util.print_menu(cisco.vulnerabilities())
-				if choice == 0:
-					continue
-				cisco.run(choice)
-			elif choice == 0:
+			choice = util.print_menu([x for x in self.routers.keys()])
+			if choice is 0:
+				del(self.routers)
 				break
+			elif choice is -1 or choice > len(self.routers.keys()):
+				pass
 			else:
-				os.system('clear')
-			
+				router = self.routers[self.routers.keys()[choice-1]]
+				while True:
+					# print router modules
+					choice = util.print_menu(['%s - %s'%(x.__router__,x.__vuln__) for x in router]) 
+					if choice is 0:
+						break
+					elif choice is -1 or choice > len(router):
+						pass
+					else:
+						tmp = util.get_subclass(router[choice-1], RouterVuln)()
+						tmp.run()

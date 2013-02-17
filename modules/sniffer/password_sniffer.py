@@ -1,5 +1,6 @@
 import stream
 import util
+from base64 import b64decode
 from sniffer import Sniffer
 from re import findall
 from scapy.all import *
@@ -29,6 +30,11 @@ class PasswordSniffer(Sniffer):
 				payload = pkt.getlayer(Raw).load
 				if 'username' in payload or 'password' in payload:
 					self.log_msg(str(payload))
+				elif 'Authorization:' in payload:
+					# such as routers
+					pw = re.search('Authorization: Basic (.*)',payload)
+					if pw.groups(0) is not None:
+						self.log_msg('Authorization to %s: %s'%(pkt[IP].dst,b64decode(pw.groups(0)[0])))
 			# ftp
 			elif pkt.haslayer(TCP) and pkt.getlayer(TCP).dport == 21:
 				payload = str(pkt.sprintf("%Raw.load%"))

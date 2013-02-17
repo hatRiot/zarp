@@ -2,7 +2,7 @@
 import os
 import sys
 sys.path.insert(0, os.getcwd() + '/modules/')
-from util import print_menu, header, Error, Msg, debug
+from util import get_subclass,print_menu, header, Error, Msg, debug
 from commands import getoutput
 import stream
 import session_manager
@@ -170,20 +170,6 @@ def main():
 			session_manager.menu()
 		elif choice == -1:
 			pass
-
-def get_subclass(module, base_class): 
-	""" Return overloaded classes of loaded module
-		@param module is the loaded user module
-		@param is the base class it should be overloading
-	"""
-	for name in dir(module):
-		obj = getattr(module, name)
-		try:
-			if issubclass(obj, base_class) and obj != base_class:
-				return obj
-		except:
-			pass
-	return None
 
 # Application entry; dependency checks, etc.
 if __name__=="__main__":
