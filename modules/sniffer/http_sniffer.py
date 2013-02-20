@@ -4,8 +4,7 @@ import re
 from sniffer import Sniffer
 from scapy.all import *
 
-__name__ = 'HTTP Sniffer'
-class HTTPSniffer(Sniffer):
+class http_sniffer(Sniffer):
 	"""HTTP sniffer that allows various verbosity levels
 	"""
 	def __init__(self):
@@ -13,10 +12,11 @@ class HTTPSniffer(Sniffer):
 					   'Custom Regex' ]
 		self.verb = 0
 		self.regex = None
-		super(HTTPSniffer,self).__init__('HTTP')
+		super(http_sniffer,self).__init__('HTTP Sniffer')
 
 	def initialize(self):
 		"""Initialize the sniffer"""
+		self.get_ip()
 		while True:
 			try:
 				util.Msg('Enter verbosity level: ')

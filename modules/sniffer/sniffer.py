@@ -19,9 +19,6 @@ class Sniffer(object):
 		self.sniff_thread = None			  # Traffic sniffing thread
 		# initialize thread
 		self.sniff_thread = Thread(target=self.traffic_sniffer)
-		# retrieve the source IP
-		self.get_ip()
-
 
 	@abc.abstractmethod
 	def dump(self, pkt):
@@ -69,7 +66,7 @@ class Sniffer(object):
 		""" Initiate a sniffer shutdown"""
 		if self.sniff:
 			return False
-		util.debug('%s sniffer shuting down...'%self.which)
+		util.debug('%s shutting down...'%self.which)
 		return True
 
 	def shutdown(self):
@@ -78,7 +75,7 @@ class Sniffer(object):
 			self.sniff = False
 		if self.log_data:
 			self.log(False, None)
-		util.debug('%s sniffer shutdown'%self.which)
+		util.debug('%s shutdown'%self.which)
 		return True
 
 	def view(self):
@@ -98,7 +95,7 @@ class Sniffer(object):
 			self.log_file.write(msg)
 			self.log_file.flush()
 
-	def log(self, opt, log_loc):
+	def log(self, opt, log_loc=None):
 		"""Log sniffer output to a file """
 		if opt and not self.log_data:
 			try:

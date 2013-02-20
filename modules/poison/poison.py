@@ -17,8 +17,6 @@ class Poison(object):
 	def shutdown(self):
 		pass
 
-	#
-	# Session view
-	#
 	def session_view(self):
+		"""Session viewer"""
 		return self.which

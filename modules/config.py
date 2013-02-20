@@ -32,9 +32,8 @@ def dump():
 	Setting = namedtuple('Setting', ['Key', 'Value']) 
 	table = []
 	for i in CONFIG.opts.keys():
-		data = Setting(i, CONFIG.opts[i])
+		data = Setting(i, str(CONFIG.opts[i]))
 		table.append(data)
-	# pass it to be printed
 	pptable(table)
 
 def set(key, value):

@@ -7,10 +7,9 @@ import util
 # as the target host, so it will send itself packets infinitely until crash.
 # Original cvs here: http://insecure.org/sploits/land.ip.DOS.html
 #
-__name__ = 'LAND DoS'
-class LANDDoS(DoS):
+class land_dos(DoS):
 	def __init__(self):
-		super(LANDDoS,self).__init__('LAND DoS')
+		super(land_dos,self).__init__('LAND DoS')
 
 	def initialize(self):
 		# supress scapy output

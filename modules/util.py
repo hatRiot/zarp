@@ -178,14 +178,16 @@ def get_local_ip(adapter):
 		I do not know how portable this is yet.
 	"""
 	s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-	return socket.inet_ntoa(fcntl.ioctl(
+	try:
+		addr = socket.inet_ntoa(fcntl.ioctl(
 			s.fileno(),
 			0x8915,
 			struct.pack('256s', adapter[:15])
-		)[20:24])
+			)[20:24])
+	except:
+		addr = None
+	return addr
 
-#
-#
 def get_layer_bytes(layer):
 	"""I havent found a neat way to pull RAW bytes out of Scapy packets,
 	   so I just wrote a small utility function for it.
@@ -195,7 +197,21 @@ def get_layer_bytes(layer):
 	for (f, s) in zip(layer[0::2], layer[1::2]):
 		arr.append(f + s)
 	return arr
-	
+
+def get_subclass(module, base_class):
+	"""Return overloaded classes of loaded module.
+	   @param module is the loaded user module
+	   @param base_class is the class it should be overloading
+	"""
+	for name in dir(module):
+		obj = getattr(module, name)
+		try:
+			if issubclass(obj,base_class) and obj != base_class:
+				return obj
+		except:
+			pass
+	return None
+
 def background():
 	""" Drops the user back into their shell environment.
 		'exit' brings them back.

@@ -8,12 +8,11 @@ from dos import DoS
 # and Windows 7 RC (unconfirmed on 7 sp1)
 # More: https://cve.mitre.org/cgi-bin/cvename.cgi?name=2009-3103
 #
-__name__='SMB2 DoS'
-class SMB2DoS(DoS):
+class smb2_dos(DoS):
 	""" Exploit a & in an SMB header """
 
 	def __init__(self):
-		super(SMB2DoS,self).__init__('SMB2 DoS')
+		super(smb2_dos,self).__init__('SMB2 DoS')
 
 	def initialize(self):
 		""" Initialize the DoS

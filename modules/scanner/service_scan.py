@@ -25,10 +25,9 @@ services = {
 		'postgres': 5432
 		    }
 
-__name__='Service Scan'
-class ServiceScan(Scanner):
+class service_scan(Scanner):
 	def __init__(self):
-		super(ServiceScan,self).__init__('Service Scan')
+		super(service_scan,self).__init__('Service Scan')
 
 	def initialize(self):
 		block = raw_input('[!] Enter net mask: ')

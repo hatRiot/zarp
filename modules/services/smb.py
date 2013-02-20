@@ -8,11 +8,10 @@ from service import Service
 # This module is used to provide hashes for pass-the-hash attacks and
 # potential in-house hash cracking we build.
 #
-__name__='SMB Service'
-class SMBService(Service):
+class smb(Service):
 	def __init__(self):
 		self.captured_hashes = {}	
-		super(SMBService, self).__init__('SMB')
+		super(smb, self).__init__('SMB Service')
 	
 	# parse NTLM/LM hashes
 	# scapy has very limited SMB packet support, so we have to do this manually

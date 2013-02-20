@@ -5,7 +5,7 @@ import abc
 #
 class Parameter(object):
 	def __init__(self, service):
-		self.which_service = service
+		self.which = service
 
 	@abc.abstractmethod
 	def initialize():

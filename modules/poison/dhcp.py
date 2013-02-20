@@ -1,8 +1,8 @@
 import util
 from threading import Thread
-from arp import ARPSpoof 
-from scapy.all import *
 from poison import Poison
+from arp import arp
+from scapy.all import *
 
 #
 # Set up a rogue DHCP server and hand out IP addresses.  Once an IP has been dispensed, an
@@ -13,8 +13,7 @@ from poison import Poison
 # ARP poisons will not appear under sessions, but will instead be managed by the spoofed_hosts dictionary.
 # Configure sniffers for traffic.
 #
-__name__ = "DHCP Spoof"
-class DHCPSpoof(Poison):
+class dhcp(Poison):
 	def __init__(self):
 		conf.verb = 0
 		self.local_mac = get_if_hwaddr(conf.iface)
@@ -27,7 +26,7 @@ class DHCPSpoof(Poison):
 		self.dump_data = False
 		self.log_data = False
 		self.log_file = None
-		super(DHCPSpoof,self).__init__('DHCP Spoof')
+		super(dhcp,self).__init__('DHCP Spoof')
 
 	def initialize(self):
 		try:

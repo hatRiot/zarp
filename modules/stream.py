@@ -23,38 +23,34 @@ def initialize(module, TYPE):
 	if not 'service' in HOUSE:
 		# services will always be 0
 		HOUSE['service'] = {}
+
+	tmp_mod = module()
 	if TYPE is 'POISON': 
-		if not module.__name__ in HOUSE:
-			HOUSE[module.__name__] = {}
-		tmp = module()
-		to_ip = tmp.initialize()
+		if not tmp_mod.which in HOUSE:
+			HOUSE[tmp_mod.which] = {}
+		to_ip = tmp_mod.initialize()
 		if not to_ip is None:
 			debug('Storing session for %s'%to_ip)
-			HOUSE[module.__name__][to_ip] = tmp
+			HOUSE[tmp_mod.which][to_ip] = tmp_mod
 	elif TYPE is 'SNIFFER':
-		if not module.__name__ in HOUSE:
-			HOUSE[module.__name__] = {}
-		tmp = module() 
-		to_ip = tmp.initialize()
+		if not tmp_mod.which in HOUSE:
+			HOUSE[tmp_mod.which] = {}
+		to_ip = tmp_mod.initialize()
 		if not to_ip is None:
 			debug('Storing sniffer session for %s'%to_ip)
-			HOUSE[module.__name__][to_ip] = tmp
+			HOUSE[tmp_mod.which][to_ip] = tmp_mod
 	elif TYPE is 'DOS':
-		tmp = module()
-		tmp.initialize()
+		tmp_mod.initialize()
 	elif TYPE is 'SERVICE':
-		tmp = module()
-		if module.__name__ in HOUSE['service']:
-			Error('\'%s\' is already running.'%module.__name__)
+		if tmp_mod.which in HOUSE['service']:
+			Error('\'%s\' is already running.'%tmp_mod.which)
 		else:
-			if tmp.initialize_bg():
-				HOUSE['service'][module.__name__] = tmp
+			if tmp_mod.initialize_bg():
+				HOUSE['service'][tmp_mod.which] = tmp_mod
 	elif TYPE is 'SCANNER':
-		tmp = module()
-		tmp.initialize()
+		tmp_mod.initialize()
 	elif TYPE is 'PARAMETER':
-		tmp = module()
-		tmp.initialize()
+		tmp_mod.initialize()
 
 def dump_sessions():
 	"""Format and print the currently running modules.
@@ -140,6 +136,7 @@ def view_session(module, number):
 	
 	mod = get_module(module, number)
 	if hasattr(mod, 'view'):
+		Msg('[enter] when finished')
 		mod.view()
 
 def toggle_log(module, number, file_loc, toggle):
@@ -156,7 +153,7 @@ def toggle_log(module, number, file_loc, toggle):
 			HOUSE[mod][mod_inst].log(True, file_loc)
 		else:
 			# disable
-			HOUSE[mod][mod_inst].log(False, None)
+			HOUSE[mod][mod_inst].log(False)
 	else:
 		Error('Module does not have a logger or doesn\'t exist.')
 

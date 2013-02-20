@@ -5,14 +5,13 @@ from threading import Thread
 #
 # emulate a single-threaded FTP service
 #
-__name__ = 'FTP Server'
-class FTPService(Service):
+class ftp(Service):
 	def __init__(self):
 		self.motd = 'b4ll4stS3c FTP Server v1.4'
 		self.usr = None
 		self.pwd = None
 		self.server_socket = None
-		super(FTPService,self).__init__('FTP')
+		super(ftp,self).__init__('FTP Server')
 	
 	#
 	# format a response to the client

@@ -7,8 +7,7 @@ from service import Service
 # Implements a fake wireless access point for harvesting credentials/keys/etc
 # Requires airbase-ng
 #
-__name__='Access Point'
-class APService(Service):
+class access_point(Service):
 	"""Implements a fake wireless access points that supports passthru; or,
 	   forwarding traffic from the fake AP to another iface.
 	"""
@@ -16,7 +15,7 @@ class APService(Service):
 	def __init__(self):
 		self.ap_essid = 'zoopzop'
 		self.mon_adapt = None
-		super(APService,self).__init__('Access Point')
+		super(access_point,self).__init__('Access Point')
 	
 	def initialize_bg(self):
 		"""Initialize in background thread"""

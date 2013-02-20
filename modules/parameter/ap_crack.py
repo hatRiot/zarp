@@ -4,11 +4,10 @@ from parameter import Parameter
 #
 # Interfaces with Wifite to crack APs
 #
-__name__='AP Crack'
-class APCrack(Parameter):
+class ap_crack(Parameter):
 	def __init__(self):
 		self.cracks = [ 'WEP', 'WPA', 'WPS' ]
-		super(APCrack,self).__init__('APCrack')
+		super(ap_crack,self).__init__('APCrack')
 
 	def initialize(self):
 		cmd = []

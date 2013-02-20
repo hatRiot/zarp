@@ -2,7 +2,7 @@
 import os
 import sys
 sys.path.insert(0, os.getcwd() + '/modules/')
-from util import print_menu, header, Error, Msg, debug
+from util import get_subclass,print_menu, header, Error, Msg, debug
 from commands import getoutput
 import stream
 import session_manager
@@ -31,27 +31,27 @@ class LoadedModules:
 
 	def load(self):
 		for module in modules.dos.__all__:
-			mod = importlib.import_module('modules.dos.%s'%module, 'modules.dos')
+			mod = getattr(importlib.import_module('modules.dos.%s'%module, 'modules.dos'),module)
 			self.dos.append(mod)
 			self.total += 1
 		for module in modules.poison.__all__:
-			mod = importlib.import_module('modules.poison.%s'%module, 'modules.poison')
+			mod = getattr(importlib.import_module('modules.poison.%s'%module, 'modules.poison'),module)
 			self.poison.append(mod)
 			self.total += 1
 		for module in modules.scanner.__all__:
-			mod = importlib.import_module('modules.scanner.%s'%module, 'modules.scanner')
+			mod = getattr(importlib.import_module('modules.scanner.%s'%module, 'modules.scanner'),module)
 			self.scanner.append(mod)
 			self.total += 1
 		for module in modules.services.__all__:
-			mod = importlib.import_module('modules.services.%s'%module, 'modules.services')
+			mod = getattr(importlib.import_module('modules.services.%s'%module, 'modules.services'),module)
 			self.services.append(mod)
 			self.total += 1
 		for module in modules.sniffer.__all__:
-			mod = importlib.import_module('modules.sniffer.%s'%module, 'modules.sniffer')
+			mod = getattr(importlib.import_module('modules.sniffer.%s'%module, 'modules.sniffer'),module)
 			self.sniffers.append(mod)
 			self.total += 1
 		for module in modules.parameter.__all__:
-			mod = importlib.import_module('modules.parameter.%s'%module, 'modules.parameter')
+			mod = getattr(importlib.import_module('modules.parameter.%s'%module, 'modules.parameter'),module)
 			self.parameter.append(mod)
 			self.total += 1
 	
@@ -96,7 +96,7 @@ def main():
 				running = False
 		elif choice == 1:
 			while True:
-				choice = print_menu([x.__name__ for x in loader.poison])
+				choice = print_menu([x().which for x in loader.poison])
 				if choice == 0:
 					break
 				elif choice == -1:
@@ -104,11 +104,10 @@ def main():
 				elif choice > len(loader.poison):
 					continue
 				else:
-					sclass = get_subclass(loader.poison[choice-1], modules.poison.poison.Poison)
-					stream.initialize(sclass, 'POISON')
+					stream.initialize(loader.poison[choice-1], 'POISON')
 		elif choice == 2:
 			while True:
-				choice = print_menu([x.__name__ for x in loader.dos])
+				choice = print_menu([x().which for x in loader.dos])
 				if choice == 0:
 					break
 				elif choice == -1:
@@ -116,11 +115,10 @@ def main():
 				elif choice > len(loader.dos):
 					continue
 				else:
-					sclass = get_subclass(loader.dos[choice-1], modules.dos.dos.DoS)
-					stream.initialize(sclass, 'DOS')
+					stream.initialize(loader.dos[choice-1], 'DOS')
 		elif choice == 3:
 			while True:
-				choice = print_menu([x.__name__ for x in loader.sniffers])
+				choice = print_menu([x().which for x in loader.sniffers])
 				if choice == 0:
 					break
 				elif choice == -1:
@@ -128,11 +126,10 @@ def main():
 				elif choice > len(loader.sniffers):
 					continue
 				else:
-					sclass = get_subclass(loader.sniffers[choice-1], modules.sniffer.sniffer.Sniffer)
-					stream.initialize(sclass, 'SNIFFER')	
+					stream.initialize(loader.sniffers[choice-1], 'SNIFFER')	
 		elif choice == 4:
 			while True:
-				choice = print_menu([x.__name__ for x in loader.scanner])
+				choice = print_menu([x().which for x in loader.scanner])
 				if choice == 0:
 					break
 				elif choice == -1:
@@ -140,11 +137,10 @@ def main():
 				elif choice > len(loader.scanner):
 					continue
 				else:
-					sclass = get_subclass(loader.scanner[choice-1],modules.scanner.scanner.Scanner)
-					stream.initialize(sclass, 'SCANNER')
+					stream.initialize(loader.scanner[choice-1], 'SCANNER')
 		elif choice == 5:
 			while True:
-				choice = print_menu([x.__name__ for x in loader.parameter])
+				choice = print_menu([x().which for x in loader.parameter])
 				if choice == 0:
 					break
 				elif choice == -1:
@@ -152,11 +148,10 @@ def main():
 				elif choice > len(loader.parameter):
 					continue
 				else:
-					sclass = get_subclass(loader.parameter[choice-1],modules.parameter.parameter.Parameter)
-					stream.initialize(sclass, 'PARAMETER')
+					stream.initialize(loader.parameter[choice-1], 'PARAMETER')
 		elif choice == 6:
 			while True:
-				choice = print_menu([x.__name__ for x in loader.services])
+				choice = print_menu([x().which for x in loader.services])
 				if choice == 0:
 					break
 				elif choice == -1:
@@ -164,29 +159,11 @@ def main():
 				elif choice > len(loader.services):
 					continue
 				else:
-					sclass = get_subclass(loader.services[choice-1], modules.services.service.Service)
-					stream.initialize(sclass, 'SERVICE')
+					stream.initialize(loader.services[choice-1], 'SERVICE')
 		elif choice == 7:
 			session_manager.menu()
 		elif choice == -1:
 			pass
-
-#
-# Return overloaded class of loaded module
-#
-def get_subclass(module, base_class): 
-	""" Return overloaded classes of loaded module
-		@param module is the loaded user module
-		@param is the base class it should be overloading
-	"""
-	for name in dir(module):
-		obj = getattr(module, name)
-		try:
-			if issubclass(obj, base_class) and obj != base_class:
-				return obj
-		except:
-			pass
-	return None
 
 # Application entry; dependency checks, etc.
 if __name__=="__main__":

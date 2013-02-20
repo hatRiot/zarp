@@ -5,8 +5,7 @@ from scapy.all import *
 from poison import Poison
 from threading import Thread
 
-__name__='DNS Spoof'
-class DNSSpoof(Poison):
+class dns(Poison):
 	"""DNS spoofing class
 	"""
 
@@ -16,7 +15,7 @@ class DNSSpoof(Poison):
 		self.dump = False
 		self.source = None
 		self.local_mac = None
-		super(DNSSpoof,self).__init__('DNS Spoof')
+		super(dns,self).__init__('DNS Spoof')
 
 	def initialize(self):
 		"""Initialize the DNS spoofer.  This is dependent

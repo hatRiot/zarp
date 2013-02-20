@@ -9,10 +9,9 @@ from dos import DoS
 # with a payload of N.  The following packet is set to overlap within the previous fragment.  This causes a crash
 # within the 2.0/2.1 kernel. 
 #
-__name__ = 'Nestea DoS'
-class NesteaDoS(DoS):
+class nestea_dos(DoS):
 	def __init__(self):
-		super(NesteaDoS,self).__init__('Nestea DoS')
+		super(nestea_dos,self).__init__('Nestea DoS')
 
 	def initialize(self):
 		# shut scapy up
