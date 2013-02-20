@@ -14,7 +14,7 @@ class tcp_syn(DoS):
 			try:
 				ip = raw_input('[+] Enter [ip:port]: ')
 				tmp = raw_input('[+] Flood host \'%s\'.  Is this correct? '%ip)
-				if 'no' in tmp.lower() or not ':' in ip:
+				if 'n' in tmp.lower() or not ':' in ip:
 					return
 				break
 			except KeyboardInterrupt:

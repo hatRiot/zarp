@@ -69,6 +69,11 @@ class Sniffer(object):
 		util.debug('%s shutting down...'%self.which)
 		return True
 
+	def run(self):
+		"""Friendly handler"""
+		self.sniff = True
+		self.sniff_thread.start()
+
 	def shutdown(self):
 		""" Shut sniffer and any logging down"""
 		if self.sniff:

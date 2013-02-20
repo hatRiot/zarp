@@ -46,8 +46,7 @@ class http_sniffer(Sniffer):
 			return None
 
 		self.sniff_filter = "tcp and dst port 80 and src %s"%self.source
-		self.sniff = True
-		self.sniff_thread.start()
+		self.run()
 		return self.source
 	
 	def pull_output(self, pkt):

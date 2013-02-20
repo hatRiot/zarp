@@ -37,8 +37,7 @@ class database_sniffer(Sniffer):
 
 		self.sniff_filter = "tcp and (port 3306 or port 5432) and (src %s or dst %s)"\
 							%(self.source,self.source)
-		self.sniff = True
-		self.sniff_thread.start()
+		self.run()
 		return self.source
 	
 	def dump(self, pkt):
