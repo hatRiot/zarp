@@ -17,8 +17,6 @@ import modules.services
 import modules.sniffer
 import modules.parameter
 
-import inspect, pyclbr
-
 class LoadedModules:
 	""" Load modules
 	"""

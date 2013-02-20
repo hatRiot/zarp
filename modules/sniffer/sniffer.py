@@ -66,7 +66,7 @@ class Sniffer(object):
 		""" Initiate a sniffer shutdown"""
 		if self.sniff:
 			return False
-		util.debug('%s shuting down...'%self.which)
+		util.debug('%s shutting down...'%self.which)
 		return True
 
 	def shutdown(self):
