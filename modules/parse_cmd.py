@@ -10,7 +10,8 @@ from ssh import ssh
 from smb import smb 
 from access_point import access_point
 from ap_scan import ap_scan
-import service_scan,util
+from service_scan import service_scan
+import util
 from scapy.all import *
 
 def parse(sysv):
@@ -52,12 +53,13 @@ def parse(sysv):
 
 	# initiate 
 	if options.scan is not None:
-		tmp = NetMap()
+		tmp = net_map()
 		tmp.net_mask = options.scan
 		tmp.fingerprint = options.finger
 		tmp.scan_block()
 	elif options.service:
-		service_scan.initialize()
+		tmp = service_scan()
+		tmp.initialize()
 	elif options.filter is not None:
 		util.Msg("Sniffing with filter [%s]...(ctrl^c to exit)"%options.filter)
 		try:
@@ -66,9 +68,9 @@ def parse(sysv):
 			util.Msg("Exiting sniffer..")
 	elif options.wifind: 
 		util.debug("beginning wireless AP scan..")
-		ap_scan = APScan()
-		if options.channel: ap_scan.channel = options.channel
-		ap_scan.initialize()
+		scan = ap_scan()
+		if options.channel: scan.channel = options.channel
+		scan.initialize()
 	elif options.ssh:
 		util.Msg('Starting SSH server...')
 		tmp = ssh()
