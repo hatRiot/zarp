@@ -71,27 +71,27 @@ def parse(sysv):
 		ap_scan.initialize()
 	elif options.ssh:
 		util.Msg('Starting SSH server...')
-		tmp = SSHService()
-		tmp.dump = True
+		tmp = ssh()
 		tmp.initialize()
+		tmp.dump = True
 	elif options.ftp:
 		util.Msg('Starting FTP server...')
-		tmp = FTPService()
-		tmp.dump = True
+		tmp = ftp() 
 		tmp.initialize()
+		tmp.dump = True
 	elif options.http:
 		util.Msg('Starting HTTP server...')
-		tmp = HTTPService()
-		tmp.dump = True
+		tmp = http()
 		tmp.initialize()
+		tmp.dump = True
 	elif options.smb:
 		util.Msg('Starting SMB listener...')
-		tmp = SMBService()
-		tmp.dump = True
+		tmp = smb()
 		tmp.initialize()
+		tmp.dump = True
 	elif options.wap:
 		util.Msg('Starting wireless access point...')
-		tmp = APService()
+		tmp = access_point()
 		tmp.initialize()
 	elif options.update:
 		update()
