@@ -6,8 +6,7 @@ from time import sleep
 from service import Service
 from threading import Thread
 
-__name__='HTTP Server'
-class HTTPService(Service):
+class http(Service):
 	"""Emulate an HTTP server.  If no default page is entered, an auth 
 	   realm will be presented instead.  This can be used to harvest
 	   usernames/passwords from users not paying attention.
@@ -17,7 +16,7 @@ class HTTPService(Service):
 		self.server = 'B4114stS3c HTTP Server v3.1'
 		self.httpd = None
 		self.root = None
-		super(HTTPService,self).__init__('HTTP')
+		super(http,self).__init__('HTTP Server')
 	
 	def initialize_bg(self):
 		"""Initialize the server in the background"""

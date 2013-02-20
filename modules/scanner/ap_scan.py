@@ -7,11 +7,10 @@ from scanner import Scanner
 # This is essentially an interface to airodump-ng because its output is better
 # than anything i could come up with.
 #
-__name__='AP Scan'
-class APScan(Scanner):
+class ap_scan(Scanner):
 	def __init__(self):
 		self.channel = None
-		super(APScan,self).__init__('AP Scan')
+		super(ap_scan,self).__init__('AP Scan')
 
 	def initialize(self):
 		try:

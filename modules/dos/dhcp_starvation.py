@@ -8,10 +8,9 @@ from dos import DoS
 # introduction of a rogue DHCP server.
 # more: http://hakipedia.com/index.php/DHCP_Starvation
 #
-__name__ = 'DHCP Starvation'
-class DHCPStarveDos(DoS):
+class dhcp_starvation(DoS):
 	def __init__(self):
-		super(DHCPStarveDos,self).__init__('DHCP Starvation')
+		super(dhcp_starvation,self).__init__('DHCP Starvation')
 
 	def initialize(self):
 		tmp = raw_input('[!] Are you sure you want to DHCP starve the gateway? ')

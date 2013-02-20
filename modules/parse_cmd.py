@@ -2,14 +2,14 @@ import sys, os
 sys.path[:0] = [str(os.getcwd()) + '/modules/poison/', str(os.getcwd()) + '/modules/scanner/',
 		        str(os.getcwd()) + '/modules/services/']
 import argparse
-from net_map import NetMap
-from nbns import NBNSSpoof
-from ftp import FTPService
-from http import HTTPService
-from ssh import SSHService
-from smb import SMBService
-from access_point import APService
-from ap_scan import APScan
+from net_map import net_map
+from nbns import nbns
+from ftp import ftp
+from http import http 
+from ssh import ssh 
+from smb import smb 
+from access_point import access_point
+from ap_scan import ap_scan
 import service_scan,util
 from scapy.all import *
 

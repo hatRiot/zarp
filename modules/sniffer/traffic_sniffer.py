@@ -2,15 +2,15 @@ from util import Error
 from sniffer import Sniffer
 from scapy.all import *
 
-__name__ = 'Traffic Sniffer'
-class TrafficSniffer(Sniffer):
+class traffic_sniffer(Sniffer):
 	"""Simple sniffer for dumping host traffic
 	"""
 	def __init__(self):
-		super(TrafficSniffer, self).__init__('Traffic')
+		super(traffic_sniffer, self).__init__('Traffic Sniffer')
 	
 	def initialize(self):
 		""" Initialize sniffer """
+		self.get_ip()
 		while True:
 			try:
 				tmp = raw_input('[!] Sniff traffic from %s.  Is this correct? '%self.source)

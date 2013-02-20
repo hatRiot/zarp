@@ -5,14 +5,14 @@ from sniffer import Sniffer
 from re import findall,search
 from scapy.all import *
 
-__name__ = "Password Sniffer"
-class PasswordSniffer(Sniffer):
+class password_sniffer(Sniffer):
 	""" Sniff and parse passwords from various protocols """
 	def __init__(self):
-		super(PasswordSniffer, self).__init__('Password')
+		super(password_sniffer, self).__init__('Password Sniffer')
 
 	def initialize(self):
 		""" initialize sniffer """
+		self.get_ip()
 		tmp = raw_input('[!] Sniff passwords from %s.  Is this correct? '%self.source)
 		if 'n' in tmp.lower():
 			return None

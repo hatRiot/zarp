@@ -26,27 +26,27 @@ def initialize(module, TYPE):
 
 	tmp_mod = module()
 	if TYPE is 'POISON': 
-		if not module.__name__ in HOUSE:
-			HOUSE[module.__name__] = {}
+		if not tmp_mod.which in HOUSE:
+			HOUSE[tmp_mod.which] = {}
 		to_ip = tmp_mod.initialize()
 		if not to_ip is None:
 			debug('Storing session for %s'%to_ip)
-			HOUSE[module.__name__][to_ip] = tmp_mod
+			HOUSE[tmp_mod.which][to_ip] = tmp_mod
 	elif TYPE is 'SNIFFER':
-		if not module.__name__ in HOUSE:
-			HOUSE[module.__name__] = {}
+		if not tmp_mod.which in HOUSE:
+			HOUSE[tmp_mod.which] = {}
 		to_ip = tmp_mod.initialize()
 		if not to_ip is None:
 			debug('Storing sniffer session for %s'%to_ip)
-			HOUSE[module.__name__][to_ip] = tmp_mod
+			HOUSE[tmp_mod.which][to_ip] = tmp_mod
 	elif TYPE is 'DOS':
 		tmp_mod.initialize()
 	elif TYPE is 'SERVICE':
-		if module.__name__ in HOUSE['service']:
-			Error('\'%s\' is already running.'%module.__name__)
+		if tmp_mod.which in HOUSE['service']:
+			Error('\'%s\' is already running.'%tmp_mod.which)
 		else:
 			if tmp_mod.initialize_bg():
-				HOUSE['service'][module.__name__] = tmp_mod
+				HOUSE['service'][tmp_mod.which] = tmp_mod
 	elif TYPE is 'SCANNER':
 		tmp_mod.initialize()
 	elif TYPE is 'PARAMETER':

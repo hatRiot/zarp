@@ -12,11 +12,10 @@ except:
 # emulate a basic SSH service; store usernames/passwords but reject them all.
 # Certs too.
 #
-__name__='SSH Server'
-class SSHService(Service):
+class ssh(Service):
 	def __init__(self):
 		self.priv_key = None
-		super(SSHService,self).__init__('SSH')
+		super(ssh,self).__init__('SSH Server')
 
 	#
 	# If we weren't given a private key, remove the temp we generated

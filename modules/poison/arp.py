@@ -8,8 +8,7 @@ from poison import Poison
 import config
 import gc
 
-__name__ = "ARP Spoof"
-class ARPSpoof(Poison):
+class arp(Poison):
 	"""ARP spoofing class
 	"""
 
@@ -25,7 +24,7 @@ class ARPSpoof(Poison):
 		self.to_mac = None
 		# flag for spoofing 
 		self.spoofing = False
-		super(ARPSpoof,self).__init__('ARP Spoof')
+		super(arp,self).__init__('ARP Spoof')
 
 	def initialize(self):
 		"""Initialize the ARP spoofer

@@ -13,17 +13,17 @@ class DatabaseInfo:
 		self.mysql_usr = None
 		self.mysql_hsh = None
 
-__name__ = 'Database Sniffer'
-class DatabaseSniffer(Sniffer):
+class database_sniffer(Sniffer):
 	"""Sniffer for parsing database queries/results
 	"""
 
 	def __init__(self):
 		self.dbi = DatabaseInfo()
-		super(DatabaseSniffer,self).__init__('Database')
+		super(database_sniffer,self).__init__('Database Sniffer')
 
 	def initialize(self):
 		"""Initialize sniffer"""
+		self.get_ip()
 		while True:
 			try:
 				tmp = raw_input('[!] Sniff database packets from \'%s\'.  Is this correct? '%self.source)

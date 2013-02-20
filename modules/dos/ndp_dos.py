@@ -10,10 +10,9 @@ from dos import DoS
 # at 100% processor usage as they scramble to update routing tables, address info, etc. 
 # More on this attack: http://www.mh-sec.de/downloads/mh-RA_flooding_CVE-2010-multiple.txt
 #
-__name__='NDP DoS'
-class NDPDoS(DoS):
+class ndp_dos(DoS):
 	def __init__(self):
-		super(NDPDoS,self).__init__('NDP DoS')
+		super(ndp_dos,self).__init__('NDP DoS')
 
 	def initialize(self):
 		tmp = raw_input('[!] WARNING: This will NDP DoS the entire local network.  Is this correct? ') 

@@ -5,10 +5,9 @@ from dos import DoS
 #
 # really basic TCP SYN flood
 #
-__name__='TCP SYN'
-class TCPSyn(DoS):
+class tcp_syn(DoS):
 	def __init__(self):
-		super(TCPSyn,self).__init__('TCP SYN')
+		super(tcp_syn,self).__init__('TCP SYN')
 
 	def initialize(self):
 		while True:

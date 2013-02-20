@@ -7,14 +7,13 @@ from scanner import Scanner
 #
 # Map the local network by gathering active hosts within the given range
 #
-__name__='NetMap'
-class NetMap(Scanner):
+class net_map(Scanner):
 	def __init__(self):
 		self.net_mask = ''
 		self.available_hosts = {}
 		self.fingerprint = False
 		self.rev_lookup = False
-		super(NetMap,self).__init__('NetMap')
+		super(net_map,self).__init__('NetMap')
 
 	def initialize(self):
 		try:

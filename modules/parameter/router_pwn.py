@@ -4,14 +4,13 @@ import util
 from routers.router_vuln import RouterVuln
 from parameter import Parameter
 
-__name__='Router Pwn'
-class RouterPwn(Parameter):
+class router_pwn(Parameter):
 	""" Router pwn module for managing and pwning routers
 	"""
 
 	def __init__(self):
 		self.routers = {}
-		super(RouterPwn,self).__init__('RouterPwn')
+		super(router_pwn,self).__init__('RouterPwn')
 
 	def load(self):
 		"""Load router modules"""
