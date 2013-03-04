@@ -12,7 +12,9 @@ from access_point import access_point
 from ap_scan import ap_scan
 from service_scan import service_scan
 import util
+
 from scapy.all import *
+from scapy.error import Scapy_Exception
 
 def parse(sysv):
 	""" Provides an interface for parsing CLI options.
@@ -66,6 +68,9 @@ def parse(sysv):
 			sniff(filter=options.filter,store=0, prn=lambda x: x.summary())
 		except KeyboardInterrupt,Exception:
 			util.Msg("Exiting sniffer..")
+		except Scapy_Exception as msg:
+			util.Error(msg)
+			sys.exit(1)
 	elif options.wifind: 
 		util.debug("beginning wireless AP scan..")
 		scan = ap_scan()
