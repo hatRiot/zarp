@@ -18,8 +18,7 @@ class traffic_sniffer(Sniffer):
 					break	
 				
 				self.sniff_filter = "src {0} or dst {0}".format(self.source)
-				self.sniff = True
-				self.sniff_thread.start()
+				self.run()
 				break
 			except KeyboardInterrupt:
 				return	

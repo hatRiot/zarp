@@ -2,11 +2,9 @@ from threading import Event
 import util
 import abc
 
-#
-# Abstract service
-#
-
 class Service(object):
+	"""Abstract service
+	"""
 	__metaclass__ = abc.ABCMeta
 
 	def __init__(self, which):

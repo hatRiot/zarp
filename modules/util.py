@@ -8,9 +8,10 @@ import socket
 import fcntl
 import struct
 
-#
-# Class houses utility functions
-#
+from cmd import Cmd 
+"""Utility class housing various functions in use
+	throughout the zarp framework.
+"""
 
 isDebug = False
 DEBUG_LOG = 'zarp_debug.log'
@@ -243,15 +244,9 @@ def print_menu(arr):
 		else:	
 			buffered = None
 
-	i = 0
-	while i < len(arr):
-		# if there are more than 6 items in the list, add another column
-		if len(arr) > 6 and i < len(arr)-1:
-			print '\t[%d] %s \t [%d] %s'%(i+1,arr[i],i+2,arr[i+1])
-			i += 2
-		else:
-			print '\t[%d] %s'%(i+1,arr[i])
-			i += 1
+	tmp = Cmd()
+	arr = ['\t[%d] %s'%(x+1,arr[x]) for x in xrange(len(arr))] 
+	tmp.columnize(arr,35)
 	print '\n0) Back'
 	try:
 		choice = raw_input('> ')

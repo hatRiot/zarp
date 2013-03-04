@@ -10,8 +10,11 @@ from ssh import ssh
 from smb import smb 
 from access_point import access_point
 from ap_scan import ap_scan
-import service_scan,util
+from service_scan import service_scan
+import util
+
 from scapy.all import *
+from scapy.error import Scapy_Exception
 
 def parse(sysv):
 	""" Provides an interface for parsing CLI options.
@@ -52,46 +55,50 @@ def parse(sysv):
 
 	# initiate 
 	if options.scan is not None:
-		tmp = NetMap()
+		tmp = net_map()
 		tmp.net_mask = options.scan
 		tmp.fingerprint = options.finger
 		tmp.scan_block()
 	elif options.service:
-		service_scan.initialize()
+		tmp = service_scan()
+		tmp.initialize()
 	elif options.filter is not None:
 		util.Msg("Sniffing with filter [%s]...(ctrl^c to exit)"%options.filter)
 		try:
 			sniff(filter=options.filter,store=0, prn=lambda x: x.summary())
 		except KeyboardInterrupt,Exception:
 			util.Msg("Exiting sniffer..")
+		except Scapy_Exception as msg:
+			util.Error(msg)
+			sys.exit(1)
 	elif options.wifind: 
 		util.debug("beginning wireless AP scan..")
-		ap_scan = APScan()
-		if options.channel: ap_scan.channel = options.channel
-		ap_scan.initialize()
+		scan = ap_scan()
+		if options.channel: scan.channel = options.channel
+		scan.initialize()
 	elif options.ssh:
 		util.Msg('Starting SSH server...')
-		tmp = SSHService()
-		tmp.dump = True
+		tmp = ssh()
 		tmp.initialize()
+		tmp.dump = True
 	elif options.ftp:
 		util.Msg('Starting FTP server...')
-		tmp = FTPService()
-		tmp.dump = True
+		tmp = ftp() 
 		tmp.initialize()
+		tmp.dump = True
 	elif options.http:
 		util.Msg('Starting HTTP server...')
-		tmp = HTTPService()
-		tmp.dump = True
+		tmp = http()
 		tmp.initialize()
+		tmp.dump = True
 	elif options.smb:
 		util.Msg('Starting SMB listener...')
-		tmp = SMBService()
-		tmp.dump = True
+		tmp = smb()
 		tmp.initialize()
+		tmp.dump = True
 	elif options.wap:
 		util.Msg('Starting wireless access point...')
-		tmp = APService()
+		tmp = access_point()
 		tmp.initialize()
 	elif options.update:
 		update()

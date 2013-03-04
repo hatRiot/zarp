@@ -18,8 +18,7 @@ class password_sniffer(Sniffer):
 			return None
 
 		self.sniff_filter = "src %s"%self.source
-		self.sniff = True
-		self.sniff_thread.start()
+		self.run()
 		return self.source
 	
 	def dump(self, pkt):
