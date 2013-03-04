@@ -2,12 +2,12 @@ from scapy.all import *
 from util import Msg
 from dos import DoS
 
-#
-# DHCP starvation attack involves firing off DHCP request packets with random MAC addresses.  With this we can 
-# exhaust the address space reserved by the DHCP server.  This attack can be a viable stepping stone in the
-# introduction of a rogue DHCP server.
-# more: http://hakipedia.com/index.php/DHCP_Starvation
-#
+"""DHCP starvation attack involves firing off DHCP request packets with random 
+   MAC addresses.  With this we can exhaust the address space reserved by the 
+   DHCP server.  This attack can be a viable stepping stone in the introduction 
+   of a rogue DHCP server.  
+   http://hakipedia.com/index.php/DHCP_Starvation
+"""
 class dhcp_starvation(DoS):
 	def __init__(self):
 		super(dhcp_starvation,self).__init__('DHCP Starvation')

@@ -12,7 +12,7 @@ from dos import DoS
 #
 class ndp_dos(DoS):
 	def __init__(self):
-		super(ndp_dos,self).__init__('NDP DoS')
+		super(ndp_dos,self).__init__('IPv6 Neighbor Discovery Protocol RA DoS')
 
 	def initialize(self):
 		tmp = raw_input('[!] WARNING: This will NDP DoS the entire local network.  Is this correct? ') 

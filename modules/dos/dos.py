@@ -13,6 +13,10 @@ class DoS(object):
 	@abc.abstractmethod
 	def initialize():
 		pass
+	
+	def session_view(self):
+		"""For session formatting"""
+		return self.which
 
 	def is_alive(self):
 		"""Check if the target is alive"""

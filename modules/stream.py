@@ -40,7 +40,13 @@ def initialize(module, TYPE):
 			debug('Storing sniffer session for %s'%to_ip)
 			HOUSE[tmp_mod.which][to_ip] = tmp_mod
 	elif TYPE is 'DOS':
-		tmp_mod.initialize()
+		# if you want the DoS module stored, return a key
+		# from your module.
+		tmp = tmp_mod.initialize()
+		if tmp is not None:
+			if not tmp_mod.which in HOUSE:
+				HOUSE[tmp_mod.which] = {}
+			HOUSE[tmp_mod.which][tmp] = tmp_mod
 	elif TYPE is 'SERVICE':
 		if tmp_mod.which in HOUSE['service']:
 			Error('\'%s\' is already running.'%tmp_mod.which)
