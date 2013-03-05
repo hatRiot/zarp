@@ -111,12 +111,12 @@ def attach_filter(s, filter):
     if not TCPDUMP:
         return
     try:
-        f = os.popen("%s -i %s -ddd -s 1600 '%s'" % (conf.prog.tcpdump,conf.iface,filter))
+        (stdin, f, stderr) = os.popen3("%s -i %s -ddd -s 1600 '%s'" % (conf.prog.tcpdump,conf.iface,filter))
     except OSError,msg:
         log_interactive.warning("Failed to execute tcpdump: (%s)")
         return
     lines = f.readlines()
-    if f.close():
+    if f.close() or 'syntax error' in stderr.read():
         raise Scapy_Exception("Filter parse error")
     nb = int(lines[0])
     bpf = ""
