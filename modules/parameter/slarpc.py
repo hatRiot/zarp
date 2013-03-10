@@ -83,7 +83,7 @@ class slarpc(Parameter):
 		self.rc4.key = getpass('[!] Enter encryption password: ')
 
 	def initialize(self):
-		"""Fetch remote host:port and perform any encryption
+		"""Fetch remote host and perform any encryption
 		   runtime generation.
 		"""
 		util.Msg('The slarpd daemon should be running on the remote host!')
@@ -100,6 +100,7 @@ class slarpc(Parameter):
 					util.Msg('Traffic encrypted.')
 					self.encrypt = True
 				break
-			except Exception, e: print e
+			except Exception, e: 
+				util.Error(e)
 		util.Msg('Spawning remote shell to %s'%(self.remote_host))
 		self.shell()

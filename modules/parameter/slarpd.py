@@ -41,7 +41,7 @@ class slarpd:
 	def respond(self,data):
 		"""Send [data] back to the remote host"""
 		try:
-			if len(data) > 400: data = "Response too long; fragmentation not yet supported."
+			if len(data) > 900: data = "Response too long; fragmentation not yet supported."
 			if self.encrypt: data = self.crypto.rc4.encrypt(data)
 			arpf = [ self.mac_bytes(self.remote_mac), self.mac_bytes(self.host_mac), 
    					 pack('!H',0x0806),
