@@ -1,1 +1,2 @@
-__all__ = ['cisco', 'dlink', 'linksys', 'netgear', 'asus' ]
+__all__ = ['cisco', 'dlink', 'linksys', 'netgear', 'asus',
+		   'rosewill' ]
