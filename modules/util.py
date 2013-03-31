@@ -289,6 +289,7 @@ def print_menu(arr):
 				for entry in choice[1:]:
 					buffered.append(int(entry))
 			choice = int(choice[0])
+	except KeyboardInterrupt: choice = -1
 	except Exception:
 		os.system('clear')
 		choice = -1
