@@ -1,7 +1,8 @@
 #! /usr/local/bin/python
-import os
-import sys
-sys.path.insert(0, os.getcwd() + '/modules/')
+
+from os import getcwd, getuid
+from sys import path, argv, exit
+path.insert(0, getcwd() + '/modules/')
 from util import get_subclass,print_menu, header, Error, Msg, debug
 from commands import getoutput
 import stream
@@ -60,8 +61,8 @@ def main():
 	"""
 
 	# handle command line options first
-	if len(sys.argv) > 1:
-		parse_cmd.parse(sys.argv)
+	if len(argv) > 1:
+		parse_cmd.parse(argv)
 	
 	# set up configuration 
 	config.initialize()
@@ -168,16 +169,16 @@ def main():
 # Application entry; dependency checks, etc.
 if __name__=="__main__":
 	# perm check
-	if int(os.getuid()) > 0:
+	if int(getuid()) > 0:
 		Error('Please run as root.')
-		sys.exit(1)
+		exit(1)
 	# check for forwarding
 	if not getoutput('cat /proc/sys/net/ipv4/ip_forward') == '1':
 		Msg('IPv4 forwarding disabled.  Enabling..')
 		tmp = getoutput('sudo sh -c \'echo "1" > /proc/sys/net/ipv4/ip_forward\'')	
 		if len(tmp) > 0:
 			Error('Error enabling IPv4 forwarding.')
-			sys.exit(1)
+			exit(1)
 	# load local scapy lib
-	sys.path[:0] = [str(os.getcwd()) + '/scapy'] 
+	path[:0] = [str(getcwd()) + '/scapy'] 
 	main()

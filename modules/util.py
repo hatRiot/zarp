@@ -1,14 +1,16 @@
+from scapy.error import Scapy_Exception
 from signal import SIGINT
 from datetime import date, datetime
 from commands import getoutput
 from subprocess import Popen
+from cmd import Cmd 
+import scapy.arch
 import config
 import os
 import socket
 import fcntl
 import struct
 
-from cmd import Cmd 
 """Utility class housing various functions in use
 	throughout the zarp framework.
 """
@@ -79,7 +81,7 @@ def check_program(prog):
 	else:
 		return False
 
-def init_app(prog, output):
+def init_app(prog, output=True):
 	"""inititalize an application 
 	   PROG is the full command with args
        OUTPUT true if output should be returned 
@@ -189,6 +191,17 @@ def get_local_ip(adapter):
 		addr = None
 	return addr
 
+def test_filter(net_filter):
+	"""Test a network filter to verify if its valid"""
+	valid = False
+	try:
+		scapy.arch.attach_filter(None,net_filter)
+	except Scapy_Exception:
+		pass
+	except:
+		valid = True
+	return valid
+
 def get_layer_bytes(layer):
 	"""I havent found a neat way to pull RAW bytes out of Scapy packets,
 	   so I just wrote a small utility function for it.
@@ -276,6 +289,7 @@ def print_menu(arr):
 				for entry in choice[1:]:
 					buffered.append(int(entry))
 			choice = int(choice[0])
+	except KeyboardInterrupt: choice = -1
 	except Exception:
 		os.system('clear')
 		choice = -1
