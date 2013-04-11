@@ -24,14 +24,14 @@ class dns(Poison):
 		try:
 			arps = None
 			key = None
-			if 'ARPSpoof' in stream.HOUSE:
-				house = stream.HOUSE['ARPSpoof']
+			if 'ARP Spoof' in stream.HOUSE:
+				house = stream.HOUSE['ARP Spoof']
 			else:
 				util.Error('ARP spoof required!')
 				return
 
 			while True:
-				stream.dump_module_sessions('ARPSpoof')
+				stream.dump_module_sessions('ARP Spoof')
 				try:
 					num = int(raw_input('[number] > '))
 				except TypeError:
