@@ -54,7 +54,12 @@ def initialize(module, TYPE):
 			if tmp_mod.initialize_bg():
 				HOUSE['service'][tmp_mod.which] = tmp_mod
 	elif TYPE is 'SCANNER':
-		tmp_mod.initialize()
+		tmp = tmp_mod.initialize()
+		if tmp is not None:
+			if not tmp_mod.which in HOUSE:
+				HOUSE[tmp_mod.which] = {}
+			HOUSE[tmp_mod.which][tmp] = tmp_mod
+#		tmp_mod.initialize()
 	elif TYPE is 'PARAMETER':
 		tmp_mod.initialize()
 
