@@ -75,3 +75,4 @@ class passive_scan(Sniffer):
 		else:
 			for address in self.netmap:
 				print '\t%s\t%s\t%s'%(address.ip,address.mac,address.host)
+			util.Msg('\t %s hosts found.'%len(self.netmap))

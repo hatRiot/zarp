@@ -18,7 +18,7 @@ class nestea_dos(DoS):
 		conf.verb = 0
 
 		try:
-			self.target = raw_input('[!] Enter IP address to DoS: ')
+			self.get_ip()
 			tmp = raw_input('[!] Nestea DoS IP %s.  Is this correct? '%self.target)
 			if 'n' in tmp.lower():
 				return
