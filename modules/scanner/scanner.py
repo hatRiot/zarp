@@ -1,17 +1,18 @@
+from module import ZarpModule
 import abc
 
-class Scanner(object):
+class Scanner(ZarpModule):
 	"""Abstract scanner
 	"""
 	__metaclass__ = abc.ABCMeta
 
 	def __init__(self, which):
-		self.which = which
 		self.target = None
+		super(Scanner,self).__init__(which)
 
 	@abc.abstractmethod
-	def initialize():
-		pass
+	def initialize(self):
+		raise NotImplementedError
 
 	def is_alive(self):
 		""" Check if the target is responding

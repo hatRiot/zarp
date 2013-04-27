@@ -49,7 +49,7 @@ def menu():
 		elif choice == 4:
 			(module, number) = stream.get_session_input()
 			if not module is None:
-				stream.toggle_log(module,number, None, False)
+				stream.toggle_log(module, number)
 		elif choice == -1:
 			pass
 		else:

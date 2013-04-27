@@ -77,6 +77,6 @@ class http_sniffer(Sniffer):
 				data = self.pull_output(pkt)
 				if not data is None:
 					self.log_msg(data)
-		except KeyboardInterrupt:
-			self.dump_data = False
+		except Exception, e:
+			util.Error('%s'%(e))	
 			return

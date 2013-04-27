@@ -1,12 +1,13 @@
+from module import ZarpModule
 import abc
 
-#
-# Abstract parameter
-#
-class Parameter(object):
-	def __init__(self, service):
-		self.which = service
+""" Abstract parameter
+"""
+
+class Parameter(ZarpModule):
+	def __init__(self, which):
+		super(Parameter,self).__init__(which)
 
 	@abc.abstractmethod
 	def initialize():
-		pass
+		raise NotImplementedError

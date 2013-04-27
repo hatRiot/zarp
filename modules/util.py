@@ -4,6 +4,7 @@ from datetime import date, datetime
 from commands import getoutput
 from subprocess import Popen
 from cmd import Cmd 
+from pwd import getpwnam
 import scapy.arch
 import config
 import os
@@ -226,17 +227,29 @@ def get_subclass(module, base_class):
 			pass
 	return None
 
+def get_run_usr():
+	""" Fetch the user that launched zarp
+	"""
+	if 'SUDO_USER' in os.environ:
+		usr = os.environ['SUDO_USER']
+	else:
+		usr = init_app('who -m | awk \'{print $1;}\'')
+
+	# verify the user exists
+	try: 
+		getpwnam(usr)
+	except: usr = None
+	return usr
+
 def background():
 	""" Drops the user back into their shell environment.
 		'exit' brings them back.
 	"""
+
+	usr = get_run_usr()
+	if usr is None: return
+
 	Msg('\'exit\' when you\'re done..')
-	if 'SUDO_USER' in os.environ:
-		usr = os.environ['SUDO_USER']
-	else:
-		# hacky?
-		usr = init_app('who -m | awk \'{print $1;}\'', True)
-	
 	shell = os.environ['SHELL'] if 'SHELL' in os.environ else '/bin/bash'
 	if check_program(shell):
 		os.system('su -c %s %s'%(shell, usr))

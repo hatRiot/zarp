@@ -81,7 +81,7 @@ class ftp(Service):
 							break
 					except socket.error:
 						break
-				self.log_msg("Received \033[32m%s:%s\033[33m' from connection.\n"%(self.usr,self.pwd))
+				self.log_msg("Received \033[32m%s:%s\033[33m' from connection."%(self.usr,self.pwd))
 				self.log_msg("\'%s\' disconnected.\n"%(addr[0]))	
 				conn.close()
 		except KeyboardInterrupt:

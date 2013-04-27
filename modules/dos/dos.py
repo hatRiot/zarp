@@ -1,22 +1,19 @@
-import abc
+from module import ZarpModule
 from util import init_app
 from re import search
+import abc
 
-class DoS(object):
+class DoS(ZarpModule):
 	"""Abstract denial of service class"""
 	__metaclass__ = abc.ABCMeta
 
 	def __init__(self, which):
-		self.which = which
+		super(DoS, self).__init__(which)
 		self.target = None
 	
 	@abc.abstractmethod
 	def initialize():
-		pass
-	
-	def session_view(self):
-		"""For session formatting"""
-		return self.which
+		raise NotImplementedError	
 
 	def is_alive(self):
 		"""Check if the target is alive"""

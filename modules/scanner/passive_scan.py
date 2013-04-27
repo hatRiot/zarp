@@ -24,8 +24,8 @@ class Address:
 
 class passive_scan(Sniffer):
 	def __init__(self):
-		super(passive_scan, self).__init__('Passive Scanner')
 		self.netmap = []
+		super(passive_scan, self).__init__('Passive Scanner')
 
 	def initialize(self):
 		util.Msg('Initializing passive network map...')

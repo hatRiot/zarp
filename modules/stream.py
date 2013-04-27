@@ -150,7 +150,7 @@ def view_session(module, number):
 		Msg('[enter] when finished')
 		mod.view()
 
-def toggle_log(module, number, file_loc, toggle):
+def toggle_log(module, number, file_loc=None, toggle=False):
 	"""Toggle the logger of a module
 	   @param module is the module number
 	   @param number is the session number
@@ -207,5 +207,4 @@ def view_info (module):
 	""" Obtains help information for a module
 		@param module is the module number
 	"""
-	print 'Received info start for ', module
 	pass	
