@@ -56,7 +56,7 @@ class http(Service):
 		"""Magic for passing context into the request handler"""
 		context = { 
 				'root': self.root,
-				'dump': self.dump,
+				'dump': self.dump_data,
 				'log_data': self.log_data,
 				'log_file' : self.log_file
 				  }
