@@ -10,10 +10,6 @@ class Scanner(ZarpModule):
 		self.target = None
 		super(Scanner,self).__init__(which)
 
-	@abc.abstractmethod
-	def initialize(self):
-		raise NotImplementedError
-
 	def is_alive(self):
 		""" Check if the target is responding
 		"""

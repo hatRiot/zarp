@@ -10,10 +10,6 @@ class DoS(ZarpModule):
 	def __init__(self, which):
 		super(DoS, self).__init__(which)
 		self.target = None
-	
-	@abc.abstractmethod
-	def initialize():
-		raise NotImplementedError	
 
 	def is_alive(self):
 		"""Check if the target is alive"""

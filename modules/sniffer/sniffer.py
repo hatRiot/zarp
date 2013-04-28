@@ -20,10 +20,6 @@ class Sniffer(ZarpModule):
 	def dump(self, pkt):
 		raise NotImplementedError	
 
-	@abc.abstractmethod
-	def initialize(self):
-		raise NotImplementedError
-
 	def session_view(self):
 		""" Session viewer returns source
 		"""
