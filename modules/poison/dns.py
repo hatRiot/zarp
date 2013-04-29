@@ -12,7 +12,6 @@ class dns(Poison):
 	def __init__(self):
 		self.dns_spoofed_pair = {}
 		self.dns_spoof = None
-		self.dump = False
 		self.source = None
 		self.local_mac = None
 		super(dns,self).__init__('DNS Spoof')
@@ -40,8 +39,8 @@ class dns(Poison):
 					key = house.keys()[num]
 					arps = house[key]
 
-					self.source = arps.to_ip
-					self.local_mac = arps.local_mac
+					self.source = arps.victim[0]
+					self.local_mac = arps.local[1]
 					break
 				else:
 					return
@@ -57,7 +56,7 @@ class dns(Poison):
 
 			if 'n' in tmp.lower():
 				return
-
+			
 			dns_name = re.compile(dns_name)
 			self.dns_spoofed_pair[dns_name] = dns_spoofed
 			self.dns_spoof = True
@@ -94,7 +93,7 @@ class dns(Poison):
 											type='A',rclass='IN',ttl=40000,rdata=self.dns_spoofed_pair[dns]),
 											qd=pkt[DNS].qd)
 					sendp(p,count=1)
-					if self.dump: util.Msg('Caught request to %s'%pkt[DNSQR].qname)
+					if self.dump_data: util.Msg('Caught request to %s'%pkt[DNSQR].qname)
 		del(pkt)
 	
 	def test_stop(self):

@@ -98,67 +98,49 @@ def main():
 		elif choice == 1:
 			while True:
 				choice = print_menu([x().which for x in loader.poison])
-				if choice == 0:
-					break
-				elif choice == -1:
-					pass
-				elif choice > len(loader.poison):
-					continue
+				if choice == 0: break
+				elif choice == -1: pass
+				elif choice > len(loader.poison): continue
 				else:
 					stream.initialize(loader.poison[choice-1], 'POISON')
 		elif choice == 2:
 			while True:
 				choice = print_menu([x().which for x in loader.dos])
-				if choice == 0:
-					break
-				elif choice == -1:
-					pass
-				elif choice > len(loader.dos):
-					continue
+				if choice == 0: break
+				elif choice == -1: pass
+				elif choice > len(loader.dos): continue
 				else:
 					stream.initialize(loader.dos[choice-1], 'DOS')
 		elif choice == 3:
 			while True:
 				choice = print_menu([x().which for x in loader.sniffers])
-				if choice == 0:
-					break
-				elif choice == -1:
-					pass
-				elif choice > len(loader.sniffers):
-					continue
+				if choice == 0: break
+				elif choice == -1: pass
+				elif choice > len(loader.sniffers): continue
 				else:
 					stream.initialize(loader.sniffers[choice-1], 'SNIFFER')	
 		elif choice == 4:
 			while True:
 				choice = print_menu([x().which for x in loader.scanner])
-				if choice == 0:
-					break
-				elif choice == -1:
-					pass	
-				elif choice > len(loader.scanner):
-					continue
+				if choice == 0: break
+				elif choice == -1: pass
+				elif choice > len(loader.scanner): continue
 				else:
 					stream.initialize(loader.scanner[choice-1], 'SCANNER')
 		elif choice == 5:
 			while True:
 				choice = print_menu([x().which for x in loader.parameter])
-				if choice == 0:
-					break
-				elif choice == -1:
-					pass
-				elif choice > len(loader.parameter):
-					continue
+				if choice == 0: break
+				elif choice == -1: pass
+				elif choice > len(loader.parameter): continue
 				else:
 					stream.initialize(loader.parameter[choice-1], 'PARAMETER')
 		elif choice == 6:
 			while True:
 				choice = print_menu([x().which for x in loader.services])
-				if choice == 0:
-					break
-				elif choice == -1:
-					pass
-				elif choice > len(loader.services):
-					continue
+				if choice == 0: break
+				elif choice == -1: pass
+				elif choice > len(loader.services): continue
 				else:
 					stream.initialize(loader.services[choice-1], 'SERVICE')
 		elif choice == 7:

