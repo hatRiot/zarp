@@ -11,7 +11,6 @@ class dns(Poison):
 
 	def __init__(self):
 		self.dns_spoofed_pair = {}
-		self.dns_spoof = None
 		self.source = None
 		self.local_mac = None
 		super(dns,self).__init__('DNS Spoof')
@@ -59,7 +58,7 @@ class dns(Poison):
 			
 			dns_name = re.compile(dns_name)
 			self.dns_spoofed_pair[dns_name] = dns_spoofed
-			self.dns_spoof = True
+			self.running = True
 
 			util.Msg('Starting DNS spoofer...')
 			thread = Thread(target=self.dns_sniffer)
@@ -95,20 +94,12 @@ class dns(Poison):
 					sendp(p,count=1)
 					if self.dump_data: util.Msg('Caught request to %s'%pkt[DNSQR].qname)
 		del(pkt)
-	
-	def test_stop(self):
-		"""Test if we're still spoofing
-		"""
-		if self.dns_spoof:
-			return False
-		util.debug('Stopping DNS spoofer...')
-		return True
 
 	def shutdown(self):
 		"""Stop DNS spoofing
 		"""
-		if self.dns_spoof:
-			self.dns_spoof = False
+		if self.running:
+			self.running = False
 			self.dns_spoofed_pair.clear()
 			util.debug('DNS spoofing shutdown.')
 		return

@@ -141,13 +141,6 @@ class dhcp(Poison):
 			self.dump_data = False
 			return
 
-	def test_stop(self):
-		"""Sniffer callback"""
-		if self.running:
-			return False
-		util.debug('Stopping dhcp threads..')
-		return True
-
 	def shutdown(self):
 		""" Shutdown DHCP server and any ARP poisons
 		"""

