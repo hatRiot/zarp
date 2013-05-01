@@ -2,7 +2,7 @@ import util
 import socket
 from scapy.all import *
 from threading import Thread
-from ..sniffer.sniffer import Sniffer
+from sniffer.sniffer import Sniffer
 
 """ Much like the passive scanner in Ettercap,
 	this module was designed to passively map the network

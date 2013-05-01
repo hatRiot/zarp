@@ -7,8 +7,7 @@ import re
 import asyncore
 
 try: import nfqueue 
-except: 
-	util.Error('nfqueue libs not found.') 
+except: pass
 
 """ This module emulates the find & replace utility
 	from ettercrap.  Given a string to match and a replacement,
@@ -32,6 +31,11 @@ class packet_modifier(Sniffer):
 
 	def initialize(self):
 		"""Initialize the replacer module"""
+		try: import nfqueue
+		except ImportError:
+			util.Error('nfqueue-bindings not found.')
+			return None
+
 		util.Msg('Note: This module currently only supports payload modifications.')
 		while True:
 			try:
@@ -86,9 +90,10 @@ class packet_modifier(Sniffer):
 			# recalculate IP length and checksums
 			del mod_pkt[IP].chksum
 			del mod_pkt[TCP].chksum
-			mod_pkt[IP].len = (mod_pkt[IP].len - len(pkt[TCP].load)) + len(data)
+			del mod_pkt[IP].len
+#			mod_pkt[IP].len = (mod_pkt[IP].len - len(pkt[TCP].load)) + len(data)
 			mod_pkt[TCP].load = data
-			payload.set_verdict_modified(nfqueue.NF_REPEAT,str(mod_pkt),len(mod_pkt))
+			payload.set_verdict_modified(nfqueue.NF_ACCEPT,str(mod_pkt),len(mod_pkt))
 			return 0
 
 		payload.set_verdict(nfqueue.NF_ACCEPT)

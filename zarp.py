@@ -2,21 +2,17 @@
 
 from os import getcwd, getuid
 from sys import path, argv, exit
-path.insert(0, getcwd() + '/modules/')
-from util import get_subclass,print_menu, header, Error, Msg, debug
+path.append(getcwd() + '/src/core/')
+path.append(getcwd() + '/src/modules/')
+from util import get_subclass, print_menu, header, Error, Msg, debug
 from commands import getoutput
 import stream
 import session_manager
 import parse_cmd
 import config
 # module loading
+from src.modules import poison, dos, scanner, services, sniffer, parameter
 import importlib
-import modules.dos
-import modules.poison
-import modules.scanner
-import modules.services
-import modules.sniffer
-import modules.parameter
 
 class LoadedModules:
 	""" Load modules
@@ -31,28 +27,30 @@ class LoadedModules:
 		self.parameter  = []
 
 	def load(self):
-		for module in modules.dos.__all__:
-			mod = getattr(importlib.import_module('modules.dos.%s'%module, 'modules.dos'),module)
-			self.dos.append(mod)
-			self.total += 1
-		for module in modules.poison.__all__:
-			mod = getattr(importlib.import_module('modules.poison.%s'%module, 'modules.poison'),module)
+		""" Load modules.
+		"""
+		for module in poison.__all__:
+			mod = getattr(importlib.import_module('src.modules.poison.%s'%module, 'poison'),module)
 			self.poison.append(mod)
 			self.total += 1
-		for module in modules.scanner.__all__:
-			mod = getattr(importlib.import_module('modules.scanner.%s'%module, 'modules.scanner'),module)
+		for module in dos.__all__:
+			mod = getattr(importlib.import_module('src.modules.dos.%s'%module, 'dos'),module)
+			self.dos.append(mod)
+			self.total += 1
+		for module in scanner.__all__:
+			mod = getattr(importlib.import_module('src.modules.scanner.%s'%module, 'scanner'),module)
 			self.scanner.append(mod)
 			self.total += 1
-		for module in modules.services.__all__:
-			mod = getattr(importlib.import_module('modules.services.%s'%module, 'modules.services'),module)
+		for module in services.__all__:
+			mod = getattr(importlib.import_module('src.modules.services.%s'%module, 'services'),module)
 			self.services.append(mod)
 			self.total += 1
-		for module in modules.sniffer.__all__:
-			mod = getattr(importlib.import_module('modules.sniffer.%s'%module, 'modules.sniffer'),module)
+		for module in sniffer.__all__:
+			mod = getattr(importlib.import_module('src.modules.sniffer.%s'%module, 'sniffer'),module)
 			self.sniffers.append(mod)
 			self.total += 1
-		for module in modules.parameter.__all__:
-			mod = getattr(importlib.import_module('modules.parameter.%s'%module, 'modules.parameter'),module)
+		for module in parameter.__all__:
+			mod = getattr(importlib.import_module('src.modules.parameter.%s'%module, 'parameter'),module)
 			self.parameter.append(mod)
 			self.total += 1
 	

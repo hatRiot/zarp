@@ -159,7 +159,7 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 					self.context['log_file'].write(base64.b64decode(auth_header.split(' ')[1]) + '\n')
 					self.context['log_file'].flush()
 				if self.context['dump']:
-					util.Msg('Collected: %s'%base64.b64decode(auth_header.split(' ')[1]))
+					util.Msg('Collected: \033[32m%s\033[33m'%base64.b64decode(auth_header.split(' ')[1]))
 				self.send_auth_headers()
 			else:
 				self.send_auth_headers()

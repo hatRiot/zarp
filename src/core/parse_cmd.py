@@ -1,6 +1,6 @@
 import sys, os
-sys.path[:0] = [str(os.getcwd()) + '/modules/poison/', str(os.getcwd()) + '/modules/scanner/',
-		        str(os.getcwd()) + '/modules/services/']
+sys.path[:0] = [str(os.getcwd()) + '/src/modules/poison/', str(os.getcwd()) + '/src/modules/scanner/',
+		        str(os.getcwd()) + '/src/modules/services/']
 import argparse
 from net_map import net_map
 from nbns import nbns

@@ -3,10 +3,6 @@ import os
 from threading import Thread
 from service import Service
 
-#
-# Implements a fake wireless access point for harvesting credentials/keys/etc
-# Requires airbase-ng
-#
 class access_point(Service):
 	"""Implements a fake wireless access points that supports passthru; or,
 	   forwarding traffic from the fake AP to another iface.
@@ -52,7 +48,11 @@ class access_point(Service):
 			self.mon_adapt = util.get_monitor_adapter()
 			if self.mon_adapt is None:
 				self.mon_adapt = util.enable_monitor()
-					
+		
+			if self.mon_adapt is None:
+				util.Error('Could not find a wireless card in monitor mode')
+				return None
+
 			airbase_cmd = [
 						'airbase-ng',
 						'--essid', self.ap_essid,
@@ -60,7 +60,7 @@ class access_point(Service):
 						  ]
 			ap_proc = util.init_app(airbase_cmd, False)
 			util.Msg('Access point %s running.'%self.ap_essid)
-			while self.running: pass
+			raw_input()	# block	
 		except KeyboardInterrupt:
 			self.running = False
 		except Exception, er:
