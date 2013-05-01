@@ -2,6 +2,7 @@
 
 from os import getcwd, getuid
 from sys import path, argv, exit
+path.append(getcwd() + '/src/')
 path.append(getcwd() + '/src/core/')
 path.append(getcwd() + '/src/modules/')
 from util import get_subclass, print_menu, header, Error, Msg, debug
@@ -159,6 +160,4 @@ if __name__=="__main__":
 		if len(tmp) > 0:
 			Error('Error enabling IPv4 forwarding.')
 			exit(1)
-	# load local scapy lib
-	path[:0] = [str(getcwd()) + '/scapy'] 
 	main()
