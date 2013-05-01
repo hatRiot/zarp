@@ -90,7 +90,7 @@ def pptable(rows):
 		pattern = " | ".join(formats)
 		hpattern = " | ".join(hformats)
 		separator = "-+-".join(['-' * n for n in lens])
-		print '\t\033[32m' + hpattern % tuple(headers) + '\033[0m'
+		print color.GREEN + '\t' + hpattern % tuple(headers) + color.END
 		print '\t' + separator
 		for line in rows:
 			print '\t' + pattern % tuple(line)

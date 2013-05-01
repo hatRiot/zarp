@@ -1,4 +1,5 @@
 import gc
+from colors import color
 from util import Error, Msg, debug
 from collections import OrderedDict
 
@@ -74,16 +75,16 @@ def dump_sessions():
 		tmp = HOUSE['service']
 		if len(tmp) > 0: print '[0] Services'
 		for (cnt,service) in enumerate(tmp):
-			print '\t\033[32m[%d] %s\033[0m'%(cnt,tmp[service].session_view())
+			print color.GREEN + '\t[%d] %s'%(cnt,tmp[service].session_view()) + color.END
 			if tmp[service].log_data:
-				print '\t--> \033[32mLogging to %s\033[0m'%(tmp[service].log_file.name)
+				print '\t--> ' + color.GREEN + 'Logging to %s'%(tmp[service].log_file.name) + color.END
 	
 	for (cnt,key) in enumerate(HOUSE.keys()):
 		if key is 'service':
 			continue
 		if len(HOUSE[key]) > 0: print '[%d] %s'%(cnt, key)
 		for (cnt,obj) in enumerate(HOUSE[key]):
-			print '\t\033[32m[%d] %s\033[0m'%(cnt, HOUSE[key][obj].session_view())
+			print color.GREEN + '\t[%d] %s'%(cnt, HOUSE[key][obj].session_view()) + color.END
 			if hasattr(HOUSE[key][obj], 'log_data'):
 				if HOUSE[key][obj].log_data:
 					print '\t|--> Logging to ', HOUSE[key][obj].log_file.name

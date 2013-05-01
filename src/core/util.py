@@ -5,6 +5,7 @@ from commands import getoutput
 from subprocess import Popen
 from cmd import Cmd 
 from pwd import getpwnam
+from colors import color
 import scapy.arch
 import config
 import os
@@ -26,25 +27,25 @@ def version():
 
 def header():
 	"""Zarp header"""
-	print '\t\033[32m ____   __   ____  ____'
+	print color.GREEN + '\t ____   __   ____  ____'
 	print '\t(__  ) / _\ (  _ \(  _ \''
 	print '\t / _/ /    \ )   / ) __/'
-	print '\t(____)\_/\_/(__\_)(__)\033[0m'
-	print "\t    [\033[33mVersion %s\033[0m]\t\t\t"%(version())
+	print '\t(____)\_/\_/(__\_)(__)' + color.END
+	print "\t    " + color.YELLOW + "[Version %s]\t\t\t"%(version()) + color.END
 	if isDebug:
-		print '\t      \033[34m[DEBUGGING]\033[0m'
+		print '\t      ' + color.BLUE + ' [DEBUGGING]' + color.END
 
 def Error(msg):
 	"""Prints the given message and, if debugging is on,
 	   logs it.
 	"""
-	print '\033[31m[-] %s\033[0m'%(msg)
+	print color.RED + '[-] %s'%(msg) + color.END
 	if isDebug:
 		debug(msg)	
 
 def Msg(msg):
 	"""Prints a warning message"""
-	print '\033[33m[!] %s\033[0m'%(msg)
+	print color.YELLOW + '[!] %s'%(msg) + color.END
 
 def debug(msg):
 	"""If debugging is enabled, write the given string
@@ -283,7 +284,8 @@ def print_menu(arr):
 			opts = choice.split(' ')
 			if opts[1] is None or opts[2] is None:
 				return
-			print '[!] Setting \033[33m%s\033[0m -> \033[32m%s\033[0m..'%(opts[1], opts[2])
+			print '[!] Setting ' + color.YELLOW + '%s' + color.END + \
+							'-> ' + color.GREEN + '%s..'%(opts[1], opts[2]) + color.END
 			config.set(opts[1], opts[2])
 			choice = -1
 		elif 'opts' in choice:
