@@ -16,21 +16,21 @@ class ap_crack(Parameter):
 			choice = util.print_menu(self.cracks)
 			if choice is 1:
 				cmd = [ 'python', 
-					'modules/parameter/wifite.py',
+					'src/modules/parameter/wifite.py',
 		        	'--wep', 
 					'--wept', '300',
 					'--nofakeauth' ]
 				break
 			elif choice is 2:
 				cmd = [ 'python',
-					'modules/parameter/wifite.py',
+					'src/modules/parameter/wifite.py',
 					'--wpa',
 					'--wpat', '10',
 					'--wpadt', '2' ]
 				break
 			elif choice is 3: 
 				cmd = [ 'python',
-					'modules/parameter/wifite.py', 
+					'src/modules/parameter/wifite.py', 
 					'--wps',
 					'--wpst', '5',
 					'--wpsretry', '8' ]
