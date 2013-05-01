@@ -18,6 +18,9 @@ except: pass
 
 	Requirements are nfqueue-bindings-python from wzdftpd.net and
 	libnetfilter-queue.
+
+	### there be bugs in these waters...
+	### BETA
 """
 
 class packet_modifier(Sniffer):
