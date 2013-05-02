@@ -306,7 +306,7 @@ def print_menu(arr):
 			choice = int(choice[0])
 	except KeyboardInterrupt: choice = -1
 	except Exception, e:
-		util.debug(e)	
+		debug(e)	
 		os.system('clear')
 		choice = -1
 	return choice
