@@ -25,7 +25,7 @@ class arp(Poison):
 		"""Initialize the ARP spoofer
 		"""
 		try:
-			Msg('[!] Using interface [%s:%s]'%(config.get('iface'), self.local[1]))
+			Msg('Using interface [%s:%s]'%(config.get('iface'), self.local[1]))
 			# get ip addresses from user
 			to_ip = raw_input("[!] Enter host to poison:\t")
 			from_ip = raw_input("[!] Enter address to spoof:\t")

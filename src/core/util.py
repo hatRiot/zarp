@@ -284,8 +284,8 @@ def print_menu(arr):
 			opts = choice.split(' ')
 			if opts[1] is None or opts[2] is None:
 				return
-			print '[!] Setting ' + color.YELLOW + '%s' + color.END + \
-							'-> ' + color.GREEN + '%s..'%(opts[1], opts[2]) + color.END
+			print '[!] Setting ' + color.YELLOW + '%s'%opts[1] + color.END + \
+							'-> ' + color.GREEN + '%s..'%opts[2] + color.END
 			config.set(opts[1], opts[2])
 			choice = -1
 		elif 'opts' in choice:
@@ -305,7 +305,8 @@ def print_menu(arr):
 					buffered.append(int(entry))
 			choice = int(choice[0])
 	except KeyboardInterrupt: choice = -1
-	except Exception:
+	except Exception, e:
+		util.debug(e)	
 		os.system('clear')
 		choice = -1
 	return choice

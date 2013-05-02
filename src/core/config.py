@@ -3,6 +3,7 @@ import logging
 logging.getLogger('scapy.runtime').setLevel(logging.ERROR)
 from scapy.all import *
 from collections import namedtuple
+from colors import color
 
 class Configuration:
 	""" Main configuration; just holds options
