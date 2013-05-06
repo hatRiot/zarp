@@ -16,7 +16,7 @@ class ap_scan(Scanner):
 		try:
 			if not util.check_program('airmon-ng'):
 				util.Error('airomon-ng not installed.  Please install to continue.')
-				return False
+				return None
 			util.Msg('(ctrl^c) when finished.')
 			iface = util.get_monitor_adapter()
 			if iface is None:
