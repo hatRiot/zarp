@@ -2,9 +2,9 @@
 
 from os import getcwd, getuid
 from sys import path, argv, exit
-path.append(getcwd() + '/src/')
-path.append(getcwd() + '/src/core/')
-path.append(getcwd() + '/src/modules/')
+path.insert(0, getcwd() + '/src/')
+path.insert(0, getcwd() + '/src/core/')
+path.insert(0, getcwd() + '/src/modules/')
 from util import get_subclass, print_menu, header, Error, Msg, debug
 from commands import getoutput
 import stream
