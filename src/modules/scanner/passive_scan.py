@@ -24,7 +24,7 @@ class Address:
 
 class passive_scan(Sniffer):
 	def __init__(self):
-		self.netmap = []
+		self.netmap = {}
 		super(passive_scan, self).__init__('Passive Scanner')
 
 	def initialize(self):
@@ -50,20 +50,26 @@ class passive_scan(Sniffer):
 		if 'ARP' in pkt:
 			if pkt[ARP].op == 1:
 				psrc = pkt[ARP].psrc
-				if not psrc in self.netmap:
+				if not psrc in self.netmap.keys():
 					addr = Address()
 					addr.ip   = psrc
 					addr.mac  = pkt[ARP].hwsrc
 					addr.host = self.resolve(psrc) 
-					self.netmap.append(addr)
+					self.netmap[psrc] = addr
+				elif self.netmap[psrc].ip != psrc and self.netmap[psrc].mac == pkt[ARP].src:
+				 	# IP changed
+					self.netmap[psrc].ip = psrc 
 			elif pkt[ARP].op == 2:
 				pdst = pkt[ARP].pdst
-				if not pdst in self.netmap:
+				if not pdst in self.netmap.keys():
 					addr = Address()
 					addr.ip    = pdst
 					addr.mac   = pkt[ARP].hwdst
 					addr.host  = self.resolve(pdst)
 					self.netmap.append(addr)
+				elif self.netmap[pdst].ip != pdst and self.netmap[pdst].mac == pkt[ARP].dst:
+					# IP changed
+					self.netmap[pdst].ip = pdst
 
 	def view(self):
 		"""Overridden Sniffer view
@@ -73,6 +79,7 @@ class passive_scan(Sniffer):
 		if len(self.netmap) <= 0:
 			util.Msg("No hosts yet mapped.")
 		else:
-			for address in self.netmap:
-				print '\t%s\t%s\t%s'%(address.ip,address.mac,address.host)
+			for address in self.netmap.keys():
+				print '\t%s\t%s\t%s'%(self.netmap[address].ip,self.netmap[address].mac,
+									  self.netmap[address].host)
 			util.Msg('\t %s hosts found.'%len(self.netmap))
