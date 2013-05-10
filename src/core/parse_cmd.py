@@ -11,7 +11,7 @@ from smb import smb
 from access_point import access_point
 from ap_scan import ap_scan
 from service_scan import service_scan
-import util
+import util, config
 
 from scapy.all import *
 from scapy.error import Scapy_Exception
@@ -22,17 +22,10 @@ def parse(sysv):
 		it will be refactored to allow modules to set their
 		own CLI interfaces.
 	"""
-	# parse debug first so the header isn't dumped twice 
-	if 'debug' in sysv[1]:
-		util.isDebug = True
-		util.debug('Zarp debug session started.')
-		return
-
 	parser = argparse.ArgumentParser(description=util.header()) 
 
 	# other options
 	parser.add_argument('-q', help='Quick network sniff with filter', action='store', dest='filter')
-	parser.add_argument('--debug', help='Launch Zarp with error logging',action='store_true',default=False,dest='debug')
 	parser.add_argument('--update', help='Update Zarp',action='store_true', default=False,dest='update')
 
 	# scanners

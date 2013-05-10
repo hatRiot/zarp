@@ -2,10 +2,10 @@ import util, socket
 from service import Service
 from threading import Thread
 
-#
-# emulate a single-threaded FTP service
-#
 class ftp(Service):
+	""" Emulates a single threaded FTP 
+		service.
+	"""
 	def __init__(self):
 		self.motd = 'b4ll4stS3c FTP Server v1.4'
 		self.usr = None
@@ -13,17 +13,14 @@ class ftp(Service):
 		self.server_socket = None
 		super(ftp,self).__init__('FTP Server')
 	
-	#
-	# format a response to the client
-	#
 	def response(self, con, code, txt):
+		""" Format a response to the client """
 		con.send('%d %s\r\n'%(code, txt))
 	
-	#
-	# process the incoming request; log username/password
-	# combos and deny access
-	#
 	def process_com(self, con, data):
+		""" Process the incoming request; logs the
+			username/password and denies access
+		"""
 		cmd = data.split(' ')[0].strip()
 		if cmd == 'USER':
 			usr = data.split(' ')[1]
@@ -43,15 +40,17 @@ class ftp(Service):
 			return False
 		return True
 
-	# init as a background process
 	def initialize_bg(self):
+		""" Initialize as a background process
+		"""
 		util.Msg('Starting FTP server...')
 		self.server_thread = Thread(target=self.initialize)
 		self.server_thread.start()
 		return True
 
-	# le init
 	def initialize(self):
+		""" Initialize; blocking 
+		"""
 		self.running = True
 		self.server_sock = socket.socket()
 		self.server_sock.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)

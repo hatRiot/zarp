@@ -10,9 +10,10 @@ class Configuration:
 	"""
 	def __init__(self):
 		self.opts = {
-					'iface'  : conf.iface,
-					'debug'  : util.isDebug,
-					'ip_addr': util.get_local_ip(conf.iface)
+					'iface'  : {'value':conf.iface, 'type':str},
+					'debug'  : {'value':False,      'type':bool},
+					'ip_addr': {'value':util.get_local_ip(conf.iface),'type':str},
+					'log'    : {'value':'zarp_debug.log', 'type':str}
 					}
 
 CONFIG = None
@@ -33,7 +34,7 @@ def dump():
 	Setting = namedtuple('Setting', ['Key', 'Value']) 
 	table = []
 	for i in CONFIG.opts.keys():
-		data = Setting(i, str(CONFIG.opts[i]))
+		data = Setting(i, str(CONFIG.opts[i]['value']))
 		table.append(data)
 	pptable(table)
 
@@ -49,10 +50,10 @@ def set(key, value):
 			if not util.verify_iface(value):
 				util.Error('\'%s\' is not a valid interface.'%(value))
 				return
-		elif key == 'debug':
-		  	value = util.isDebug if evalBool(value) is None else evalBool(value)
-		  	util.isDebug = value
-		CONFIG.opts[key] = value
+		if CONFIG.opts[key]['type'] is bool:
+			if evalBool(value) is not None: value = evalBool(value)
+			else: return
+		CONFIG.opts[key]['value'] = value
 	else:
 		util.Error('Key "%s" not found.  \'opts\' for options.'%(key))
 
@@ -61,7 +62,7 @@ def get(key):
 	   @param key is the config key value
 	"""
 	if key in CONFIG.opts:
-		return CONFIG.opts[key]
+		return CONFIG.opts[key]['value']
 
 def evalBool(value):
 	"""User input is evil

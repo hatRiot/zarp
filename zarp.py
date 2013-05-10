@@ -59,12 +59,12 @@ def main():
 	""" Zarp entry point
 	"""
 
+	# set up configuration 
+	config.initialize()
+	
 	# handle command line options first
 	if len(argv) > 1:
 		parse_cmd.parse(argv)
-	
-	# set up configuration 
-	config.initialize()
 
 	# menus
 	main_menu =    [ 'Poisoners', 'DoS Attacks', 'Sniffers', 'Scanners',

@@ -17,13 +17,11 @@ import struct
 	throughout the zarp framework.
 """
 
-isDebug = False
-DEBUG_LOG = 'zarp_debug.log'
 buffered = None
 
 def version():
 	"""Zarp version"""
-	return "0.10"
+	return "0.11"
 
 def header():
 	"""Zarp header"""
@@ -32,7 +30,7 @@ def header():
 	print '\t / _/ /    \ )   / ) __/'
 	print '\t(____)\_/\_/(__\_)(__)' + color.END
 	print "\t    " + color.YELLOW + "[Version %s]\t\t\t"%(version()) + color.END
-	if isDebug:
+	if config.get('debug'):
 		print '\t      ' + color.BLUE + ' [DEBUGGING]' + color.END
 
 def Error(msg):
@@ -40,7 +38,7 @@ def Error(msg):
 	   logs it.
 	"""
 	print color.RED + '[-] %s'%(msg) + color.END
-	if isDebug:
+	if config.get('debug'):
 		debug(msg)	
 
 def Msg(msg):
@@ -51,8 +49,9 @@ def debug(msg):
 	"""If debugging is enabled, write the given string
 	   to the debug file
 	"""
-	if isDebug and not os.path.islink(DEBUG_LOG):
-		with open(DEBUG_LOG, 'a+') as f:
+	dbg = config.get('log')
+	if config.get('debug') and not os.path.islink(dbg):
+		with open(dbg, 'a+') as f:
 			f.write(format('[%s %s] %s\n'%(date.today().isoformat(), datetime.now().strftime("%I:%M%p"), msg)))
 
 def next_ip(ip):
