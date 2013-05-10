@@ -66,7 +66,7 @@ class passive_scan(Sniffer):
 					addr.ip    = pdst
 					addr.mac   = pkt[ARP].hwdst
 					addr.host  = self.resolve(pdst)
-					self.netmap.append(addr)
+					self.netmap[pdst] = addr
 				elif self.netmap[pdst].ip != pdst and self.netmap[pdst].mac == pkt[ARP].dst:
 					# IP changed
 					self.netmap[pdst].ip = pdst
