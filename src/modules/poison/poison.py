@@ -1,4 +1,5 @@
 from module import ZarpModule
+import util
 import abc
 
 """ Abstract poison module
@@ -13,5 +14,5 @@ class Poison(ZarpModule):
 		"""
 		if self.running:
 			return False
-		debug("Stopping sniffer threads for %s.."%self.which)
+		util.debug("Stopping sniffer threads for %s.."%self.which)
 		return True

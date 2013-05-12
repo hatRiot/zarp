@@ -92,7 +92,7 @@ class dns(Poison):
 											type='A',rclass='IN',ttl=40000,rdata=self.dns_spoofed_pair[dns]),
 											qd=pkt[DNS].qd)
 					sendp(p,count=1)
-					if self.dump_data: util.Msg('Caught request to %s'%pkt[DNSQR].qname)
+					self.log_msg('Caught request to %s'%(pkt[DNSQR].qname))
 		del(pkt)
 
 	def shutdown(self):

