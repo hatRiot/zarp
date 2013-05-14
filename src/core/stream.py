@@ -13,7 +13,7 @@ from collections import OrderedDict
 # main struct; ordered dictionary
 HOUSE = OrderedDict()
 
-def initialize(module, TYPE):
+def initialize(module):
 	""" Initialize a module and load it into the global HOUSE
 		variable.  TYPE should be one of the corresponding strings
 		from 'zarp'.  MODULE should be an instance of the loaded
@@ -26,43 +26,15 @@ def initialize(module, TYPE):
 		HOUSE['service'] = {}
 
 	tmp_mod = module()
-	if TYPE is 'POISON': 
+	if hasattr(tmp_mod, 'initialize_bg'):
+		tmp = tmp_mod.initialize_bg()
+	else:
+		tmp = tmp_mod.initialize()
+	
+	if tmp is not None:
 		if not tmp_mod.which in HOUSE:
 			HOUSE[tmp_mod.which] = {}
-		to_ip = tmp_mod.initialize()
-		if not to_ip is None:
-			debug('Storing session for %s'%to_ip)
-			HOUSE[tmp_mod.which][to_ip] = tmp_mod
-	elif TYPE is 'SNIFFER':
-		if not tmp_mod.which in HOUSE:
-			HOUSE[tmp_mod.which] = {}
-		to_ip = tmp_mod.initialize()
-		if not to_ip is None:
-			debug('Storing sniffer session for %s'%to_ip)
-			HOUSE[tmp_mod.which][to_ip] = tmp_mod
-	elif TYPE is 'DOS':
-		# if you want the DoS module stored, return a key
-		# from your module.
-		tmp = tmp_mod.initialize()
-		if tmp is not None:
-			if not tmp_mod.which in HOUSE:
-				HOUSE[tmp_mod.which] = {}
-			HOUSE[tmp_mod.which][tmp] = tmp_mod
-	elif TYPE is 'SERVICE':
-		if tmp_mod.which in HOUSE['service']:
-			Error('\'%s\' is already running.'%tmp_mod.which)
-		else:
-			if tmp_mod.initialize_bg():
-				HOUSE['service'][tmp_mod.which] = tmp_mod
-	elif TYPE is 'SCANNER':
-		tmp = tmp_mod.initialize()
-		if tmp is not None:
-			if not tmp_mod.which in HOUSE:
-				HOUSE[tmp_mod.which] = {}
-			HOUSE[tmp_mod.which][tmp] = tmp_mod
-#		tmp_mod.initialize()
-	elif TYPE is 'PARAMETER':
-		tmp_mod.initialize()
+		HOUSE[tmp_mod.which][tmp] = tmp_mod
 
 def dump_sessions():
 	"""Format and print the currently running modules.
