@@ -63,6 +63,7 @@ class ZarpModule(object):
 			messages, etc.
 		"""
 		try:
+			util.Msg('[enter] when finished')
 			util.Msg('Dumping output from \'%s\'...'%self.which)
 			self.dump_data = True
 			raw_input()

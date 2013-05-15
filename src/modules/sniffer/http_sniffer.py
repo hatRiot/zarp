@@ -1,6 +1,8 @@
 import stream
 import util
 import re
+from collections import namedtuple
+from config import pptable
 from sniffer import Sniffer
 from scapy.all import *
 
@@ -8,10 +10,11 @@ class http_sniffer(Sniffer):
 	"""HTTP sniffer that allows various verbosity levels
 	"""
 	def __init__(self):
-		self.verbs = [ 'Site Only', 'Request String', 'Request and Payload',
-					   'Custom Regex' ]
-		self.verb = 0
-		self.regex = None
+		self.verbs    = [ 'Site Only', 'Request String', 'Request and Payload',
+					      'Session IDs', 'Custom Regex' ]
+		self.verb     = 0
+		self.sessions = {}
+		self.regex    = None
 		super(http_sniffer,self).__init__('HTTP Sniffer')
 
 	def initialize(self):
@@ -28,7 +31,7 @@ class http_sniffer(Sniffer):
 					util.Error('Input incorrect.')
 					continue
 
-				if self.verb is 3:
+				if self.verb is 4:
 					self.regex = raw_input('[!] Enter regex: ')
 					self.regex = re.compile(self.regex)
 				break
@@ -49,6 +52,30 @@ class http_sniffer(Sniffer):
 		self.run()
 		return self.source
 	
+	def manage_sessions(self, data):
+		""" Parse and manage session IDs.
+			Return this requests ID
+		"""
+		# is there a session ID here?
+		if 'session' in data.lower():
+
+			# grab the host
+			host = re.findall('Host: (.*)', data)
+			if len(host) > 0: host = host[0]
+			else: return None
+
+			# grab the session; there are different ways this can be formatted in 
+			# the payload.  this should, for the most part, get the popular ones.  
+			# Probably will have a bunch of false positives, so this'll be tweaked.
+			session_id = re.findall('.*?sess.*?[:|=](..*?)(&|;|$|:|\n| )', data.lower())
+			print session_id
+			if len(session_id) > 0: session_id = session_id[0][0]
+			else: return None 
+
+			self.sessions[host] = session_id
+			return session_id
+		
+		
 	def pull_output(self, pkt):
 		""" Based on what verbosity level is set, parse
 			the packet and return formatted data.
@@ -66,6 +93,8 @@ class http_sniffer(Sniffer):
 		elif self.verb is 2:
 			pass
 		elif self.verb is 3:
+			data = self.manage_sessions(data)
+		elif self.verb is 4:
 			data = self.regex.search(data)
 			if not data is None: data = data.group(0)
 		return data
@@ -80,3 +109,25 @@ class http_sniffer(Sniffer):
 		except Exception, e:
 			util.Error('%s'%(e))	
 			return
+
+	def view(self):
+		""" Overload view so we can print out
+			sessions in a pretty table.
+		"""
+		if self.verb is 3:
+			Setting = namedtuple('Setting', ['Host', 'SessionID']) 
+			table = []
+			for i in self.sessions.keys():
+				data = Setting(str(i).strip(), str(self.sessions[i]).strip())
+				table.append(data)
+			pptable(table)
+		else:
+			self.dump_data = True
+			raw_input()
+			self.dump_data = False
+
+	def session_view(self):
+		""" Overloaded to return both the sniffed 
+			address and the verbosity.
+		"""
+		return '%s [%s]'%(self.source, self.verbs[self.verb])

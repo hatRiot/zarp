@@ -40,7 +40,7 @@ class arp(Poison):
 			return None
 		if "n" in tmp.lower():
 			return
-		Msg("[!] Initializing ARP poison...")
+		Msg("Initializing ARP poison...")
 		return self.initialize_post_spoof()
 
 	def initialize_post_spoof(self):
