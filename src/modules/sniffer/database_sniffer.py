@@ -1,4 +1,6 @@
 import util
+import re
+import string
 import parser_mysql
 import parser_postgres
 from scapy.all import *
@@ -150,9 +152,13 @@ class database_sniffer(Sniffer):
 			# parse query response
 			(columns, data) = parser_mysql.get_response(raw)
 			if not columns is None and not data is None:
-				self.log_msg([x.name for x in columns])
-				for entry in data:
-					self.log_msg(entry)
+				pattern = re.compile('[\W_]+')
+				Query = namedtuple('Query', [pattern.sub('', x.name) for x in columns])
+				table = []
+				for row in data:
+					row = Query._make(row)
+					table.append(row)
+				pptable(table)
 				self.dbi.mysql_state = 3
 	
 	def parse_postgres(self, raw):
@@ -176,9 +182,14 @@ class database_sniffer(Sniffer):
 		elif message_type == '54':
 			# query response
 			(columns, rows) = parser_postgres.parse_response(raw)
-			self.log_msg(columns)
-			for row in rows:
-				self.log_msg(row)
+			if not columns is None and not data is None:
+				pattern = re.compile('[\W_]+')
+				Query = namedtuple("Query", [pattern.sub('',x.name) for x in columns])
+				table = []
+				for row in rows:
+					row = Query._make(row)
+					table.append(row)
+				pptable(table)
 		elif message_type == '58':
 			self.log_msg('User quit.\n')
 		elif message_type == '45':
