@@ -68,7 +68,6 @@ class http_sniffer(Sniffer):
 			# the payload.  this should, for the most part, get the popular ones.  
 			# Probably will have a bunch of false positives, so this'll be tweaked.
 			session_id = re.findall('.*?sess.*?[:|=](..*?)(&|;|$|:|\n| )', data.lower())
-			print session_id
 			if len(session_id) > 0: session_id = session_id[0][0]
 			else: return None 
 
