@@ -227,6 +227,44 @@ def get_subclass(module, base_class):
 			pass
 	return None
 
+def check_opts(choice):
+	""" Parse up the user input and run whatever commands
+		are needed.
+	"""
+	if type(choice) is int: return choice
+	elif 'info' in choice:
+		Error('\'info\' not implemented yet.')
+		choice = -1
+	elif 'help' in choice:
+		help()
+		choice = -1
+	elif 'set' in choice:
+		opts = choice.split(' ')
+		if opts[1] is None or opts[2] is None:
+			return
+		print '[!] Setting ' + color.YELLOW + '%s'%opts[1] + color.END + \
+						'-> ' + color.GREEN + '%s..'%opts[2] + color.END
+		config.set(opts[1], opts[2])
+		choice = -1
+	elif 'opts' in choice:
+		config.dump()
+		choice = -1
+	elif 'quit' in choice or 'exit' in choice:
+		# hard quit
+		os._exit(1)
+	elif 'bg' in choice:
+		background()
+	return choice
+
+def help():
+	""" Dump a help menu with zarp options
+	"""
+	print color.YELLOW + '\n  zarp options:' + color.END
+	print '\thelp\t\t- This menu'
+	print '\topts\t\t- Dump zarp current settings'
+	print '\tset [key] [value]\t- Set key to value'
+	print color.GREEN + '  @dronesec - zarp v%s\n'%(version()) + color.END
+	
 def get_run_usr():
 	""" Fetch the user that launched zarp
 	"""
@@ -276,32 +314,14 @@ def print_menu(arr):
 	print '\n0) Back'
 	try:
 		choice = raw_input('> ')
-		if 'info' in choice:
-			Error('\'info\' not implemented yet.')
-			choice = -1
-		elif 'set' in choice:
-			opts = choice.split(' ')
-			if opts[1] is None or opts[2] is None:
-				return
-			print '[!] Setting ' + color.YELLOW + '%s'%opts[1] + color.END + \
-							'-> ' + color.GREEN + '%s..'%opts[2] + color.END
-			config.set(opts[1], opts[2])
-			choice = -1
-		elif 'opts' in choice:
-			config.dump()
-			choice = -1
-		elif 'quit' in choice or 'exit' in choice:
-			# hard quit
-			os._exit(1)
-		elif 'bg' in choice:
-			background()
-		else:
-			# buffered input
+		choice = check_opts(choice)
+
+		# buffered input
+		if choice > 1:
 			choice = choice.split(' ')
-			if len(choice) > 1: 
-				buffered = []
-				for entry in choice[1:]:
-					buffered.append(int(entry))
+			buffered = []
+			for entry in choice[1:]:
+				buffered.append(int(entry))
 			choice = int(choice[0])
 	except KeyboardInterrupt: choice = -1
 	except Exception, e:
