@@ -11,6 +11,7 @@ import stream
 import session_manager
 import parse_cmd
 import config
+from colors import color
 # module loading
 from src.modules import poison, dos, scanner, services, sniffer, parameter
 import importlib
@@ -84,9 +85,9 @@ def main():
 			# check if they've got running sessions! 
 			cnt = stream.get_session_count()
 			if cnt > 0:
-				Msg('You have %d sessions running.  Are you sure?'%cnt)
-				choice = raw_input('> ')
-				if 'y' in choice.lower(): 
+				choice = raw_input(color.YELLOW + 'You have %d sessions running.  Are you sure? [y] '%cnt\
+								+ color.END)
+				if 'y' in choice.lower() or choice == '': 
 					Msg('Shutting all sessions down...')
 					stream.stop_session('all', -1)
 					running = False 

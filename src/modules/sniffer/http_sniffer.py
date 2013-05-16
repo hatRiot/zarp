@@ -121,9 +121,7 @@ class http_sniffer(Sniffer):
 				table.append(data)
 			pptable(table)
 		else:
-			self.dump_data = True
-			raw_input()
-			self.dump_data = False
+			super(http_sniffer,self).view()
 
 	def session_view(self):
 		""" Overloaded to return both the sniffed 
