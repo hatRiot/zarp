@@ -150,16 +150,17 @@ class database_sniffer(Sniffer):
 			# query response
 			response = ''
 			# parse query response
-			(columns, data) = parser_mysql.get_response(raw)
-			if not columns is None and not data is None:
-				pattern = re.compile('[\W_]+')
-				Query = namedtuple('Query', [pattern.sub('', x.name) for x in columns])
-				table = []
-				for row in data:
-					row = Query._make(row)
-					table.append(row)
-				pptable(table)
-				self.dbi.mysql_state = 3
+			if self.dump_data:
+				(columns, data) = parser_mysql.get_response(raw)
+				if not columns is None and not data is None:
+					pattern = re.compile('[\W_]+')
+					Query = namedtuple('Query', [pattern.sub('', x.name) for x in columns])
+					table = []
+					for row in data:
+						row = Query._make(row)
+						table.append(row)
+					pptable(table)
+					self.dbi.mysql_state = 3
 	
 	def parse_postgres(self, raw):
 		"""Parse PostgreSQL packet.  psql is less insane."""
@@ -180,16 +181,17 @@ class database_sniffer(Sniffer):
 			query = parser_postgres.parse_query(raw)
 			self.log_msg('Query: %s'%query)
 		elif message_type == '54':
-			# query response
-			(columns, rows) = parser_postgres.parse_response(raw)
-			if not columns is None and not data is None:
-				pattern = re.compile('[\W_]+')
-				Query = namedtuple("Query", [pattern.sub('',x.name) for x in columns])
-				table = []
-				for row in rows:
-					row = Query._make(row)
-					table.append(row)
-				pptable(table)
+			if self.dump_data:
+				# query response
+				(columns, rows) = parser_postgres.parse_response(raw)
+				if not columns is None and not data is None:
+					pattern = re.compile('[\W_]+')
+					Query = namedtuple("Query", [pattern.sub('',x.name) for x in columns])
+					table = []
+					for row in rows:
+						row = Query._make(row)
+						table.append(row)
+					pptable(table)
 		elif message_type == '58':
 			self.log_msg('User quit.\n')
 		elif message_type == '45':
