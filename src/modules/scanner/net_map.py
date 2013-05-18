@@ -18,7 +18,8 @@ class net_map(Scanner):
 	def initialize(self):
 		try:
 			self.net_mask = raw_input('[!] Enter netmask: ')
-			self.fingerprint = True if (raw_input('[!] Fingerprint? ')=='y') else False
+			tmp = raw_input('[!] Fingerprint? [y]: ')
+			if tmp == '' or 'y' in tmp.lower(): self.fingerprint = True
 		except Exception:
 			return
 		self.scan_block()

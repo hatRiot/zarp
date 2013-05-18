@@ -76,9 +76,9 @@ class ZarpModule(object):
 		""" Shut down the module cleanly
 		"""
 		util.Msg('Shutting \'%s\' down..'%self.which)
-		if self.running:
-			self.running = False
-		if self.log_data:
-			self.log(False)
+
+		if self.running:  self.running = False
+		if self.log_data: self.log(False)
+
 		util.Msg("%s shutdown."%self.which)
 		util.debug('%s shutdown.'%self.which)

