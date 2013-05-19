@@ -131,8 +131,9 @@ class service_scan(Scanner):
 	def snmp_query(self,ip):
 		pkt = IP(dst=ip)/UDP(sport=161)
 		pkt /= SNMP(community='public', PDU=SNMPget(varbindlist=[SNMPvarbind(oid=ASN1_OID('1.3.6.1.2.1.1.1.0'))]))
-		recv = sr1(pkt)
-		print '\t[+] SNMP Dump\n ', recv[SNMP].show()
+		recv = sr1(pkt, timeout=3)
+		if recv is not None:	
+			print '\t[+] SNMP Dump\n ', recv[SNMP].show()
 
 	#
 	# DNS zone transfer 
