@@ -1,3 +1,6 @@
+from re import compile, UNICODE
+from os import chown
+from pwd import getpwnam
 import util
 import abc
 
@@ -11,6 +14,7 @@ class ZarpModule(object):
 		self.log_file  = None        # where are we logging out to?
 		self.which     = which       # who or what are we?
 		self.dump_data = False       # are we printing to console?
+		self.scrub     = compile(r"\033\[\d{2}m")    # remove color codes
 	
 	@abc.abstractmethod
 	def initialize(self):
@@ -32,6 +36,8 @@ class ZarpModule(object):
 		if self.dump_data:
 			util.Msg(msg)
 		if self.log_data:
+			msg = self.scrub.sub('', msg)             # remove color codes
+			msg = msg if '\n' in msg else msg + '\n'  # add a newline if it's not there
 			self.log_file.write(msg)
 			self.log_file.flush()
 
@@ -43,6 +49,12 @@ class ZarpModule(object):
 			try:
 				util.debug('Starting %s logger...')
 				self.log_file = open(log_loc, 'w+')
+
+				# chown the log file
+				run_usr = util.get_run_usr()
+				uid     = getpwnam(run_usr).pw_uid
+				gid     = getpwnam(run_usr).pw_gid
+				chown(log_loc, uid, gid)
 			except Exception, j:
 				util.Error('Error opening log file for %s: %s'%
 								(self.which, j))

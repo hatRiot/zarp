@@ -1,1 +1,2 @@
-__all__ = ['access_point', 'ftp', 'http', 'smb', 'ssh' ]
+__all__ = ['access_point', 'ftp', 'http', 'smb', 'ssh',
+		   'telnet']
