@@ -200,3 +200,9 @@ class service_scan(Scanner):
 		# dump smb reponse
 		for line in data.split('\n'):
 			print '\t  |-', line
+
+	def cli(self, parser):
+		""" set CLI options
+		"""
+		parser.add_argument('--service-scan', help='Service scanner', action='store_true',
+								default=False, dest=self.which)

@@ -69,3 +69,9 @@ class telnet(Service):
 				con.close()
 				self.log_msg('%s disconnected.\n'%str(addr))
 		except: self.server_sock.close()
+
+	def cli(self, parser):
+		""" initialize CLI options
+		"""
+		parser.add_argument('--telnet', help='Telnet server', action='store_true', 
+									default=False, dest=self.which)

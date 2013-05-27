@@ -211,3 +211,9 @@ class smb(Service):
 		 	self.running = False
 		socker.close()
 		util.debug('SMB listener shutdown.')
+
+	def cli(self, parser):
+		""" initialize CLI options
+		"""
+		parser.add_argument('--smb', help='SMB Service', action='store_true',
+								default=False, dest=self.which)

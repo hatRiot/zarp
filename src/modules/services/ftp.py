@@ -70,7 +70,7 @@ class ftp(Service):
 					return
 				except:
 					continue
-				self.log_msg('Connection from %s\n'%str(addr))
+				self.log_msg('Connection from %s'%str(addr))
 				self.response(conn, 220, self.motd)
 
 				while self.running: 
@@ -90,3 +90,9 @@ class ftp(Service):
 	 		pass
 		except Exception, j:
 			pass	
+
+	def cli(self, parser):
+		""" establish cli options
+		"""
+		parser.add_argument('--ftp', help='FTP server', action='store_true',
+									default=False, dest=self.which)

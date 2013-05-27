@@ -127,3 +127,9 @@ class ssh(Service):
 		finally:
 			self.running = False
 			self.cleanup()
+
+	def cli(self, parser):
+		""" initialize CLI options
+		"""
+		parser.add_argument('--ssh', help='SSH Server', action='store_true',
+								default=False, dest=self.which)
