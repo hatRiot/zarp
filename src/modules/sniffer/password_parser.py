@@ -38,6 +38,8 @@ def parse_http(pkt):
 	if 'username' in payload or 'password' in payload:
 		usr = re.search('username=(.*?)(&|$| )',payload)
 		pswd = re.search('password=(.*?)(&|$| )',payload)
+		if usr is not None:  usr = usr.groups(0)[0]
+		if pswd is not None: pswd = pswd.groups(0)[0]
 	elif 'Authorization:' in payload:
 		pw = re.search('Authorization: Basic (.*)',payload)
 		if pw.groups(0) is not None:

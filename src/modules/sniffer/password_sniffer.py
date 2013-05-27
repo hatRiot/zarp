@@ -27,14 +27,24 @@ class password_sniffer(Sniffer):
 		"""Packet callback"""
 		if not pkt is None:
 			(usr, pswd) = parse_pkt(pkt)
-			if not usr is None: 
+			if not usr is None and not self.is_discovered(usr,pswd,pkt): 
 				self.log_msg('Host: %s\n[!] User: %s'%(pkt[IP].dst,usr))
-			if not pswd is None: self.log_msg('Password: %s'%pswd)
+			if not pswd is None and not self.is_discovered(usr,pswd,pkt):
+				self.log_msg('Password: %s'%pswd)
 		
 			if usr is not None and pswd is not None:
 				self.add_account_pw((usr,pswd,'%s:%s'%(pkt[IP].dst,pkt[TCP].dport)), pkt)
 			elif not usr is None or not pswd is None:
 				self.add_account(usr,pswd,pkt)
+
+	def is_discovered(self,usr,pswd,pkt):
+		""" check if the username/password has already been printed
+		"""
+		if pkt[IP].dst in self.passwords.keys():
+			if usr in [x[0] for x in self.passwords[pkt[IP].dst]] and  \
+					pswd in [x[1] for x in self.passwords[pkt[IP].dst]]:
+				return True
+		return False
 
 	def add_account(self, username, password, pkt):
 		""" Add the username/password to the local cache.  Because
