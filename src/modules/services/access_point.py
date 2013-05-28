@@ -1,5 +1,6 @@
-import util, config
-import os
+import util
+import config
+from time import sleep
 from threading import Thread
 from service import Service
 
@@ -33,7 +34,10 @@ class access_point(Service):
 		util.Msg('Initializing access point..')
 		thread = Thread(target=self.initialize)
 		thread.start()
-		return True
+
+		sleep(2)
+		if self.running: return True
+		else:            return False
 
 	def initialize(self):
 		"""Initialize AP"""
@@ -51,6 +55,7 @@ class access_point(Service):
 		
 			if self.mon_adapt is None:
 				util.Error('Could not find a wireless card in monitor mode')
+				self.running = False
 				return None
 
 			airbase_cmd = [
