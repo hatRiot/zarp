@@ -14,4 +14,4 @@ class Service(ZarpModule):
 		""" When services are initialized from the CLI,
 			they need to be run in their own thread
 		"""
-		pass
+		raise NotImplementedError

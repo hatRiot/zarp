@@ -1,4 +1,4 @@
-#! /usr/local/bin/python
+#! /usr/bin/python
 
 from os import getcwd, getuid
 from sys import path, argv, exit
@@ -62,19 +62,19 @@ def main():
 
 	# set up configuration 
 	config.initialize()
-	
-	# handle command line options first
-	if len(argv) > 1:
-		parse_cmd.parse(argv)
 
-	# menus
-	main_menu =    [ 'Poisoners', 'DoS Attacks', 'Sniffers', 'Scanners',
-					 'Parameter','Services','Sessions']
-	
 	# load modules
 	loader = LoadedModules()
 	loader.load()
 	Msg('Loaded %d modules.'%loader.total)
+
+	# handle command line options first
+	if len(argv) > 1:
+		parse_cmd.parse(argv, loader)
+
+	# menus
+	main_menu =    [ 'Poisoners', 'DoS Attacks', 'Sniffers', 'Scanners',
+					 'Parameter','Services','Sessions']
 	
 	running = True
 	choice = -1

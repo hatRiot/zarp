@@ -73,3 +73,9 @@ class access_point(Service):
 		finally:
 			util.disable_monitor()
 			util.kill_app(ap_proc)
+
+	def cli(self, parser):
+		""" establish CLI options
+		"""
+		parser.add_argument('--wap', help='Wireless access point', action='store_true', 
+								default=False, dest=self.which)

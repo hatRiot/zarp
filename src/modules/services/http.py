@@ -67,6 +67,12 @@ class http(Service):
 		if self.running:
 			self.httpd.stop()
 
+	def cli(self, parser):
+		""" initialize CLI options
+		"""
+		parser.add_argument('--http', help='HTTP Server', action='store_true',
+								default=False, dest=self.which)
+
 class ZarpHTTPServer(BaseHTTPServer.HTTPServer):
 	""" Custom implementation because you can't cleanly shutdown
 		a BaseHTTPServer with a timeout.

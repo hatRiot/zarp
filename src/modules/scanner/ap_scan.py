@@ -13,6 +13,8 @@ class ap_scan(Scanner):
 		super(ap_scan,self).__init__('AP Scan')
 
 	def initialize(self):
+		""" Initialize the scanner
+		"""
 		try:
 			if not util.check_program('airmon-ng'):
 				util.Error('airomon-ng not installed.  Please install to continue.')
@@ -27,10 +29,9 @@ class ap_scan(Scanner):
 		except Exception, KeyboardInterrupt:
 			return
 
-	#
-	# Sniff on the monitoring adapter 
-	#
 	def ap_scan(self, adapt):
+		""" Sniff on the monitoring adapter
+		"""
 		try:
 			util.Msg('Scanning for access points...')
 			if self.channel is None:
@@ -41,3 +42,9 @@ class ap_scan(Scanner):
 			util.Error('Error scanning: %s'%j)
 		finally:
 			util.disable_monitor()
+
+	def cli(self, parser):
+		""" Add the CLI options
+		"""
+		parser.add_argument('-w', help='Wireless AP Scan', action='store_true', 
+							default=False, dest=self.which)

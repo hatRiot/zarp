@@ -24,11 +24,9 @@ class net_map(Scanner):
 			return
 		self.scan_block()
 
-	#
-	# ARPing the local network for all hosts (ip/mac)
-	# TODO Complete fingerprinting
-	#
 	def scan_block(self):
+		""" ARPing the local network
+		"""
 		conf.verb = 0
 		print '[!] Beginning host scan with netmask %s...'%(self.net_mask)
 		try:
@@ -57,10 +55,14 @@ class net_map(Scanner):
 			return
 		print '\n'
 
-	#
-	# Dump all the available hosts found
-	#
 	def view(self):
+		""" Dump previous scan results
+		"""
 		print '\n\t\033[32m[!] Available hosts in range %s:\033[0m'%self.net_mask
 		for mac in self.available_hosts.keys():
 			print '\t%s : %s'%(mac,self.available_hosts[mac])
+
+	def cli(self, parser):
+		""" Add CLI options
+		"""
+		parser.add_argument('-s', help='Network scanner', action='store_true', dest=self.which)
