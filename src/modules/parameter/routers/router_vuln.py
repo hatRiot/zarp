@@ -18,7 +18,7 @@ class RouterVuln(object):
 		"""Fetch the router IP"""
 		while True:
 			try:
-				tmp = raw_input('Enter address of router [%s]: '%self.ip)
+				tmp = raw_input('[!] Enter address of router [%s]: '%self.ip)
 				if len(tmp) > 2:
 					self.ip = tmp
 				break

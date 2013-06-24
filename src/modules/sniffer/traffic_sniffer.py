@@ -1,7 +1,7 @@
 from util import Error, test_filter
 from sniffer import Sniffer
 from scapy.all import *
-import traceback, sys
+import sys
 
 class traffic_sniffer(Sniffer):
 	"""Simple sniffer for dumping host traffic
@@ -33,7 +33,6 @@ class traffic_sniffer(Sniffer):
 			except KeyboardInterrupt:
 				return	
 			except Exception, j:
-				traceback.print_exc(file=sys.stdout)
 				Error('Error with sniffer: %s'%j)	
 				return	
 		return self.source 
