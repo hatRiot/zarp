@@ -4,10 +4,9 @@ from util import Error
 from scapy.all import *
 from scanner import Scanner
 
-#
-# Map the local network by gathering active hosts within the given range
-#
 class net_map(Scanner):
+	""" Perform an ARP scan of the network
+	"""
 	def __init__(self):
 		self.net_mask = ''
 		self.available_hosts = {}
@@ -46,8 +45,10 @@ class net_map(Scanner):
 					except:
 						host = ''
 					print "\t%s : %s (%s)"%(mac,ip,host)
+					self._dbhost(mac,ip,host)
 				else:
 					print '\t%s : %s'%(mac,ip)
+					self._dbhost(mac,ip,'')
 				self.available_hosts[mac] = ip
 		except Exception, j:
 		  	print '[dbg] error: ', j

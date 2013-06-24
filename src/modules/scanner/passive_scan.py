@@ -48,6 +48,7 @@ class passive_scan(Sniffer):
 		""" Fish out broadcast packets and get src/dst
 		"""
 		if 'ARP' in pkt:
+			addr = None
 			if pkt[ARP].op == 1:
 				psrc = pkt[ARP].psrc
 				if not psrc in self.netmap.keys():
@@ -55,6 +56,7 @@ class passive_scan(Sniffer):
 					addr.ip   = psrc
 					addr.mac  = pkt[ARP].hwsrc
 					addr.host = self.resolve(psrc) 
+
 					self.netmap[psrc] = addr
 				elif self.netmap[psrc].ip != psrc and self.netmap[psrc].mac == pkt[ARP].src:
 				 	# IP changed
@@ -66,10 +68,13 @@ class passive_scan(Sniffer):
 					addr.ip    = pdst
 					addr.mac   = pkt[ARP].hwdst
 					addr.host  = self.resolve(pdst)
+
 					self.netmap[pdst] = addr
 				elif self.netmap[pdst].ip != pdst and self.netmap[pdst].mac == pkt[ARP].dst:
 					# IP changed
 					self.netmap[pdst].ip = pdst
+
+			if addr is not None: self._dbhost(addr.mac, addr.ip, addr.host)
 
 	def view(self):
 		"""Overridden Sniffer view

@@ -105,6 +105,9 @@ class password_sniffer(Sniffer):
 		else:
 			self.passwords[host] = [entry]
 
+		# update database
+		self._dbcredentials(entry[0],entry[1],entry[2].split(':')[0],self.source)
+
 	def view(self):
 		""" Iterate through all usernames/passwords
 		"""

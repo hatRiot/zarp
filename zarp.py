@@ -1,7 +1,7 @@
 #! /usr/bin/python
 
 from os import getcwd, getuid
-from sys import path, argv, exit
+from sys import path, argv, exit, version, version_info
 path.insert(0, getcwd() + '/src/')
 path.insert(0, getcwd() + '/src/core/')
 path.insert(0, getcwd() + '/src/modules/')
@@ -11,6 +11,7 @@ import stream
 import session_manager
 import parse_cmd
 import config
+import database
 from colors import color
 # module loading
 from src.modules import poison, dos, scanner, services, sniffer, parameter
@@ -62,6 +63,9 @@ def main():
 
 	# set up configuration 
 	config.initialize()
+
+	# set up database
+	database.initialize()
 
 	# load modules
 	loader = LoadedModules()
@@ -154,6 +158,12 @@ if __name__=="__main__":
 	if int(getuid()) > 0:
 		Error('Please run as root.')
 		exit(1)
+
+	# check python version
+	if version_info[1] < 7:
+		Error('zarp must be run with Python 2.7.x.  You are currently using %s'%version)
+		exit(1)
+
 	# check for forwarding
 	if not getoutput('cat /proc/sys/net/ipv4/ip_forward') == '1':
 		Msg('IPv4 forwarding disabled.  Enabling..')

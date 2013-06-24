@@ -6,6 +6,8 @@ from subprocess import Popen
 from cmd import Cmd 
 from pwd import getpwnam
 from colors import color
+from inspect import getmodule
+import database
 import scapy.arch
 import config
 import os
@@ -52,7 +54,18 @@ def debug(msg):
 	dbg = config.get('log')
 	if config.get('debug') and not os.path.islink(dbg):
 		with open(dbg, 'a+') as f:
-			f.write(format('[%s %s] %s\n'%(date.today().isoformat(), datetime.now().strftime("%I:%M%p"), msg)))
+			f.write(format('[%s] %s\n'%(timestamp(), msg)))
+
+def get_calling_mod(stack):
+	""" Retrieve the calling function based on the call stack
+	"""
+	form = stack[1]
+	return getmodule(form[0]).__name__
+
+def timestamp():
+	""" Generate a formatted timestamp
+	"""
+	return '%s %s'%(date.today().isoformat(), datetime.now().strftime('%I:%M%p'))
 
 def next_ip(ip):
 	"""Return the next IP address following the given IP address.
