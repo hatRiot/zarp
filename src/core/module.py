@@ -1,6 +1,8 @@
 from re import compile, UNICODE
 from os import chown
 from pwd import getpwnam
+from inspect import stack
+import database
 import util
 import abc
 
@@ -35,11 +37,16 @@ class ZarpModule(object):
 		"""
 		if self.dump_data:
 			util.Msg(msg)
+
+		msg = self.scrub.sub('', msg)             # remove color codes
+		msg = msg if '\n' in msg else msg + '\n'  # add a newline if it's not there
 		if self.log_data:
-			msg = self.scrub.sub('', msg)             # remove color codes
-			msg = msg if '\n' in msg else msg + '\n'  # add a newline if it's not there
 			self.log_file.write(msg)
 			self.log_file.flush()
+
+		# log to database
+		caller = util.get_calling_mod(stack())
+		self._dblog(msg, caller)
 
 	def log(self, opt, log_loc=None):
 		""" Logging function for enabling or disabling
@@ -94,3 +101,27 @@ class ZarpModule(object):
 
 		util.Msg("%s shutdown."%self.which)
 		util.debug('%s shutdown.'%self.which)
+
+	#
+	# database helpers
+	#
+	def _dblog(self, msg, module):
+		return database.dblog(msg,module)
+
+	def _dbhost(self, mac, ip, hostname):
+		rval = database.dbhost(mac, ip, hostname)
+		if not rval:
+			# failed to insert, attempt update
+			rval = self._insert('UPDATE host SET ip = ?, hostname = ? WHERE mac = ?;', (ip,hostname,mac))
+		return rval
+
+	def _dbcredentials(self, username, password, location, source):
+		return database.dbcredentials(username, password, location, source)
+
+	def _insert(self, query, parameters=None):
+		if parameters is None: return database.insert(query)
+		else:				   return database.insert(query, parameters)
+
+	def _fetch(self, query, parameters=None):
+		if parameters is None: return database.fetch(query)
+		else:				   return database.fetch(query, parameters)

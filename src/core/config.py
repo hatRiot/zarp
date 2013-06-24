@@ -6,7 +6,7 @@ from collections import namedtuple
 from colors import color
 
 class Configuration:
-	""" Main configuration; just holds options
+	""" Main configuration; just hold options
 	"""
 	def __init__(self):
 		self.opts = {
@@ -16,6 +16,13 @@ class Configuration:
 					'log'    : {'value':'zarp_debug.log', 'type':str}
 					}
 
+		self._opts = {
+						'db_ip'  : {'value':'localhost','type':str},
+						'db_port': {'value':None, 'type':int},
+						'db_usr' : {'value':None, 'type':str},
+						'db_pw'  : {'value':None, 'type':str},
+						'db_con' : {'value':None, 'type':str}
+					}
 CONFIG = None
 
 def initialize():
@@ -23,6 +30,7 @@ def initialize():
 	"""
 	global CONFIG
 	CONFIG = Configuration()
+	parse_config()
 
 def dump():
 	""" Dumps out the current settings in a pretty
@@ -54,6 +62,14 @@ def set(key, value):
 			if evalBool(value) is not None: value = evalBool(value)
 			else: return
 		CONFIG.opts[key]['value'] = value
+	elif key in CONFIG._opts:
+		# options not available in CLI
+		if CONFIG._opts[key]['type'] is bool:
+			if evalBool(value) is not None: value = evalBool(value)
+			else: return
+		elif CONFIG._opts[key]['type'] is int:
+			if not evalInt(value): return
+		CONFIG._opts[key]['value'] = value
 	else:
 		util.Error('Key "%s" not found.  \'opts\' for options.'%(key))
 
@@ -63,6 +79,15 @@ def get(key):
 	"""
 	if key in CONFIG.opts:
 		return CONFIG.opts[key]['value']
+	elif key in CONFIG._opts:
+		return CONFIG._opts[key]['value']
+
+def evalInt(value):
+	""" check int
+	"""
+	try:    int(value)
+	except: return False
+	return True
 
 def evalBool(value):
 	"""User input is evil
@@ -73,6 +98,19 @@ def evalBool(value):
 	elif value in ['False', 'false', '0']:
 		return False
 	return None
+
+def parse_config():
+	""" Parse the zarp config file
+	"""
+	global CONFIG
+	try:
+		for line in open('config/zarp.conf', 'r').readlines():
+			if line[0] == '#' or '=' not in line or len(line) < 1: continue
+
+			vals = [k.strip().replace('\n','') for k in line.split('=')]
+			if len(vals) == 2: set(vals[0], vals[1])
+	except Exception, e: 
+		util.Error(e)
 
 def pptable(rows):
 	""" Pretty print a table
