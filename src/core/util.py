@@ -261,6 +261,7 @@ def help():
 	print color.YELLOW + '\n  zarp options:' + color.END
 	print '\thelp\t\t- This menu'
 	print '\topts\t\t- Dump zarp current settings'
+	print '\texit\t\t- Exit immediately'
 	print '\tset [key] [value]\t- Set key to value'
 	print color.GREEN + '  @dronesec - zarp v%s\n'%(version()) + color.END
 	
