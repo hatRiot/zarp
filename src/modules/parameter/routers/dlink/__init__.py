@@ -1,2 +1,3 @@
-__all__ = ['250n_backdoor', '2640_change_admin', '300_add_admin',
-		   '605_add_admin', '1310_change_admin' ]
+__all__ = ['backdoor_250n', 'change_admin_2640', 'add_admin_300',
+		   'add_admin_605', 'change_admin_1310', 'get_config_320b'
+		   ]

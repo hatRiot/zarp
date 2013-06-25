@@ -2,14 +2,14 @@ import urllib
 import util
 from ..router_vuln import RouterVuln
 
-__router__ = 'WNR2000 v1.2.0.8'
-__vuln__='Read WPA/WPA2 Password'
-class GetPass(RouterVuln):
+class wnr2000_get_pass(RouterVuln):
 	"""Read the WPA/WPA2 passphrase
 	   http://www.exploit-db.com/exploits/9498/
 	"""
 	def __init__(self):
-		super(GetPass,self).__init__()
+		self.router = 'WNR2000 v1.2.0.8'
+		self.vuln   = 'Read WPA/WPA2 Password'
+		super(wnr2000_get_pass,self).__init__()
 
 	def run(self):
 		util.Msg('Fetching password from %s...'%self.ip)

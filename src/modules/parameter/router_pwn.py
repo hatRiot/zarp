@@ -19,12 +19,12 @@ class router_pwn(Parameter):
 			mod = importlib.import_module('modules.parameter.routers.%s'%router)
 			self.routers[router] = []
 			for vuln in mod.__all__: 
-				v = importlib.import_module('modules.parameter.routers.%s.%s'%(router,vuln))
-				if not hasattr(v, '__router__') or not hasattr(v,'__vuln__'):
-					continue
+				v = getattr(importlib.import_module('modules.parameter.routers.%s.%s'%(router, vuln), 'routers'), vuln)
 				self.routers[router].append(v)	
 
 	def initialize(self):
+		""" Load router exploits; store {router:[vuln]}
+		"""
 		self.load()
 		while True:
 			choice = util.print_menu([x for x in self.routers.keys()])
@@ -37,11 +37,12 @@ class router_pwn(Parameter):
 				router = self.routers[self.routers.keys()[choice-1]]
 				while True:
 					# print router modules
-					choice = util.print_menu(['%s - %s'%(x.__router__,x.__vuln__) for x in router]) 
+					choice = util.print_menu(['%s - %s'%(x().router,x().vuln) for x in router]) 
 					if choice is 0:
 						break
 					elif choice is -1 or choice > len(router):
 						pass
 					else:
-						tmp = util.get_subclass(router[choice-1], RouterVuln)()
+						tmp = router[choice-1]() 
+						tmp.fetch_ip()
 						tmp.run()

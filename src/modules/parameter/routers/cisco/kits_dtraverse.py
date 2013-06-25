@@ -1,15 +1,16 @@
 from ..router_vuln import RouterVuln
+import socket
 import util
 
-__router__ = 'CiscoKits 1.0 TFTP'
-__vuln__='Directory Traversal'
-class DirectoryTraversal(RouterVuln):
+class kits_dtraverse(RouterVuln):
 	"""Exploit a directory traversal vulnerability
 	   http://www.exploit-db.com/exploits/17619/
 	"""
 	
 	def __init__(self):
-		super(DirectoryTraversal,self).__init__()
+		self.router = 'CiscoKits 1.0 TFTP'
+		self.vuln   = 'Directory Traversal'
+		super(kits_dtraverse,self).__init__()
 
 	def send(self, retr):
 		"""Send and receive"""

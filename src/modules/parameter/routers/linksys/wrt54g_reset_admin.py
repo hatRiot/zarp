@@ -2,14 +2,14 @@ import urllib
 import util
 from ..router_vuln import RouterVuln
 
-__router__ = 'WRT54G v1.00.9'
-__vuln__='Reset Password'
-class ResetAdmin(RouterVuln):
+class wrt54g_reset_admin(RouterVuln):
 	"""Reset admin password
 	   http://www.exploit-db.com/exploits/5313/
 	"""
 	def __init__(self):
-		super(ResetAdmin,self).__init__()
+		self.router = 'WRT54G v1.00.9'
+		self.vuln   = 'Reset Password'
+		super(wrt54g_reset_admin,self).__init__()
 
 	def run(self):
 		util.Msg('Resetting admin password to \'d3fault\'...')

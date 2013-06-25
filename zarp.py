@@ -5,7 +5,7 @@ from sys import path, argv, exit, version, version_info
 path.insert(0, getcwd() + '/src/')
 path.insert(0, getcwd() + '/src/core/')
 path.insert(0, getcwd() + '/src/modules/')
-from util import get_subclass, print_menu, header, Error, Msg, debug
+from util import print_menu, header, Error, Msg, debug
 from commands import getoutput
 import stream
 import session_manager

