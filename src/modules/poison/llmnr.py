@@ -33,7 +33,7 @@ class llmnr(Poison):
 					return
 				break
 			except KeyboardInterrupt:
-				return False
+				return None
 			except Exception: pass
 
 		util.Msg('Starting LLMNR spoofer...')
