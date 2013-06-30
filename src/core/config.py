@@ -58,6 +58,10 @@ def set(key, value):
 			if not util.verify_iface(value):
 				util.Error('\'%s\' is not a valid interface.'%(value))
 				return
+
+			# valid iface, set new ipconfig
+			new_ip = util.get_local_ip(value)
+			if new_ip is not None: set('iface', new_ip)
 		if CONFIG.opts[key]['type'] is bool:
 			if evalBool(value) is not None: value = evalBool(value)
 			else: return
