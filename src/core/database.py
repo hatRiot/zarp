@@ -94,7 +94,6 @@ def dbcredentials(username,password,location,source):
 		Location is where the credentials were being used at.
 	"""
 	source_idx = fetch('SELECT ROWID FROM host WHERE ip = ?', (source,))[0][0]
-	print 'Source index for %s: %s'%(source, source_idx)
 	if source_idx is not None:
 		return insert('INSERT INTO credentials VALUES (?,?,?,?,?)',
 						(username,password,location,source_idx,_timestamp()))
