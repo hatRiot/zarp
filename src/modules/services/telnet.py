@@ -47,7 +47,7 @@ class telnet(Service):
 				except KeyboardInterrupt: return
 				except: continue
 
-				self.log_msg('Connection from %s\n'%str(addr))
+				self.log_msg('Connection from %s'%str(addr))
 				con.recv(256) #junk
 
 				while self.running:

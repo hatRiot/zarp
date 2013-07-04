@@ -1,6 +1,7 @@
 from sniffer import Sniffer
 from scapy.all import *
 from threading import Thread
+import copy
 import socket
 import util
 import re
@@ -25,11 +26,13 @@ except: pass
 
 class packet_modifier(Sniffer):
 	def __init__(self):
+		self.drop_packets    = False
 		self.input_ipt_rule  = "iptables -I INPUT -p tcp -j NFQUEUE --queue-num 0"
 		self.output_ipt_rule = "iptables -I OUTPUT -p tcp -j NFQUEUE --queue-num 0" 
-		self.match           = ""
-		self.replace         = ""
+		self.match           = None
+		self.replace         = None
 		self.async_queue     = None
+		self.callback_handle = self.handler
 		super(packet_modifier,self).__init__("Packet Modifier")
 
 	def initialize(self):
@@ -62,6 +65,25 @@ class packet_modifier(Sniffer):
 
 		# return our display for session management
 		return '%s -> %s'%(self.match, self.replace)
+	
+	def hook(self):
+		""" This method is available for other modules to
+			take advantage of.  
+
+			It is assumed that the match/replace variables
+			are set prior to running this.  Replace the
+			callback_handle to receive packets.
+		"""
+		try: import nfqueue
+		except: raise ImportError
+
+		if self.match is None and self.replace is None:
+			return False	
+
+		self.manage_iptable()
+		thread = Thread(target=self.injector)
+		thread.start()
+		return True 
 
 	def manage_iptable(self,enable=True):
 		"""Add/remove the iptable rules.  Enable
@@ -78,29 +100,43 @@ class packet_modifier(Sniffer):
 		""" Launch the asynch loop to process events.
 		"""
 		try:
-			self.async_queue = async_nfqueue(self.handler)
+			self.async_queue = async_nfqueue(self.callback_handle)
 			asyncore.loop()	
-		except: pass 
+		except Exception, e: print e 
 		
 	def handler(self, dumb, payload):
-		"""Callback for receiving and modifying packets"""
-		# parse into scapy packet
-		pkt = IP(payload.get_data())
-		if pkt.haslayer(Raw) and TCP in pkt and self.match in pkt[TCP].load:
-			data = str(pkt.getlayer(Raw).load)
-			mod_pkt = copy.copy(pkt) # make a copy of packet for mods
-			data = re.sub(self.match, self.replace, data)
-			# recalculate IP length and checksums
-			del mod_pkt[IP].chksum
-			del mod_pkt[TCP].chksum
-			del mod_pkt[IP].len
-#			mod_pkt[IP].len = (mod_pkt[IP].len - len(pkt[TCP].load)) + len(data)
-			mod_pkt[TCP].load = data
-			payload.set_verdict_modified(nfqueue.NF_ACCEPT,str(mod_pkt),len(mod_pkt))
-			return 0
+		"""Callback for receiving and modifying/dropping packets.
 
-		payload.set_verdict(nfqueue.NF_ACCEPT)
-		return 0
+		   It is important to recall that if a packet is dropped here,
+		   it is essentially dropped by the kernel.  It will never hit
+		   your userland modules.
+		"""
+		if self.drop_packets: 
+			pkt = IP(payload.get_data())
+			tmp = None
+			if TCP in pkt and pkt.haslayer(Raw):
+				tmp = self.match.search(pkt.getlayer(Raw).load)
+			elif DNSQR in pkt:
+				# hacky workaround for DNS packets
+				tmp = self.match.search(pkt[DNSQR].qname)
+				
+			if tmp is not None and tmp.group(0) is not None:
+				payload.set_verdict(nfqueue.NF_DROP)
+		else:
+			# parse into scapy packet
+			pkt = IP(payload.get_data())
+			if pkt.haslayer(Raw) and TCP in pkt and self.match in pkt[TCP].load:
+				data = str(pkt.getlayer(Raw).load)
+				data = re.sub(self.match, self.replace, data)
+				pkt2 = copy.copy(pkt)
+				pkt2[IP].len = (pkt[IP].len - len(pkt[TCP].load)) + len(data)
+				del pkt2[IP].chksum
+				del pkt2[TCP].chksum
+				pkt2[TCP].load = data
+				payload.set_verdict_modified(nfqueue.NF_ACCEPT, str(pkt2), len(pkt2))
+				return 0
+			payload.set_verdict(nfqueue.NF_ACCEPT)
+			return 1 
 
 	def dump(self, pkt): 
 		""" we don't use this """
@@ -138,7 +174,7 @@ class async_nfqueue(asyncore.file_dispatcher):
 		"""Process up to 10 events; needs some performance
 		   tuning as I'm not sure where the sweet spot is.
 		"""
-		self.queue.process_pending(10)
+		self.queue.process_pending(1)
 
 	def writable(self):
 		return False

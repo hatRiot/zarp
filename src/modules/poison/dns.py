@@ -11,7 +11,7 @@ class dns(Poison):
 
 	def __init__(self):
 		self.dns_spoofed_pair = {}
-		self.source = None
+		self.source    = None
 		self.local_mac = None
 		super(dns,self).__init__('DNS Spoof')
 
@@ -56,6 +56,10 @@ class dns(Poison):
 			if 'n' in tmp.lower():
 				return
 			
+			if 'www' in dns_spoofed or '.com' in dns_spoofed:
+				# hostname, get ip
+				dns_spoofed = util.getipbyhost(dns_spoofed)
+
 			dns_name = re.compile(dns_name)
 			self.dns_spoofed_pair[dns_name] = dns_spoofed
 			self.running = True
@@ -109,5 +113,5 @@ class dns(Poison):
 		"""
 		data = self.source + '\n'
 		for (cnt,dns) in enumerate(self.dns_spoofed_pair):
-			data += '\t|-> [%d] %s -> %s\n'%(cnt, dns.pattern, self.dns_spoofed_pair[dns])
+			data += '\t|-> [%d] %s -> %s'%(cnt, dns.pattern, self.dns_spoofed_pair[dns])
 		return data

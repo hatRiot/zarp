@@ -67,6 +67,11 @@ def timestamp():
 	"""
 	return '%s %s'%(date.today().isoformat(), datetime.now().strftime('%I:%M%p'))
 
+def getipbyhost(hostname):
+	""" return the IP address for a hostname
+	"""
+	return socket.gethostbyname(hostname)
+
 def next_ip(ip):
 	"""Return the next IP address following the given IP address.
 	   It needs to be converted to an integer, then add 1, 
