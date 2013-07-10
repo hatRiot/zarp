@@ -62,6 +62,17 @@ def debug(msg):
             f.write(format('[%s] %s\n' % (timestamp(), msg)))
 
 
+def get_input(msg):
+    """ fetch user input and unify input prompts
+    """
+    tmp = None
+    try:
+        tmp = raw_input('[!] %s' % msg)
+    except:
+        tmp = None
+    return tmp
+
+
 def get_calling_mod(stack):
     """ Retrieve the calling function based on the call stack
     """
