@@ -106,7 +106,7 @@ def main():
             cnt = stream.get_session_count()
             if cnt > 0:
                 choice = raw_input(color.YELLOW +
-                'You have %d sessions running.  Are you sure? [y] ' % cnt
+                'You have %d sessions running.  Are you sure? [Y/n] ' % cnt
                  + color.END)
                 if 'y' in choice.lower() or choice == '':
                     Msg('Shutting all sessions down...')
