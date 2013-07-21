@@ -41,7 +41,7 @@ def menu():
             try:
                 if not module is None:
                     tmp = raw_input('[!] Log output from %s session %s to %s.'
-                        'Is this correct? ' % (module, number, file_path))
+                        'Is this correct? [Y/n]' % (module, number, file_path))
                     if 'n' in tmp.lower():
                         return
                     stream.toggle_log(module, number, file_path, True)
