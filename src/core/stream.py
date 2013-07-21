@@ -88,11 +88,13 @@ def get_session_count():
     """ Return a count of the number of running sessions
     """
     global HOUSE
-    tmp = 0
+    cnt = 0
     if len(HOUSE.keys()) > 0:
         for key in HOUSE.keys():
-            tmp += len(HOUSE[key])
-    return tmp
+            for entry in HOUSE[key]:
+                if HOUSE[key][entry].running:
+                    cnt += 1
+    return cnt
 
 
 def stop_session(module, number):

@@ -1,6 +1,6 @@
 #! /usr/bin/python
 
-from os import getcwd, getuid
+from os import getcwd, getuid, _exit
 from sys import path, argv, exit, version, version_info
 path.insert(0, getcwd() + '/src/')
 path.insert(0, getcwd() + '/src/core/')
@@ -112,6 +112,13 @@ def main():
                     Msg('Shutting all sessions down...')
                     stream.stop_session('all', -1)
                     running = False
+
+                    # recheck that all sessions are down
+                    cnt = stream.get_session_count()
+                    if cnt <= 0:
+                        # some libs dont clean up their own threads, so
+                        # we need to hard quit those to avoid hanging; FIXME
+                        _exit(1)
             else:
                 debug("Exiting with session count: %d" % (cnt))
                 Msg("Exiting...")
