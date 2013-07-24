@@ -1,1 +1,1 @@
-__all__ = []
+__all__ = ["beef_hook"]
