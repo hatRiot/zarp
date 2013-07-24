@@ -23,7 +23,7 @@ buffered = None
 
 def version():
     """Zarp version"""
-    return "0.1.4"
+    return "0.1.3"
 
 
 def header():
