@@ -1,12 +1,8 @@
 from attack import Attack
+from libmproxy import controller, proxy, platform
 from threading import Thread
 import util
 
-# temporary solution until the dependency checker is built
-try:
-    from libmproxy import controller, proxy, platform
-except:
-    pass
 
 class beef_hook(Attack):
     """ Injects BeEF hooks into poisoned traffic.  Requires libmproxy
@@ -30,13 +26,6 @@ class beef_hook(Attack):
             util.init_app(self.iptable_http.replace('-A', '-D').format(self.hooked_host))
 
     def initialize(self):
-        try:
-            import libmproxy
-        except Exception, e:
-            util.Error("Missing requirements for libmproxy. (flask/netlib?)")
-            util.Error(e)
-            return None
-
         while True:
             try:
                 self.hook_path   = raw_input('[!] Enter path to BeEF Hook: ')
