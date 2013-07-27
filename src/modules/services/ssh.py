@@ -1,62 +1,48 @@
 import util
 import os
 import socket
+import paramiko
 from threading import Thread
 from service import Service
 from time import sleep
-
-try:
-    from stubssh import SSHStub, SSHHandler
-except:
-    pass
+from stubssh import SSHStub, SSHHandler
 
 
 class ssh(Service):
-    """ emulate a basic SSH service; stores usernames/passwords but rejects
-        requests.
-    """
     def __init__(self):
-        self.priv_key = None
         super(ssh, self).__init__('SSH Server')
+        self.config.update({"priv_key":{"type":"str",
+                                        "value":None,
+                                        "required":False,
+                                    "display":"Private key (None to generate)"}
+                           })
+        self.info = """
+                    Emulate a basic SSH service; stores usernames/passwords
+                    but rejects requests.
+                    """
 
-    #
-    # If we weren't given a private key, remove the temp we generated
-    #
     def cleanup(self):
-        if self.priv_key == './privkey.key':
+        """ If we weren't given a private key, remove the temp we generated
+        """
+        if self.config['priv_key']['value'] == './privkey.key':
             os.system('rm -f privkey.key')
 
-    # dispatch as a thread; this is called from gui
     def initialize_bg(self):
-        try:
-            # try importing here so we can catch it right away
-            import paramiko
-        except ImportError:
-            util.Error('Paramiko libraries required for this module.')
-            return False
-
-        while True:
-            try:
-                self.priv_key = raw_input('Enter private key path or [enter] to generate: ')
-                if len(self.priv_key) < 2:
-                    self.priv_key = None
-                else:
-                    # try reading the private key before starting
-                    paramiko.RSAKey.from_private_key_file(self.priv_key)
-                break
-            except IOError:
-                util.Error('Error reading key.')
-                continue
-            except:
-                pass
-
+        if self.config['priv_key']['value'] is not None:
+            paramiko.RSAKey.from_private_key_file( \
+                                    self.config['priv_key']['value'])
         util.Msg('Initializing SSH server...')
         thread = Thread(target=self.initialize)
         thread.start()
-        return True
 
-    # initialization
+        sleep(1)
+        if self.running:
+            return True
+        else:
+            return False
+
     def initialize(self):
+        priv_key = self.config['priv_key']['value']
         try:
             # try importing here so we can catch it right away
             import paramiko
@@ -67,7 +53,7 @@ class ssh(Service):
         level = getattr(paramiko.common, 'CRITICAL')
         paramiko.common.logging.basicConfig(level=level)
         # if the user did not specify a key, generate one
-        if self.priv_key is None:
+        if priv_key is None:
             if not util.check_program('openssl'):
                 util.Error('OpenSSL required to generate cert/key files.')
                 return
@@ -75,7 +61,7 @@ class ssh(Service):
                 util.debug('Generating RSA private key...')
                 util.init_app('openssl genrsa -out privkey.key 2048')
                 util.debug('privkey.key was generated.')
-            self.priv_key = './privkey.key'
+            priv_key = self.config['priv_key']['value'] = './privkey.key'
 
         try:
             server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -93,7 +79,8 @@ class ssh(Service):
                 except:
                     # timeout
                     continue
-                pkey = paramiko.RSAKey.from_private_key_file(self.priv_key)
+
+                pkey = paramiko.RSAKey.from_private_key_file(priv_key)
                 transport = paramiko.Transport(con)
                 transport.add_server_key(pkey)
                 transport.set_subsystem_handler('handler', paramiko.SFTPServer, SSHHandler)

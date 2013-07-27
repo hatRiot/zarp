@@ -20,6 +20,11 @@ class ZarpModule(object):
         self.dump_data = False       # are we printing to console?
         self.scrub     = compile(r"\033\[\d{2}m")    # remove color codes
 
+        # meta
+        self.config    = {}          # dictionary of a module's config
+        self.info      = None        # help string
+        self.skip_opts = False       # bypass the option menu
+
     @abc.abstractmethod
     def initialize(self):
         """Initialization method that should be

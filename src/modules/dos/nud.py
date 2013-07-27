@@ -15,9 +15,15 @@ class nud(DoS):
     Enabling a sniffer will allow you to view all sent data.
     """
     def __init__(self):
+        super(nud, self).__init__('IPv6 Neighbor Unreachability Detection DoS')
         self.running = False
         self.dump = False
-        super(nud, self).__init__('IPv6 Neighbor Unreachability Detection DoS')
+        conf.verb = 0
+        self.config.pop("target", None)
+        self.info = """
+                    Listens for Neighbor Solicitations and responds to them
+                    automatically.  In the event that the destination node is
+                    dead, the packets destined for it will be null routed."""
 
     def initialize(self):
         """initialize the NUD dos"""
@@ -53,12 +59,6 @@ class nud(DoS):
                                 stopper=self.stop_caller, stopperTimeout=3)
         except Exception, e:
             util.Error('%s' % e)
-
-    def shutdown(self):
-        """Shutdown"""
-        if self.running:
-            self.running = False
-        return True
 
     def view(self):
         util.Msg('NUD DoS...')

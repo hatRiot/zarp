@@ -5,15 +5,19 @@ from threading import Thread
 
 
 class ftp(Service):
-    """ Emulates a single threaded FTP
-        service.
-    """
     def __init__(self):
-        self.motd = 'b4ll4stS3c FTP Server v1.4'
+        super(ftp, self).__init__('FTP Server')
         self.usr = None
         self.pwd = None
         self.server_socket = None
-        super(ftp, self).__init__('FTP Server')
+        self.config.update({"motd":{"type":"str", 
+                                  "value":"b4ll4stS3c FTP Server v1.4",
+                                  "required":False,
+                                  "display":"Displayed MOTD"}
+                        })
+        self.info = """
+                    Emulates a single threaded FTP server.
+                    """
 
     def response(self, con, code, txt):
         """ Format a response to the client """
@@ -73,7 +77,7 @@ class ftp(Service):
                 except:
                     continue
                 self.log_msg('Connection from %s' % str(addr))
-                self.response(conn, 220, self.motd)
+                self.response(conn, 220, self.config['motd']['value'])
 
                 while self.running:
                     try:

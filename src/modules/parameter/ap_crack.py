@@ -7,14 +7,22 @@ class ap_crack(Parameter):
     """ Interfaces with Wifite to crack APs
     """
     def __init__(self):
-        self.cracks = ['WEP', 'WPA', 'WPS']
         super(ap_crack, self).__init__('APCrack')
+        self.config.update({"mode":{"type":"int", 
+                                    "value":1,
+                                    "required":True, 
+                                    "display":"Mode to crack",
+                                    "opts":['WEP', 'WPA', 'WPS']}
+                           })
+        self.info = """
+                    Harnesses the power of Wifite to crack WEP, WPA, and WPS
+                    devices."""
 
     def initialize(self):
-        cmd = []
+        choice = self.config['mode']['value']
 
+        cmd = []
         while True:
-            choice = util.print_menu(self.cracks)
             if choice is 1:
                 cmd = ['python',
                     'src/modules/parameter/wifite.py',
@@ -35,11 +43,9 @@ class ap_crack(Parameter):
                     '--wps',
                     '--wpst', '5',
                     '--wpsretry', '8']
-            elif choice is 0:
-                return
+                break
             else:
-                continue
-            break
+                return False
 
         try:
             os.system(' '.join(cmd))

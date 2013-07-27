@@ -6,18 +6,18 @@ path.insert(0, getcwd() + '/src/')
 path.insert(0, getcwd() + '/src/core/')
 path.insert(0, getcwd() + '/src/modules/')
 path.insert(0, getcwd() + '/src/lib/')
-from util import print_menu, header, Error, Msg, debug
+from util import print_menu, header, Error, Msg, debug, check_dependency
 from commands import getoutput
 import stream
 import session_manager
 import parse_cmd
 import config
 import database
+import importlib
 from colors import color
 # module loading
 from src.modules import poison, dos, scanner, services
 from src.modules import sniffer, parameter, attacks
-import importlib
 
 
 class LoadedModules:
@@ -34,43 +34,59 @@ class LoadedModules:
         self.attacks = []
 
     def load(self):
-        """ Load modules.
+        """ Load modules.  Verify the module loads successfully
+            before loading it up into the module list; this prevents
+            crashes related to unmet dependencies.
         """
         for module in poison.__all__:
-            mod = getattr(importlib.import_module(
-                            'src.modules.poison.%s' % module, 'poison'), module)
-            self.poison.append(mod)
-            self.total += 1
+            if check_dependency('src.modules.poison.%s' % module):
+                mod = getattr(importlib.import_module(
+                            'src.modules.poison.%s' % module, 'poison'), 
+                            module)
+                self.poison.append(mod)
+                self.total += 1
         for module in dos.__all__:
-            mod = getattr(importlib.import_module(
-                            'src.modules.dos.%s' % module, 'dos'), module)
-            self.dos.append(mod)
-            self.total += 1
+            if check_dependency('src.modules.dos.%s' % module):
+                mod = getattr(importlib.import_module(
+                                'src.modules.dos.%s' % module, 'dos'), 
+                                module)
+                self.dos.append(mod)
+                self.total += 1
         for module in scanner.__all__:
-            mod = getattr(importlib.import_module(
-                        'src.modules.scanner.%s' % module, 'scanner'), module)
-            self.scanner.append(mod)
-            self.total += 1
+            if check_dependency('src.modules.scanner.%s' % module):
+                mod = getattr(importlib.import_module(
+                            'src.modules.scanner.%s' % module, 'scanner'), 
+                            module)
+                self.scanner.append(mod)
+                self.total += 1
         for module in services.__all__:
-            mod = getattr(importlib.import_module(
-                        'src.modules.services.%s' % module, 'services'), module)
-            self.services.append(mod)
-            self.total += 1
+            if check_dependency('src.modules.services.%s' % module):
+                mod = getattr(importlib.import_module(
+                            'src.modules.services.%s' % module, 'services'), 
+                            module)
+                self.services.append(mod)
+                self.total += 1
         for module in sniffer.__all__:
-            mod = getattr(importlib.import_module(
-                        'src.modules.sniffer.%s' % module, 'sniffer'), module)
-            self.sniffers.append(mod)
-            self.total += 1
+            if check_dependency('src.modules.sniffer.%s' % module):
+                mod = getattr(importlib.import_module(
+                            'src.modules.sniffer.%s' % module, 'sniffer'), 
+                            module)
+                self.sniffers.append(mod)
+                self.total += 1
         for module in parameter.__all__:
-            mod = getattr(importlib.import_module(
-                'src.modules.parameter.%s' % module, 'parameter'), module)
-            self.parameter.append(mod)
-            self.total += 1
+            if check_dependency('src.modules.parameter.%s' % module):
+                mod = getattr(importlib.import_module(
+                            'src.modules.parameter.%s' % module, 'parameter'), 
+                            module)
+                self.parameter.append(mod)
+                self.total += 1
         for module in attacks.__all__:
-            mod = getattr(importlib.import_module(
-                        'src.modules.attacks.%s' % module, 'attacks'), module)
-            self.attacks.append(mod)
-            self.total += 1
+            if check_dependency('src.modules.attacks.%s' % module):
+                mod = getattr(importlib.import_module(
+                            'src.modules.attacks.%s' % module, 'attacks'), 
+                            module)
+                self.attacks.append(mod)
+                self.total += 1
 
 
 def main():

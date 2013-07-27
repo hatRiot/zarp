@@ -11,11 +11,15 @@ class Sniffer(ZarpModule):
     __metaclass__ = abc.ABCMeta
 
     def __init__(self, which):
-        self.source = config.get('ip_addr')   # source to sniff from
+        super(Sniffer, self).__init__(which)
         self.sniff_filter = None              # filter for the traffic sniffer
         # initialize thread
         self.sniff_thread = Thread(target=self.traffic_sniffer)
-        super(Sniffer, self).__init__(which)
+        self.config.update({"target":{"type":"ip",
+                                      "value":config.get("ip_addr"),
+                                      "required":False,
+                                      "display":"Address to sniff from"}
+                           })
 
     @abc.abstractmethod
     def dump(self, pkt):
@@ -24,7 +28,7 @@ class Sniffer(ZarpModule):
     def session_view(self):
         """ Session viewer returns source
         """
-        return '%s' % self.source
+        return '%s' % self.config['target']['value']
 
     def traffic_sniffer(self):
         """ Sniff traffic with the given filter.
@@ -35,21 +39,6 @@ class Sniffer(ZarpModule):
 
         sniff(filter=self.sniff_filter, store=0, prn=self.dump,
                     stopper=self.stop_callback, stopperTimeout=3)
-
-    def get_ip(self):
-        """ Retrieve IP address from user to sniff for"""
-        while True:
-            try:
-                tmp = raw_input('[!] Enter address to listen on [%s]: '
-                                                                % self.source)
-                if tmp.strip() != '':
-                    if len(tmp.split('.')) >= 4:
-                        self.source = tmp
-                break
-            except KeyboardInterrupt:
-                return
-            except:
-                continue
 
     def stop_callback(self):
         """ Initiate a sniffer shutdown"""

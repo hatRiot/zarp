@@ -15,18 +15,17 @@ class Address:
 
 
 class passive_scan(Sniffer):
-    """ Much like the passive scanner in Ettercap,
-    this module was designed to passively map the network
-    without spewing packets.  This will take some
-    time, as we can only sniff what's coming at us.  One
-    packet is sent out, and that's for rDNS.
-
-    Implemented as a sniffer since that's technically what
-    we're doing with it.
-    """
     def __init__(self):
-        self.netmap = {}
         super(passive_scan, self).__init__('Passive Scanner')
+        self.netmap = {}
+        self.config.pop("target", None)
+        self.info = """
+                    Much like the passive scanner in Ettercap, this module 
+                    was designed to passively map the network without 
+                    spewing packets.  This will take some time, as we can 
+                    only sniff what's coming at us.  One packet is sent out,
+                    and that's for rDNS.
+                    """
 
     def initialize(self):
         util.Msg('Initializing passive network map...')
@@ -92,3 +91,9 @@ class passive_scan(Sniffer):
                                       self.netmap[address].mac,
                                       self.netmap[address].host)
             util.Msg('\t %s hosts found.' % len(self.netmap))
+
+    def session_view(self):
+        """ We're a sniffer, but a scanner, so we don't
+            really have a target.
+        """
+        return "Passive scanner"

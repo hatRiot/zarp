@@ -1,7 +1,10 @@
 import gc
+import re
+import config
 from colors import color
-from util import Error, debug
-from collections import OrderedDict
+from textwrap import dedent
+from util import Msg, Error, debug, check_opts, eval_type
+from collections import OrderedDict, namedtuple
 
 """
     Main data bus for interacting with the various modules.  Dumps information,
@@ -11,6 +14,12 @@ from collections import OrderedDict
 
 # main struct; ordered dictionary
 HOUSE = OrderedDict()
+
+class FailedCheck(Exception):
+    """ Used primarily for error checking and breaking safely out 
+        of outer loops.
+    """
+    pass
 
 
 def initialize(module):
@@ -25,23 +34,118 @@ def initialize(module):
         HOUSE['service'] = {}
 
     tmp_mod = module()
-    if hasattr(tmp_mod, 'initialize_bg'):
-        tmp = tmp_mod.initialize_bg()
+    # a little hacky way to allow modules to skip the
+    # option management interface; i.e. if we need to
+    # load into another menu
+    if not tmp_mod.skip_opts:
+        response = handle_opts(tmp_mod)
     else:
-        tmp = tmp_mod.initialize()
+        response = True
 
-    if tmp is not None:
+    if response:
+        if hasattr(tmp_mod, 'initialize_bg'):
+            tmp = tmp_mod.initialize_bg()
+        else:
+            tmp = tmp_mod.initialize()
+    else: 
+        return
+
+    if tmp is not None and tmp is not False:
         if not tmp_mod.which in HOUSE:
             HOUSE[tmp_mod.which] = {}
         HOUSE[tmp_mod.which][tmp] = tmp_mod
+
+
+def handle_opts(module):
+    """ The user has selected a module, so we should parse out all the 
+        options for this particular module, set the config, and when
+        requested, run it.  This is kinda messy, but works for now.
+    """
+    # fetch generic module options and module-specific options
+    options = module.config
+    Setting = namedtuple('Setting', ['Option', 'Value', "Type", "Required"])
+    while True:
+        # generate list of opts
+        table = []
+        for idx,opt in enumerate(options.keys()):
+            data = Setting("[%d] %s"%(idx+1, options[opt]['display']), 
+                                             fetch_str(options[opt]['value']),
+                                             options[opt]['type'],
+                                             options[opt]['required'])
+            table.append(data)
+        if len(table) > 0:
+            config.pptable(table)
+        else:
+            Msg('\tModule has no options.')
+        print '0) Back'
+
+        # fetch command/option
+        try:
+            choice = raw_input('%s > '%module.which)
+
+            # first check global commands
+            tmp = check_opts(choice)
+            if tmp == -1:
+                continue
+
+            # check module commands                
+            if choice is "0":
+                return False
+            elif choice == "info":
+                if module.info is None:
+                    Msg("Module has no information available")
+                    continue
+
+                print '%s%s%s' % (color.GREEN, 
+                                 '-' * len(module.info.split('\n')[1].strip()),
+                                  color.END),
+                print dedent(module.info.rstrip())
+                print '%s%s%s' % (color.GREEN, 
+                                  '-' * len(module.info.split('\n')[1].strip()),
+                                  color.END)
+            elif len(choice.split(' ')) > 1:
+                choice = choice.split(' ')
+                try:
+                    if int(choice[0]) > len(table):
+                        continue
+                    elif int(choice[0]) is 0:
+                        return False
+
+                    key = options.keys()[int(choice[0])-1]
+
+                    if choice[1] == 'o' and 'opts' in module.config[key]:
+                        Msg("Options: %s" % module.config[key]['opts'])
+                        continue
+
+                    # we've got a valid number, validate the type and set it
+                    tmp = eval_type(choice[1], options[key]['type'])
+                    if tmp[0]:
+                        module.config[key]['value'] = tmp[1]
+                    else:
+                        Error('Wrong type assigned.  Expected value of type "%s"'%
+                                        options[key]['type'])
+                except Exception, e:
+                    print e
+                    continue
+            elif "r" in choice.lower() or "run" in choice.lower():
+                # verify all required options are set
+                for opt in options.keys():
+                    if options[opt]['required'] and options[opt]['value'] is None:
+                        Error('Option \'%s\' is required.'%opt)
+                        raise FailedCheck
+                return True
+        except KeyboardInterrupt:
+            return False
+        except FailedCheck:
+            continue
 
 
 def dump_sessions():
     """Format and print the currently running modules.
     """
     global HOUSE
-    print '\n\t[Running sessions]'
 
+    print '\n\t[Running sessions]'
     if 'service' in HOUSE:
         # services first
         tmp = HOUSE['service']
@@ -191,8 +295,12 @@ def get_mod_num(module, number):
     return (None, None)
 
 
-def view_info(module):
-    """ Obtains help information for a module
-        @param module is the module number
+def fetch_str(value):
+    """ The dirty secret is that, because we're storing each module's
+        option as the specified type, we may need to convert it to a 
+        readable string for output.  For example, regex objects.
+        That's what this guy does.
     """
-    pass
+    if isinstance(value, re._pattern_type):
+        return value.pattern
+    return value

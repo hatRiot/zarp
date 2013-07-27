@@ -7,11 +7,15 @@ from service import Service
 
 
 class smb(Service):
-    """ SMB listener for harvesting NTLM/LM hashes.
-    """
     def __init__(self):
-        self.captured_hashes = {}
         super(smb, self).__init__('SMB Service')
+        self.captured_hashes = {}
+        self.info = """
+                    SMB listener for harvesting NTLM/LM hashes.
+                    Authentication requests use the standard challenge of
+                    1122334455667788, for which plenty of generated rainbow
+                    tables exist already.
+                    """
 
     # parse NTLM/LM hashes
     # scapy has very limited SMB packet support, so we have to do this manually

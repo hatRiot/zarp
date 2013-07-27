@@ -7,12 +7,14 @@ from cmd import Cmd
 from pwd import getpwnam
 from colors import color
 from inspect import getmodule
+from importlib import import_module
 import scapy.arch
 import config
 import os
 import socket
 import fcntl
 import struct
+import re
 
 """Utility class housing various functions in use
     throughout the zarp framework.
@@ -244,7 +246,8 @@ def get_local_ip(adapter):
 
 
 def test_filter(net_filter):
-    """Test a network filter to verify if its valid"""
+    """ Test a network filter to verify if its valid
+    """
     valid = False
     try:
         scapy.arch.attach_filter(None, net_filter)
@@ -272,9 +275,6 @@ def check_opts(choice):
     """
     if type(choice) is int:
         return choice
-    elif 'info' in choice:
-        Error('\'info\' not implemented yet.')
-        choice = -1
     elif 'help' in choice:
         help()
         choice = -1
@@ -295,17 +295,33 @@ def check_opts(choice):
     elif 'bg' in choice:
         background()
     return choice
+    
+
+def check_dependency(module):
+    """ Attempts to load the module; returns a boolean
+        indicating success or fail.
+    """ 
+    try:
+        mod = __import__(module)
+    except Exception, e:
+        Error("Module %s failed to load! (%s)" % (module, e))
+        return False
+    return True
 
 
 def help():
     """ Dump a help menu with zarp options
     """
     print color.YELLOW + '\n  zarp options:' + color.END
-    print '\thelp\t\t- This menu'
-    print '\topts\t\t- Dump zarp current settings'
-    print '\texit\t\t- Exit immediately'
-    print '\tbg\t\t- Put zarp to background'
+    print '\thelp\t\t\t- This menu'
+    print '\topts\t\t\t- Dump zarp current settings'
+    print '\texit\t\t\t- Exit immediately'
+    print '\tbg\t\t\t- Put zarp to background'
     print '\tset [key] [value]\t- Set key to value'
+    print color.YELLOW + '\n  zarp module options:' + color.END
+    print '\t[int] [value]\t\t- Set option [int] to value [value]'
+    print '\t[int] o\t\t\t- View options for setting'
+    print '\trun (r)\t\t\t- Run the selected module'
     print color.GREEN + '  @dronesec - zarp v%s\n' % (version()) + color.END
 
 
@@ -378,3 +394,60 @@ def print_menu(arr):
         os.system('clear')
         choice = -1
     return choice
+
+
+def eval_type(value, type):
+    """ Generic evaluation of types; returns true if the value is of type,
+        or false if it is not.
+
+        Returns a tuple of (bool, obj), where bool determines success and obj
+        is the value returned as type.
+    """
+    rval = (False, None)
+    if type == "int":
+        try:
+            rval = (True, int(value))
+        except:
+            rval = (False, None)
+    elif type == "bool":
+        if value in ['True', 'true', '1']:
+            rval = (True, True)
+        elif value in ['False', 'false', '0']:
+            rval = (True, False)
+    elif type == "ip":
+        ip = value.split('.')
+        if len(ip) != 4:
+            rval = (False, None)
+        else:
+            try:
+                int(ip[0])
+                int(ip[1])
+                int(ip[2])
+                int(ip[3])
+                rval = (True, value)
+            except:
+                rval = (False, None)
+    elif type == "str":
+        # anything can be a string
+        rval = (True, str(value))
+    elif type == "ipmask":
+        ip = value.split('.')
+        if len(ip) != 4:
+            rval = (False, None)
+        else:
+            try:
+                int(ip[0])
+                int(ip[1])
+                int(ip[2])
+                rval = (True, value) if '/' in ip[3] else (False, None)
+            except:
+                rval = (False, None)
+    elif type == "regex":
+        try:
+            tmp = re.compile(value)
+            rval = (True, tmp)
+        except re.error:
+            rval = (False, None)
+    else:
+        Error('Unrecognized type: %s'%type)
+    return rval

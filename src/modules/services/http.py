@@ -8,34 +8,38 @@ from threading import Thread
 
 
 class http(Service):
-    """Emulate an HTTP server.  If no default page is entered, an auth
-       realm will be presented instead.  This can be used to harvest
-       usernames/passwords from users not paying attention.
+    """
     """
 
     def __init__(self):
-        self.server = 'B4114stS3c HTTP Server v3.1'
-        self.httpd = None
-        self.root = None
         super(http, self).__init__('HTTP Server')
+        self.httpd = None
+        self.config.update({"root": {"type":"str", 
+                                     "value":None,
+                                     "required":False, 
+                                     "display":"Root file to serve"},
+                            "server": {"type":"str",
+                                       "value":"Unified HTTP Server v3.1",
+                                       "required":False,
+                                       "display":"Server name"
+                                    }
+                            })
+        self.info = """
+                    Emulate an HTTP server.  If no default page is entered, 
+                    an auth realm will be presented instead.  This can be 
+                    used to harvest usernames/passwords from users not 
+                    paying attention.
+                    """
 
     def initialize_bg(self):
-        """Initialize the server in the background"""
-        try:
-            util.Msg('[enter] for default credential prompt.')
-            self.root = raw_input('[+] Enter root file: ')
-        except Exception, j:
-            util.Error('Error with root; %s' % j)
-            return False
+        """Initialize the server in the background
+        """
         util.Msg('Running HTTP server')
         http_thread = Thread(target=self.initialize)
         http_thread.start()
 
-        sleep(1)
-        if self.running:
-            return True
-        else:
-            return False
+        sleep(1)    # make sure it starts up
+        return self.running
 
     def initialize(self):
         """Initialize the server"""
@@ -56,10 +60,11 @@ class http(Service):
     def handler(self, *args):
         """Magic for passing context into the request handler"""
         context = {
-                'root': self.root,
+                'root': self.config['root']['value'],
                 'dump': self.dump_data,
                 'log_data': self.log_data,
-                'log_file': self.log_file
+                'log_file': self.log_file,
+                'server' : self.config['server']['value']
                   }
         RequestHandler(context, *args)
 
@@ -126,7 +131,7 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     def send_headers(self):
         """Send the HTTP headers"""
-        self.server_version = 'b4ll4sts3c http server'
+        self.server_version = self.context['server']
         self.sys_version = 'v3.1'
         self.send_response(200)
         self.send_header('Content-type', 'text/html')

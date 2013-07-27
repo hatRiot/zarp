@@ -4,12 +4,13 @@ from scanner import Scanner
 
 
 class ap_scan(Scanner):
-    """ Scan for wireless APs.  Useful when searching for WEP or unprotected
-        APs.  Essentially an interface to airodump-ng.
-    """
     def __init__(self):
         self.channel = None
         super(ap_scan, self).__init__('AP Scan')
+        self.info = """
+                    Scan for wireless APs.  Useful when searching for WEP or
+                    unprotected APs.  Essentially an interface to airodump-ng.
+                    """
 
     def initialize(self):
         """ Initialize the scanner

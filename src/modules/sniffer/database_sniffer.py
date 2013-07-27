@@ -17,28 +17,17 @@ class DatabaseInfo:
 
 
 class database_sniffer(Sniffer):
-    """Sniffer for parsing database queries/results
-    """
-
     def __init__(self):
-        self.dbi = DatabaseInfo()
         super(database_sniffer, self).__init__('Database Sniffer')
+        self.dbi = DatabaseInfo()
+        self.info = """
+                    This module will sniff for and parse up various database
+                    queries, logins, and other strategic bits of information.
+                    Currently supported are MySQL and PGSQL.  Please file a 
+                    github request for any further databases or features."""
 
     def initialize(self):
         """Initialize sniffer"""
-        self.get_ip()
-        while True:
-            try:
-                tmp = raw_input('[!] Sniff database packets from \'%s\'.  '
-                                    'Is this correct? ' % self.source)
-                if 'n' in tmp.lower():
-                    return None
-                break
-            except KeyboardInterrupt:
-                return None
-            except:
-                pass
-
         self.sniff_filter = "tcp and (port 3306 or port 5432) and " \
                             "(src %s or dst %s)" % (self.source, self.source)
         self.run()

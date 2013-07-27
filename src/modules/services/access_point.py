@@ -5,31 +5,27 @@ from service import Service
 
 
 class access_point(Service):
-    """Implements a fake wireless access points that supports passthru; or,
-       forwarding traffic from the fake AP to another iface.
-    """
-
     def __init__(self):
-        self.ap_essid = 'zoopzop'
-        self.mon_adapt = None
         super(access_point, self).__init__('Access Point')
+        self.mon_adapt = None
+        self.config.update({"ap_essid":{"type":"str", 
+                                        "value":"zoopzop",
+                                        "required":False, 
+                                        "display":"Spoofed AP name"}
+                           })
+        self.info = """
+                    Implements a fake wireless access point to execute
+                    client attacks or set up a wireless mitm that forwards
+                    traffic to another device.
+
+                    Passthru currently not working; todo.
+                    """
 
     def initialize_bg(self):
         """Initialize in background thread"""
         if not util.check_program('airbase-ng'):
             util.Error('\'airbase-ng\' not found in local path.')
             return False
-
-        while True:
-            try:
-                tmp = raw_input('[!] Enter ESSID [%s]: ' % self.ap_essid)
-                if len(tmp) > 2:
-                    self.ap_essid = tmp
-                break
-            except KeyboardInterrupt:
-                break
-            except:
-                continue
 
         util.Msg('Initializing access point..')
         thread = Thread(target=self.initialize)
@@ -62,11 +58,12 @@ class access_point(Service):
 
             airbase_cmd = [
                         'airbase-ng',
-                        '--essid', self.ap_essid,
+                        '--essid', self.config['ap_essid']['value'],
                         self.mon_adapt
                           ]
             ap_proc = util.init_app(airbase_cmd, False)
-            util.Msg('Access point %s running.' % self.ap_essid)
+            util.Msg('Access point %s running.' % \
+                                    self.config['ap_essid']['value'])
             raw_input()    # block
         except KeyboardInterrupt:
             self.running = False

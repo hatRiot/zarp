@@ -9,8 +9,9 @@ class router_pwn(Parameter):
     """
 
     def __init__(self):
-        self.routers = {}
         super(router_pwn, self).__init__('RouterPwn')
+        self.routers = {}
+        self.skip_opts = True
 
     def load(self):
         """Load router modules"""

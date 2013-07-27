@@ -12,26 +12,29 @@ class switchover(Parameter):
         will do this, but this is the general case.
     """
     def __init__(self):
+        super(switchover, self).__init__('Switch Over')
         self.switch = None
         self.sent = 0
-        super(switchover, self).__init__('Switch Over')
+        self.config.update({"target":{"type":"ip", 
+                                      "value":"FF:FF:FF:FF:FF:FF",
+                                      "required":False, 
+                                      "display":"Switch address"}
+                           })
+        self.info = """
+                    In some switches, if the ARP table is overflowed,
+                    the device will switch from routing packets to simply
+                    spewing packets to each port, a la a hub.  This will
+                    allow an attacker who may have been unable to sniff
+                    or poison certain traffic the ability to."""
 
     def initialize(self):
-        try:
-            util.Msg('[enter] for broadcast')
-            self.switch = raw_input('[!] Enter switch address: ')
-
-            if self.switch == '':
-                self.switch = 'FF:FF:FF:FF:FF:FF'
-            else:
-                self.switch = getmacbyip(self.switch)
-        except:
-            return None
-
+        util.Msg("Starting switch flood...")
+        self.switch = getmacbyip(self.config['target']['value'])
         self.running = True
+
         thread = Thread(target=self.spam)
         thread.start()
-        return 'Spamming %s' % (self.switch)
+        return True
 
     def spam(self):
         """ Begin spamming the switch with ARP packets from
@@ -51,3 +54,6 @@ class switchover(Parameter):
         """
         util.Msg('Sent %d MAC requests thus far' % (self.sent))
         super(switchover, self).view()
+
+    def session_view(self):
+        return "Spamming %s" % self.config['target']['value']

