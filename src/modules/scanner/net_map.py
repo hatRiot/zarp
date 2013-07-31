@@ -3,20 +3,21 @@ from datetime import datetime
 from util import Error
 from scapy.all import *
 from scanner import Scanner
+from zoption import Zoption
 
 
 class net_map(Scanner):
     def __init__(self):
         super(net_map, self).__init__('NetMap')
         self.available_hosts = {}
-        self.config.update({"net_mask":{"type":"ipmask", 
-                                        "value":None,
-                                        "required":True, 
-                                        "display":"Netmask to scan"},
-                        "fingerprint":{"type":"bool", 
-                                        "value":False,
-                                        "required":False, 
-                                        "display":"Fingerprint the host"}
+        self.config.update({"net_mask":Zoption(type = "ipmask", 
+                                        value = None,
+                                        required = True, 
+                                        display = "Netmask to scan"),
+                        "fingerprint":Zoption(type = "bool", 
+                                        value = False,
+                                        required = False, 
+                                        display = "Fingerprint the host")
                            })
         self.info = """
                     Performs an ARP scan of the local network.
@@ -28,7 +29,7 @@ class net_map(Scanner):
     def scan_block(self):
         """ ARPing the local network
         """
-        net_mask = self.config['net_mask']['value']
+        net_mask = self.config['net_mask'].value
         conf.verb = 0
         print '[!] Beginning host scan with netmask %s...' % (net_mask)
         try:
@@ -39,7 +40,7 @@ class net_map(Scanner):
             for s, r in ans:
                 ip = r[ARP].getfieldval('psrc')
                 mac = r[ARP].getfieldval('hwsrc')
-                if self.config['fingerprint']['value']:
+                if self.config['fingerprint'].value:
                     host = ''
                     try:
                         if hasattr(socket, 'setdefaulttimeout'):
@@ -62,7 +63,7 @@ class net_map(Scanner):
         """ Dump previous scan results
         """
         print '\n\t\033[32m[!] Available hosts in range %s:\033[0m' \
-                                            % self.config['net_mask']['value']
+                                            % self.config['net_mask'].value
         for mac in self.available_hosts.keys():
             print '\t%s : %s' % (mac, self.available_hosts[mac])
 

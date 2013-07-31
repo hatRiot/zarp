@@ -4,24 +4,25 @@ from collections import namedtuple
 from config import pptable
 from sniffer import Sniffer
 from scapy.all import *
+from zoption import Zoption
 
 
 class http_sniffer(Sniffer):
     def __init__(self):
         super(http_sniffer, self).__init__('HTTP Sniffer')
         self.sessions = {}
-        self.config.update({"verb":{"type":"int",
-                                    "value":1,
-                                    "required":False,
-                                    "display": "Output verbosity",
-                                    "opts": ['Site Only', 'Request String', 
+        self.config.update({"verb":Zoption(type = "int",
+                                    value = 1,
+                                    required = False,
+                                    display = "Output verbosity",
+                                    opts = ['Site Only', 'Request String', 
                                              'Request and Payload',
                                              'Session IDs', 'Custom Regex'
-                                            ]},
-                            "regex":{"type":"regex",
-                                     "value":None,
-                                     "required":False,
-                                     "display":"Regex for level 5 verbosity"}
+                                            ]),
+                            "regex":Zoption(type = "regex",
+                                     value = None,
+                                     required = False,
+                                     display = "Regex for level 5 verbosity")
             })
         self.info = """ 
                     The HTTP sniffer is a fairly robust sniffer module that
@@ -47,10 +48,10 @@ class http_sniffer(Sniffer):
     def initialize(self):
         """Initialize the sniffer"""
         self.sniff_filter = "tcp and dst port 80 and src %s" % \
-                                        self.config['target']['value']
+                                        self.config['target'].value
         self.run()
         util.Msg("Running HTTP sniffer...")
-        return self.source
+        return True
 
     def manage_sessions(self, data):
         """ Parse and manage session IDs.
@@ -82,7 +83,7 @@ class http_sniffer(Sniffer):
         """ Based on what verbosity level is set, parse
             the packet and return formatted data.
         """
-        verb = self.config['verb']['value']
+        verb = self.config['verb'].value
         data = pkt.getlayer(Raw).load
         if verb is 1:
             # parse the site only
@@ -102,7 +103,7 @@ class http_sniffer(Sniffer):
         elif verb is 4:
             data = self.manage_sessions(data)
         elif verb is 5:
-            data = self.config['regex']['value'].search(data)
+            data = self.config['regex'].value.search(data)
             if not data is None:
                 data = data.group(0)
         return data
@@ -122,7 +123,7 @@ class http_sniffer(Sniffer):
         """ Overload view so we can print out
             sessions in a pretty table.
         """
-        if self.config['verb']['value'] is 4:
+        if self.config['verb'].value is 4:
             Setting = namedtuple('Setting', ['Host', 'SessionID'])
             table = []
             for i in self.sessions.keys():
@@ -136,5 +137,5 @@ class http_sniffer(Sniffer):
         """ Overloaded to return both the sniffed
             address and the verbosity.
         """
-        return '%s [%s]' % (self.source, self.config['verb']['opts'] \
-                                            [self.config['verb']['value']-1])
+        return '%s [%s]' % (self.config['target'], lself.config['verb'].value \
+                                            [self.config['verb'].value-1])

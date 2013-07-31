@@ -17,7 +17,7 @@ class land_dos(DoS):
                     """
 
     def initialize(self):
-        target = self.config['target']['value']
+        target = self.config['target'].value
         pkt = IP(src=target, dst=target)
         pkt /= TCP(sport=134, dport=134)
 

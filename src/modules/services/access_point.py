@@ -2,16 +2,17 @@ import util
 from time import sleep
 from threading import Thread
 from service import Service
+from zoption import Zoption
 
 
 class access_point(Service):
     def __init__(self):
         super(access_point, self).__init__('Access Point')
         self.mon_adapt = None
-        self.config.update({"ap_essid":{"type":"str", 
-                                        "value":"zoopzop",
-                                        "required":False, 
-                                        "display":"Spoofed AP name"}
+        self.config.update({"ap_essid":Zoption(type = "str", 
+                                        value = "zoopzop",
+                                        required = False, 
+                                        display = "Spoofed AP name")
                            })
         self.info = """
                     Implements a fake wireless access point to execute
@@ -58,12 +59,12 @@ class access_point(Service):
 
             airbase_cmd = [
                         'airbase-ng',
-                        '--essid', self.config['ap_essid']['value'],
+                        '--essid', self.config['ap_essid'].value,
                         self.mon_adapt
                           ]
             ap_proc = util.init_app(airbase_cmd, False)
             util.Msg('Access point %s running.' % \
-                                    self.config['ap_essid']['value'])
+                                    self.config['ap_essid'].value)
             raw_input()    # block
         except KeyboardInterrupt:
             self.running = False

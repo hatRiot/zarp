@@ -2,6 +2,7 @@ import util
 import socket
 from service import Service
 from threading import Thread
+from zoption import Zoption
 
 
 class ftp(Service):
@@ -10,10 +11,10 @@ class ftp(Service):
         self.usr = None
         self.pwd = None
         self.server_socket = None
-        self.config.update({"motd":{"type":"str", 
-                                  "value":"b4ll4stS3c FTP Server v1.4",
-                                  "required":False,
-                                  "display":"Displayed MOTD"}
+        self.config.update({"motd":Zoption(type = "str", 
+                                  value = "b4ll4stS3c FTP Server v1.4",
+                                  required = False,
+                                  display = "Displayed MOTD")
                         })
         self.info = """
                     Emulates a single threaded FTP server.
@@ -77,7 +78,7 @@ class ftp(Service):
                 except:
                     continue
                 self.log_msg('Connection from %s' % str(addr))
-                self.response(conn, 220, self.config['motd']['value'])
+                self.response(conn, 220, self.config['motd'].value)
 
                 while self.running:
                     try:

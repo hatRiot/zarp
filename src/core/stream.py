@@ -1,6 +1,7 @@
 import gc
 import re
 import config
+from copy import copy
 from colors import color
 from textwrap import dedent
 from util import Msg, Error, debug, check_opts, eval_type
@@ -68,10 +69,10 @@ def handle_opts(module):
         # generate list of opts
         table = []
         for idx,opt in enumerate(options.keys()):
-            data = Setting("[%d] %s"%(idx+1, options[opt]['display']), 
-                                             fetch_str(options[opt]['value']),
-                                             options[opt]['type'],
-                                             options[opt]['required'])
+            data = Setting("[%d] %s"%(idx+1, options[opt].display), 
+                                             options[opt].getStr(),
+                                             options[opt].type,
+                                             options[opt].required)
             table.append(data)
         if len(table) > 0:
             config.pptable(table)
@@ -113,24 +114,28 @@ def handle_opts(module):
 
                     key = options.keys()[int(choice[0])-1]
 
-                    if choice[1] == 'o' and 'opts' in module.config[key]:
-                        Msg("Options: %s" % module.config[key]['opts'])
+                    if choice[1] == 'o' and module.config[key].opts is not None:
+                        Msg("Options: %s" % module.config[key].opts)
                         continue
 
+                    # generate a temporary zoption
+                    tmp = copy(module.config[key])
+                    tmp.value = choice[1]
+
                     # we've got a valid number, validate the type and set it
-                    tmp = eval_type(choice[1], options[key]['type'])
-                    if tmp[0]:
-                        module.config[key]['value'] = tmp[1]
-                    else:
+                    if not tmp.validate():
                         Error('Wrong type assigned.  Expected value of type "%s"'%
-                                        options[key]['type'])
+                                        options[key].type)
+                    else:
+                        module.config[key] = tmp
+
                 except Exception, e:
                     print e
                     continue
             elif "r" in choice.lower() or "run" in choice.lower():
                 # verify all required options are set
                 for opt in options.keys():
-                    if options[opt]['required'] and options[opt]['value'] is None:
+                    if options[opt].required and options[opt].value is None:
                         Error('Option \'%s\' is required.'%opt)
                         raise FailedCheck
                 return True
@@ -138,6 +143,8 @@ def handle_opts(module):
             return False
         except FailedCheck:
             continue
+        except Exception, e:
+            print e
 
 
 def dump_sessions():
@@ -293,14 +300,3 @@ def get_mod_num(module, number):
             mod_instance = HOUSE[mod].keys()[number]
             return (mod, mod_instance)
     return (None, None)
-
-
-def fetch_str(value):
-    """ The dirty secret is that, because we're storing each module's
-        option as the specified type, we may need to convert it to a 
-        readable string for output.  For example, regex objects.
-        That's what this guy does.
-    """
-    if isinstance(value, re._pattern_type):
-        return value.pattern
-    return value

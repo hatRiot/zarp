@@ -3,6 +3,7 @@ import socket
 from colors import color
 from service import Service
 from threading import Thread
+from zoption import Zoption
 
 
 class telnet(Service):
@@ -10,10 +11,10 @@ class telnet(Service):
         super(telnet, self).__init__('telnet server')
         self.server_thread = None
         self.server_socket = None
-        self.config.update({"server":{"type":"str",
-                                      "value":"Unified",
-                                      "required":False,
-                                      "display":"Server title to spoof"}
+        self.config.update({"server":Zoption(type = "str",
+                                      value = "Unified",
+                                      required = False,
+                                      display = "Server title to spoof")
                            })
         self.info = """
                     Simple telnet emulator; just grabs a username/password
@@ -65,13 +66,13 @@ class telnet(Service):
                     try:
                         # username/password prompt
                         self.response(con, '%s Username: ' % 
-                                                self.config['server']['value'])
+                                                self.config['server'].value)
                         username = con.recv(256).strip().replace('\n', '')
                         if len(username) < 1:
                             continue
 
                         self.response(con, '%s Password: ' % 
-                                                self.config['server']['value'])
+                                                self.config['server'].value)
                         password = con.recv(256).strip().replace('\n', '')
                         if len(password) < 1:
                             continue

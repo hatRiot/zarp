@@ -4,6 +4,7 @@ from threading import Thread
 from scapy.all import *
 from util import Error, Msg, debug
 from poison import Poison
+from zoption import Zoption
 import config
 
 
@@ -18,19 +19,19 @@ class arp(Poison):
         self.local  = (config.get('ip_addr'), get_if_hwaddr(config.get('iface')))
         self.victim = ()
         self.target = ()
-        self.config.update({"to_ip":{"type":"ip", 
-                                     "value":None,
-                                     "required":True, 
-                                     "display":"Target to poison"},
-                            "from_ip":{"type":"ip", 
-                                       "value":None,
-                                       "required":True, 
-                                       "display":"Address to spoof from target"},
-                            "respoof":{"type":"int", 
-                                       "value":2,
-                                       "required":False, 
-                                       "display":"Interval to send respoofed ARP packets"}
-                          })
+        self.config.update({"to_ip":Zoption(value = None, 
+                                            type = "ip",
+                                            required = True,
+                                            display = "Target to poison"),
+                            "from_ip":Zoption(value = None,
+                                            type = "ip",
+                                            required = True,
+                                     display = "Address to spoof from target"),
+                            "respoof":Zoption(value = 2,
+                                              type = "int",
+                                              required = False,
+                                display = "Interval to send respoofed packets")
+                            })
         self.info = """
                     The heart and soul of zarp.  This module exploits the ARP
                     protocol to redirect all traffic through the attacker's 
@@ -42,10 +43,10 @@ class arp(Poison):
     def initialize(self):
         """Initialize the ARP spoofer
         """
-        self.victim = (self.config['to_ip']['value'], 
-                            getmacbyip(self.config['to_ip']['value']))
-        self.target = (self.config['from_ip']['value'],
-                            getmacbyip(self.config['from_ip']['value']))
+        self.victim = (self.config['to_ip'].value, 
+                            getmacbyip(self.config['to_ip'].value))
+        self.target = (self.config['from_ip'].value,
+                            getmacbyip(self.config['from_ip'].value))
         Msg("Initializing ARP poison...")
         return self.initialize_post_spoof()
 
@@ -87,7 +88,7 @@ class arp(Poison):
             pkt /= ARP(op="who-has", psrc=victim[0], pdst=target[0])
             while self.running:
                 sendp(pkt, iface_hint=target[0])
-                time.sleep(self.config['respoof']['value'])
+                time.sleep(self.config['respoof'].value)
         except Exception, j:
             Error('Spoofer error: %s' % j)
             return None

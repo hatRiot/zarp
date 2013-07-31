@@ -3,6 +3,7 @@ import util
 from ftplib import FTP
 from scapy.all import *
 from scanner import Scanner
+from zoption import Zoption
 
 
 services = {
@@ -25,14 +26,14 @@ services = {
 class service_scan(Scanner):
     def __init__(self):
         super(service_scan, self).__init__('Service Scan')
-        self.config.update({"net_mask":{"type":"ipmask", 
-                                        "value":None,
-                                        "required":True, 
-                                        "display":"Netmask to scan"},
-                        "service":{"type":"str", 
-                                   "value":None,
-                                   "required":True, 
-                                   "display":"List of ports or services"}
+        self.config.update({"net_mask":Zoption(type = "ipmask", 
+                                        value = None,
+                                        required = True, 
+                                        display = "Netmask to scan"),
+                        "service":Zoption(type = "str", 
+                                   value = None,
+                                   required = True, 
+                                   display = "List of ports or services")
                            })
         self.info = """
                     Implementation of a service scanner; more focused 
@@ -41,8 +42,8 @@ class service_scan(Scanner):
 
     def initialize(self):
         util.Msg('Beginning service scan...')
-        self.service_scan(self.config['net_mask']['value'], 
-                          self.config['service']['value'])
+        self.service_scan(self.config['net_mask'].value, 
+                          self.config['service'].value)
 
     #
     # parse up their list of things.  it can be a single port, a list of ports,

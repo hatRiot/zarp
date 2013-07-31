@@ -1,5 +1,6 @@
 from scapy.all import *
 from poison import Poison
+from zoption import Zoption
 from threading import Thread
 import stream
 import util
@@ -13,18 +14,18 @@ class dns(Poison):
         conf.verb = 0
         self.dns_spoofed_pair = {}
         self.local_mac = get_if_hwaddr(config.get('iface'))
-        self.config.update({"dns_name":{"type":"regex", 
-                                        "value":None, 
-                                        "required":True, 
-                                        "display":"Regex to match DNS"},
-                            "dns_spoofed":{"type":"str", 
-                                           "value":None,
-                                           "required":True, 
-                                          "display":"Redirect DNS request to"},
-                             "victim":{"type":"ip", 
-                                       "value":None,
-                                       "required":False, 
-                                       "display":"Host to spoof requests from"}
+        self.config.update({"dns_name":Zoption(type = "regex", 
+                                        value = None, 
+                                        required = True, 
+                                        display = "Regex to match DNS"),
+                            "dns_spoofed":Zoption(type = "str", 
+                                           value = None,
+                                           required = True, 
+                                        display = "Redirect DNS request to"),
+                             "victim":Zoption(type = "ip", 
+                                       value = None,
+                                       required = False, 
+                                       display = "Host to spoof requests from")
                             })
         self.info = """
                     While ARP poisoning a host, or obtaining traffic in some 
@@ -41,8 +42,8 @@ class dns(Poison):
     def initialize(self):
         """Initialize the DNS spoofer.
         """
-        dns_spoofed = self.config['dns_spoofed']['value']
-        dns_name    = self.config['dns_name']['value']
+        dns_spoofed = self.config['dns_spoofed'].value
+        dns_name    = self.config['dns_name'].value
         if dns_name in self.dns_spoofed_pair:
             util.Error("DNS pattern is already being spoofed.")
             return None
@@ -58,20 +59,20 @@ class dns(Poison):
         util.Msg('Starting DNS spoofer...')
         thread = Thread(target=self.dns_sniffer)
 
-        self.config['dns_spoofed']['value'] = dns_spoofed
-        self.config['dns_name']['value'] = dns_name
+        self.config['dns_spoofed'].value = dns_spoofed
+        self.config['dns_name'].value = dns_name
         thread.start()
 
-        if self.config['victim']['value'] is None:
+        if self.config['victim'].value is None:
             return 'All DNS requests'
         else:
-            return self.config['victim']['value']
+            return self.config['victim'].value
 
     def dns_sniffer(self):
         """Listen for DNS packets
         """
         filter_str = "udp and port 53"
-        victim = self.config['victim']['value']
+        victim = self.config['victim'].value
         if victim is not None:
             filter_str += " and src %s" % victim
         
@@ -109,7 +110,7 @@ class dns(Poison):
     def session_view(self):
         """ Return what to print when viewing sessions
         """
-        data = self.config['victim']['value'] + '\n'
+        data = self.config['victim'].value + '\n'
         for (cnt, dns) in enumerate(self.dns_spoofed_pair):
             data += '\t|-> [%d] %s -> %s' \
                                % (cnt, dns.pattern, self.dns_spoofed_pair[dns])

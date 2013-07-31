@@ -1,6 +1,7 @@
 from module import ZarpModule
 from scapy.all import sniff
 from threading import Thread
+from zoption import Zoption
 import util
 import config
 import abc
@@ -15,10 +16,11 @@ class Sniffer(ZarpModule):
         self.sniff_filter = None              # filter for the traffic sniffer
         # initialize thread
         self.sniff_thread = Thread(target=self.traffic_sniffer)
-        self.config.update({"target":{"type":"ip",
-                                      "value":config.get("ip_addr"),
-                                      "required":False,
-                                      "display":"Address to sniff from"}
+
+        self.config.update({"target":Zoption(type = "ip",
+                                      value = config.get("ip_addr"),
+                                      required = False,
+                                      display = "Address to sniff from")
                            })
 
     @abc.abstractmethod
@@ -26,9 +28,10 @@ class Sniffer(ZarpModule):
         raise NotImplementedError
 
     def session_view(self):
+        
         """ Session viewer returns source
         """
-        return '%s' % self.config['target']['value']
+        return '%s' % self.config['target'].value
 
     def traffic_sniffer(self):
         """ Sniff traffic with the given filter.

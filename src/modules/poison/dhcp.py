@@ -1,6 +1,7 @@
 import util
 from threading import Thread
 from poison import Poison
+from zoption import Zoption
 from scapy.all import *
 
 
@@ -11,14 +12,14 @@ class dhcp(Poison):
         self.local_mac = get_if_hwaddr(conf.iface)
         self.spoofed_hosts = {}
         self.curr_ip = None
-        self.config.update({"gateway":{"type":"ip", 
-                                       "value":None,
-                                       "required":True, 
-                                       "display":"Spoofed gateway address"},
-                            "net_mask":{"type":"ipmask", 
-                                        "value":None,
-                                        "required":True, 
-                                 "display":"Netmask to distribute IPs from"},
+        self.config.update({"gateway":Zoption(type = "ip", 
+                                       value = None,
+                                       required = True, 
+                                       display = "Spoofed gateway address"),
+                            "net_mask":Zoption(type = "ipmask", 
+                                        value = None,
+                                        required = True, 
+                                 display = "Netmask to distribute IPs from"),
                           })
         self.info = """
                     Set up a rogue DHCP server and hand out IP addresses.  
@@ -56,7 +57,7 @@ class dhcp(Poison):
             New systems with DHCPDISCOVER first; in this case, we can quite easily gain control, give it
             our own address, and ARPP it.
         """
-        gateway = self.config['gateway']['value']
+        gateway = self.config['gateway'].value
         # is this a DHCP packet!?
         if self.running and DHCP in pkt:
             for opt in pkt[DHCP].options:
@@ -80,7 +81,7 @@ class dhcp(Poison):
                         else:
                             # ip is in use; generate another
                             if self.curr_ip is None:
-                                self.curr_ip = self.config['net_mask']['value']\
+                                self.curr_ip = self.config['net_mask'].value \
                                                     .split('/')[0]
                             else:
                                 self.curr_ip = util.next_ip(self.curr_ip)
@@ -120,7 +121,7 @@ class dhcp(Poison):
                     fam, hw = get_if_raw_hwaddr(conf.iface)
 
                     if self.curr_ip is None:
-                        self.curr_ip = self.config['net_mask']['value']\
+                        self.curr_ip = self.config['net_mask'].value \
                                                     .split('/')[0]
                     else:
                         self.curr_ip = util.next_ip(self.curr_ip)
@@ -146,7 +147,7 @@ class dhcp(Poison):
             before going into dump data mode
         """
         print '\033[33m[!] Spoofed gateway: \033[32m%s\033[0m' % \
-                                             self.config['gateway']['value']
+                                             self.config['gateway'].value
         print '\033[33m[!] Currently Spoofing:\033[0m'
         for key in self.spoofed_hosts:
             print '\t\033[32m[+] %s\033[0m' % self.spoofed_hosts[key].to_ip

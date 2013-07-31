@@ -4,6 +4,7 @@ from scapy.volatile import RandMAC
 from scapy.layers.l2 import getmacbyip
 from threading import Thread
 from parameter import Parameter
+from zoption import Zoption
 
 
 class switchover(Parameter):
@@ -15,10 +16,10 @@ class switchover(Parameter):
         super(switchover, self).__init__('Switch Over')
         self.switch = None
         self.sent = 0
-        self.config.update({"target":{"type":"ip", 
-                                      "value":"FF:FF:FF:FF:FF:FF",
-                                      "required":False, 
-                                      "display":"Switch address"}
+        self.config.update({"target":Zoption(type = "ip", 
+                                      value = "FF:FF:FF:FF:FF:FF",
+                                      required = False, 
+                                      display = "Switch address")
                            })
         self.info = """
                     In some switches, if the ARP table is overflowed,
@@ -29,7 +30,7 @@ class switchover(Parameter):
 
     def initialize(self):
         util.Msg("Starting switch flood...")
-        self.switch = getmacbyip(self.config['target']['value'])
+        self.switch = getmacbyip(self.config['target'].value)
         self.running = True
 
         thread = Thread(target=self.spam)
@@ -56,4 +57,4 @@ class switchover(Parameter):
         super(switchover, self).view()
 
     def session_view(self):
-        return "Spamming %s" % self.config['target']['value']
+        return "Spamming %s" % self.config['target'].value

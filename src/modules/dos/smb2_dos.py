@@ -43,7 +43,7 @@ class smb2_dos(DoS):
 
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-            sock.connect((self.config['target']['value'], 445))
+            sock.connect((self.config['target'].value, 445))
             sock.send(pkt)
             sock.close()
 

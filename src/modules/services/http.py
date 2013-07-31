@@ -5,6 +5,7 @@ import socket
 from time import sleep
 from service import Service
 from threading import Thread
+from zoption import Zoption
 
 
 class http(Service):
@@ -14,15 +15,15 @@ class http(Service):
     def __init__(self):
         super(http, self).__init__('HTTP Server')
         self.httpd = None
-        self.config.update({"root": {"type":"str", 
-                                     "value":None,
-                                     "required":False, 
-                                     "display":"Root file to serve"},
-                            "server": {"type":"str",
-                                       "value":"Unified HTTP Server v3.1",
-                                       "required":False,
-                                       "display":"Server name"
-                                    }
+        self.config.update({"root": Zoption(type = "str", 
+                                     value = None,
+                                     required = False, 
+                                     display = "Root file to serve"),
+                            "server": Zoption(type = "str",
+                                       value = "Unified HTTP Server v3.1",
+                                       required = False,
+                                       display = "Server name"
+                                    )
                             })
         self.info = """
                     Emulate an HTTP server.  If no default page is entered, 
@@ -60,11 +61,11 @@ class http(Service):
     def handler(self, *args):
         """Magic for passing context into the request handler"""
         context = {
-                'root': self.config['root']['value'],
+                'root': self.config['root'].value,
                 'dump': self.dump_data,
                 'log_data': self.log_data,
                 'log_file': self.log_file,
-                'server' : self.config['server']['value']
+                'server' : self.config['server'].value
                   }
         RequestHandler(context, *args)
 

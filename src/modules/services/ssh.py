@@ -6,15 +6,16 @@ from threading import Thread
 from service import Service
 from time import sleep
 from stubssh import SSHStub, SSHHandler
+from zoption import Zoption
 
 
 class ssh(Service):
     def __init__(self):
         super(ssh, self).__init__('SSH Server')
-        self.config.update({"priv_key":{"type":"str",
-                                        "value":None,
-                                        "required":False,
-                                    "display":"Private key (None to generate)"}
+        self.config.update({"priv_key":Zoption(type = "str",
+                                        value = None,
+                                        required = False,
+                                    display = "Private key (None to generate)")
                            })
         self.info = """
                     Emulate a basic SSH service; stores usernames/passwords
@@ -24,13 +25,13 @@ class ssh(Service):
     def cleanup(self):
         """ If we weren't given a private key, remove the temp we generated
         """
-        if self.config['priv_key']['value'] == './privkey.key':
+        if self.config['priv_key'].value == './privkey.key':
             os.system('rm -f privkey.key')
 
     def initialize_bg(self):
-        if self.config['priv_key']['value'] is not None:
+        if self.config['priv_key'].value is not None:
             paramiko.RSAKey.from_private_key_file( \
-                                    self.config['priv_key']['value'])
+                                    self.config['priv_key'].value)
         util.Msg('Initializing SSH server...')
         thread = Thread(target=self.initialize)
         thread.start()
@@ -42,7 +43,7 @@ class ssh(Service):
             return False
 
     def initialize(self):
-        priv_key = self.config['priv_key']['value']
+        priv_key = self.config['priv_key'].value
         try:
             # try importing here so we can catch it right away
             import paramiko
@@ -61,7 +62,7 @@ class ssh(Service):
                 util.debug('Generating RSA private key...')
                 util.init_app('openssl genrsa -out privkey.key 2048')
                 util.debug('privkey.key was generated.')
-            priv_key = self.config['priv_key']['value'] = './privkey.key'
+            priv_key = self.config['priv_key'].value = './privkey.key'
 
         try:
             server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
