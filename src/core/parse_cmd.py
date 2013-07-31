@@ -68,7 +68,7 @@ def parse(sysv, loader):
 
 
 def update():
-    """Run update routine
+    """ Run update routine
     """
     if not util.does_file_exist('./.git/config'):
         util.Error('Not a git repo; please checkout from Github with \n\t'
