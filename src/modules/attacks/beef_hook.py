@@ -15,7 +15,7 @@ class beef_hook(Attack):
         self.hooker       = None
         self.hook_script  = "<script src=\"{0}\"></script>"
         self.iptable_http = "iptables -t nat -A PREROUTING -p tcp --dport 80 -s {0} -j REDIRECT --to-port 5544"
-        self.config.update({"hook_path":Zoption(type = str, 
+        self.config.update({"hook_path":Zoption(type = "str", 
                                           value = None, 
                                           required = True, 
                                           display = "Path to BeEF hook"),
