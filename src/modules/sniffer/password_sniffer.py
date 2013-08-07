@@ -115,7 +115,7 @@ class password_sniffer(Sniffer):
 
         # update database
         self._dbcredentials(entry[0], entry[1],
-                            entry[2].split(':')[0], self.source)
+                        entry[2].split(':')[0], self.config['target'].value)
 
     def view(self):
         """ Iterate through all usernames/passwords
