@@ -137,5 +137,5 @@ class http_sniffer(Sniffer):
         """ Overloaded to return both the sniffed
             address and the verbosity.
         """
-        return '%s [%s]' % (self.config['target'], lself.config['verb'].value \
+        return '%s [%s]' % (self.config['target'], self.config['verb'].value \
                                             [self.config['verb'].value-1])
