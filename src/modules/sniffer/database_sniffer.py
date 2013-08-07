@@ -29,9 +29,10 @@ class database_sniffer(Sniffer):
     def initialize(self):
         """Initialize sniffer"""
         self.sniff_filter = "tcp and (port 3306 or port 5432) and " \
-                            "(src %s or dst %s)" % (self.source, self.source)
+                            "(src %s or dst %s)" % (self.config['target'].value,
+                                                    self.config['target'].value)
         self.run()
-        return self.source
+        return True
 
     def dump(self, pkt):
         """Parse packet based on source/dest port. May need

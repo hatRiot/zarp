@@ -24,10 +24,11 @@ class password_sniffer(Sniffer):
 
     def initialize(self):
         """ initialize sniffer """
-        self.sniff_filter = "src %s" % self.source
+        self.sniff_filter = "src %s" % self.config['target'].value
+        print self.sniff_filter
         self.run()
         Msg("Starting password sniffer...")
-        return self.source
+        return True
 
     def dump(self, pkt):
         """Packet callback"""
