@@ -8,16 +8,21 @@ path.insert(0, getcwd() + '/src/modules/')
 path.insert(0, getcwd() + '/src/lib/')
 from util import print_menu, header, Error, Msg, debug, check_dependency
 from commands import getoutput
-import stream
-import session_manager
-import parse_cmd
-import config
-import database
-import importlib
-from colors import color
 # module loading
 from src.modules import poison, dos, scanner, services
 from src.modules import sniffer, parameter, attacks
+import config
+import database
+from colors import color
+
+try:
+    # load py2.7 stuff here so we can get to the depends check
+    import parse_cmd
+    import importlib
+    import session_manager
+    import stream
+except:
+    pass
 
 
 class LoadedModules:
@@ -226,13 +231,13 @@ if __name__ == "__main__":
     # perm check
     if int(getuid()) > 0:
         Error('Please run as root.')
-        exit(1)
+        _exit(1)
 
     # check python version
     if version_info[1] < 7:
         Error('zarp must be run with Python 2.7.x.  You are currently using %s'
         % version)
-        exit(1)
+        _exit(1)
 
     # check for forwarding
     if not getoutput('cat /proc/sys/net/ipv4/ip_forward') == '1':

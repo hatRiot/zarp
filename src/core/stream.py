@@ -117,6 +117,9 @@ def handle_opts(module):
                     if choice[1] == 'o' and module.config[key].opts is not None:
                         Msg("Options: %s" % module.config[key].opts)
                         continue
+                    elif choice[1] == 'o' and module.config[key].type == 'list':
+                        Msg('%s' % module.config[key].value)
+                        continue
 
                     # generate a temporary zoption
                     tmp = copy(module.config[key])

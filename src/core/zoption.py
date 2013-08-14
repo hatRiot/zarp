@@ -21,6 +21,8 @@ class Zoption:
             return None
         elif self.type == "regex":
             return self.value.pattern
+        elif self.type == 'list':
+            return '[list]'
         else:
             return str(self.value)
 

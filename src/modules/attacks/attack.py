@@ -1,6 +1,7 @@
 from module import ZarpModule
 import abc
 
+
 class Attack(ZarpModule):
     """Abstract attack class"""
     __metaclass__ = abc.ABCMeta

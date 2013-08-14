@@ -7,7 +7,6 @@ from cmd import Cmd
 from pwd import getpwnam
 from colors import color
 from inspect import getmodule
-from importlib import import_module
 import scapy.arch
 import config
 import os
@@ -273,27 +272,30 @@ def check_opts(choice):
     """ Parse up the user input and run whatever commands
         are needed.
     """
-    if type(choice) is int:
-        return choice
-    elif 'help' in choice:
-        help()
-        choice = -1
-    elif 'set' in choice:
-        opts = choice.split(' ')
-        if opts[1] is None or opts[2] is None:
-            return
-        print '[!] Setting ' + color.YELLOW + '%s' % opts[1] + color.END + \
+    choice_opts = choice.split(' ')
+    if len(choice_opts) == 1:
+        if type(choice) is int:
+            return choice
+        elif 'help' in choice:
+            help()
+            choice = -1
+        elif 'opts' in choice:
+            config.dump()
+            choice = -1
+        elif 'quit' in choice or 'exit' in choice:
+            # hard quit
+            os._exit(1)
+        elif 'bg' in choice:
+            background()
+    else:
+        if 'set' in choice_opts[0]:
+            opts = choice.split(' ')
+            if opts[1] is None or opts[2] is None:
+                return
+            print '[!] Setting ' + color.YELLOW + '%s' % opts[1] + color.END + \
                         '-> ' + color.GREEN + '%s..' % opts[2] + color.END
-        config.set(opts[1], opts[2])
-        choice = -1
-    elif 'opts' in choice:
-        config.dump()
-        choice = -1
-    elif 'quit' in choice or 'exit' in choice:
-        # hard quit
-        os._exit(1)
-    elif 'bg' in choice:
-        background()
+            config.set(opts[1], opts[2])
+            choice = -1
     return choice
     
 
@@ -448,6 +450,12 @@ def eval_type(value, type):
             tmp = re.compile(value)
             rval = (True, tmp)
         except re.error:
+            rval = (False, None)
+    elif type == 'list':
+        # comma delimited
+        try:
+            rval = (True, value.split(','))
+        except:
             rval = (False, None)
     else:
         Error('Unrecognized type: %s'%type)

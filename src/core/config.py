@@ -87,10 +87,11 @@ def get(key):
     """Fetch a config value
        @param key is the config key value
     """
-    if key in CONFIG.opts:
-        return CONFIG.opts[key]['value']
-    elif key in CONFIG._opts:
-        return CONFIG._opts[key]['value']
+    if CONFIG:
+        if key in CONFIG.opts:
+            return CONFIG.opts[key]['value']
+        elif key in CONFIG._opts:
+            return CONFIG._opts[key]['value']
 
 
 def parse_config():
