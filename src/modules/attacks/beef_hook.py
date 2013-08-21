@@ -94,7 +94,7 @@ class Hooker(controller.Master):
             self.shutdown()
 
     def handle_response(self, msg):
-        """ replace an end </html> tag with the hook; every HTTP page
+        """ Replace an end </html> tag with the hook; every HTTP page
             should have this.
         """
         msg.replace("</html>", "{0}</html>".format(self.script_hook))
