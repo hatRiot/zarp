@@ -325,7 +325,6 @@ def help():
     print '\t[int] o\t\t\t- View options for setting'
     print '\trun (r)\t\t\t- Run the selected module'
     print '\tinfo \t\t\t- Display module information'
-    print color.GREEN + '  @dronesec - zarp v%s\n' % (version()) + color.END
 
 
 def get_run_usr():
