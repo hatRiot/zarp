@@ -29,12 +29,11 @@ def version():
 
 def header():
     """Zarp header"""
-    print color.GREEN + '\t ____   __   ____  ____'
+    print color.B_GREEN + '\t ____   __   ____  ____'
     print '\t(__  ) / _\ (  _ \(  _ \''
     print '\t / _/ /    \ )   / ) __/'
-    print '\t(____)\_/\_/(__\_)(__)' + color.END
-    print "\t    {0}[Version {1}]{2}\t\t\t".format(color.YELLOW, version(),
-                                                                    color.END)
+    print '\t(____)\_/\_/(__\_)(__)' + color.B_YELLOW + '  [Version: '  + version() + ']'
+    print color.END
     if config.get('debug'):
         print '\t      ' + color.BLUE + ' [DEBUGGING]' + color.END
 
@@ -314,13 +313,13 @@ def check_dependency(module):
 def help():
     """ Dump a help menu with zarp options
     """
-    print color.YELLOW + '\n  zarp options:' + color.END
+    print color.B_YELLOW + '\n  zarp options:' + color.END
     print '\thelp\t\t\t- This menu'
     print '\topts\t\t\t- Dump zarp current settings'
     print '\texit\t\t\t- Exit immediately'
     print '\tbg\t\t\t- Put zarp to background'
     print '\tset [key] [value]\t- Set key to value'
-    print color.YELLOW + '\n  zarp module options:' + color.END
+    print color.B_YELLOW + '\n  zarp module options:' + color.END
     print '\t[int] [value]\t\t- Set option [int] to value [value]'
     print '\t[int] o\t\t\t- View options for setting'
     print '\trun (r)\t\t\t- Run the selected module'
@@ -375,11 +374,12 @@ def print_menu(arr):
             buffered = None
 
     tmp = Cmd()
-    arr = ['\t[%d] %s' % (x + 1, arr[x]) for x in xrange(len(arr))]
-    tmp.columnize(arr, 35)
-    print '\n0) Back'
+    arr = ['\t%s[%s%d%s] %s%s%s' % (color.B_GREEN, color.B_YELLOW, x + 1, color.B_GREEN,
+        color.B_WHITE, arr[x], color.END) for x in xrange(len(arr))]
+    tmp.columnize(arr, 100)
+    print '\n' + color.B_YELLOW + '0' + color.B_GREEN + ')' + color.B_WHITE + ' Back' + color.END
     try:
-        choice = raw_input('> ')
+        choice = raw_input(color.B_WHITE + '> ' + color.END)
         choice = check_opts(choice)
 
         # buffered input
