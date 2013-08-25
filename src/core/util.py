@@ -328,7 +328,8 @@ def help():
     print color.B_GREEN + '\t[' + color.B_YELLOW + 'int' + color.B_GREEN + '] o\t\t\t' + \
         color.B_WHITE  + '- View options for setting'
     print color.B_GREEN + '\trun (r)\t\t\t' + color.B_WHITE  + '- Run the selected module'
-    print color.B_GREEN + '\tinfo \t\t\t' + color.B_WHITE  + '- Display module information' + color.END
+    print color.B_GREEN + '\tinfo \t\t\t' + color.B_WHITE  + '- Display module information'
+    print color.END
 
 
 def get_run_usr():
