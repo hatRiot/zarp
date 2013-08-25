@@ -313,17 +313,22 @@ def check_dependency(module):
 def help():
     """ Dump a help menu with zarp options
     """
-    print color.B_YELLOW + '\n  zarp options:' + color.END
-    print '\thelp\t\t\t- This menu'
-    print '\topts\t\t\t- Dump zarp current settings'
-    print '\texit\t\t\t- Exit immediately'
-    print '\tbg\t\t\t- Put zarp to background'
-    print '\tset [key] [value]\t- Set key to value'
-    print color.B_YELLOW + '\n  zarp module options:' + color.END
-    print '\t[int] [value]\t\t- Set option [int] to value [value]'
-    print '\t[int] o\t\t\t- View options for setting'
-    print '\trun (r)\t\t\t- Run the selected module'
-    print '\tinfo \t\t\t- Display module information'
+    print color.B_YELLOW + '\n  zarp options:' + color.B_WHITE
+    print color.B_GREEN + '\thelp\t\t\t' + color.B_WHITE  + '- This menu'
+    print color.B_GREEN + '\topts\t\t\t' + color.B_WHITE  + '- Dump zarp current settings'
+    print color.B_GREEN + '\texit\t\t\t' + color.B_WHITE  + '- Exit immediately'
+    print color.B_GREEN + '\tbg\t\t\t' + color.B_WHITE  + '- Put zarp to background'
+    print color.B_GREEN + '\tset [' + color.B_YELLOW + 'key' + color.B_GREEN + '] [' + \
+        color.B_YELLOW + 'value' + color.B_GREEN + ']' +  color.B_WHITE + \
+        ' \t- Set key to value' + color.END
+    print color.B_YELLOW + '\n  zarp module options:' + color.B_WHITE
+    print color.B_GREEN + '\t[' + color.B_YELLOW + 'int' + color.B_GREEN + '] [' + \
+        color.B_YELLOW + 'value' + color.B_GREEN + ']\t\t' + color.B_WHITE  + \
+        '- Set option [int] to value [value]'
+    print color.B_GREEN + '\t[' + color.B_YELLOW + 'int' + color.B_GREEN + '] o\t\t\t' + \
+        color.B_WHITE  + '- View options for setting'
+    print color.B_GREEN + '\trun (r)\t\t\t' + color.B_WHITE  + '- Run the selected module'
+    print color.B_GREEN + '\tinfo \t\t\t' + color.B_WHITE  + '- Display module information' + color.END
 
 
 def get_run_usr():
