@@ -367,8 +367,8 @@ def background():
 
 def print_menu(arr):
     global buffered
-    """Main menu printer
-       @param arr is the menu array to print.  Fetches input,
+    """ Main menu printer
+        @param arr is the menu array to print.  Fetches input,
         parses and built-in command keywords, and returns the selected idx.
     """
 
