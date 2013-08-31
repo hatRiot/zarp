@@ -118,16 +118,46 @@ def pptable(rows):
     lens = []
     for i in range(len(rows[0])):
         lens.append(len(str(max([x[i] for x in rows] + [headers[i]],
-                    key=lambda x: len(str(x))))))
-    formats = []
+                    key = lambda x: len(str(x))))))
+    formats  = []
     hformats = []
     for i in range(len(rows[0])):
         formats.append('%%%ds' % lens[i])
         hformats.append("%%-%ds" % lens[i])
-    pattern = " | ".join(formats)
-    hpattern = " | ".join(hformats)
+    pattern   = " | ".join(formats)
+    hpattern  = " | ".join(hformats)
     separator = "-+-".join(['-' * n for n in lens])
-    print color.GREEN + '\t' + hpattern % tuple(headers) + color.END
+
+    # Check for "Required" header
+    required_flag = False
+    if "Required" in headers: required_flag = True
+
+    # Apply colors
+    tmp = headers
+    headers = []
+    for i in tmp:
+         headers.append(color.B_YELLOW + i + color.END)
+    tmp = rows
+    rows = []
+    for line in tmp:
+        new_line = []
+        for i in line:
+            i = str(i)
+            if required_flag and (i  == "True" or i == "False"):
+                    if i == "False":
+                        new_line.append(color.B_WHITE + i + color.END)
+                    else:
+                        new_line.append(color.B_CYAN + i + color.END)
+            elif '[' in i or ']' in i:
+                i = i.replace('[', color.B_GREEN + '[' + color.B_YELLOW)
+                i = i.replace(']', color.B_GREEN + ']' + color.B_WHITE)
+                i = i + color.END
+                new_line.append(i)
+            else:
+                new_line.append(color.B_WHITE + i + color.END)
+        rows.append(new_line)
+
+    print '\t'*2 + hpattern % tuple(headers)
     print '\t' + separator
     for line in rows:
         print '\t' + pattern % tuple(line)
