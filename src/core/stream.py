@@ -122,7 +122,7 @@ def handle_opts(module):
 
                     # generate a temporary zoption
                     tmp = copy(module.config[key])
-                    tmp.value = choice[1]
+                    tmp.value = ' '.join(choice[1::])
 
                     # we've got a valid number, validate the type and set it
                     if not tmp.validate():
