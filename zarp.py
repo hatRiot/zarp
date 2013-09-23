@@ -14,6 +14,7 @@ from src.modules import sniffer, parameter, attacks
 import config
 import database
 from colors import color
+import platform
 
 try:
     # load py2.7 stuff here so we can get to the depends check
@@ -240,11 +241,25 @@ if __name__ == "__main__":
         _exit(1)
 
     # check for forwarding
-    if not getoutput('cat /proc/sys/net/ipv4/ip_forward') == '1':
-        Msg('IPv4 forwarding disabled.  Enabling..')
-        tmp = getoutput(
+    system = platform.system().lower()
+    if system == 'darwin':
+        if not getoutput('sysctl -n net.inet.ip.forwarding') == '1':
+            Msg('IPv4 forwarding disabled. Enabling..')
+            tmp = getoutput(
+                    'sudo sh -c \'sysctl -w net.inet.ip.forwarding=1\'')
+            if 'not permitted' in tmp:
+                Error('Error enabling IPv4 forwarding.')
+                exit(1)
+    elif system == 'linux2':
+        if not getoutput('cat /proc/sys/net/ipv4/ip_forward') == '1':
+            Msg('IPv4 forwarding disabled.  Enabling..')
+            tmp = getoutput(
                     'sudo sh -c \'echo "1" > /proc/sys/net/ipv4/ip_forward\'')
-        if len(tmp) > 0:
-            Error('Error enabling IPv4 forwarding.')
-            exit(1)
+            if len(tmp) > 0:
+                Error('Error enabling IPv4 forwarding.')
+                exit(1)
+    else:
+        Error('Unknown operating system. Cannot IPv4 forwarding.')
+        exit(1)
+
     main()
