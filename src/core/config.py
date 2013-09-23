@@ -4,7 +4,7 @@ logging.getLogger('scapy.runtime').setLevel(logging.ERROR)
 from scapy.all import *
 from collections import namedtuple
 from colors import color
-
+from sys import stdout
 
 class Configuration:
     """ Main configuration; just hold options
@@ -41,15 +41,11 @@ def dump():
         table
     """
     global CONFIG
-
     # format the table data
-    Setting = namedtuple('Setting', ['Key', 'Value'])
-    table = []
+    table = [['Key', 'Value']]
     for i in CONFIG.opts.keys():
-        data = Setting(i, str(CONFIG.opts[i]['value']))
-        table.append(data)
+        table.append([i, str(CONFIG.opts[i]['value'])])
     pptable(table)
-
 
 def set(key, value):
     """ Sets the key to the vale
@@ -112,53 +108,83 @@ def parse_config():
 
 def pptable(rows):
     """ Pretty print a table
-        @param rows is a sequence of tuples
+        @param rows is a list of lists, first row assumed to be the header 
     """
-    headers = rows[0]._fields
+
+    # Convert items to strings
+    new_rows = []
+    for i in rows:
+        new_rows.append([str(r) for r in i])
+    rows = new_rows
+
+    # Add square brackets to numbers in left row
+    for i in rows:
+        try:
+            if int(i[0]):
+                i[0] = "[" + i[0] + "]"
+        except:
+            pass
+
+    # Determine max length of columns
     lens = []
+    headers = rows[0]
     for i in range(len(rows[0])):
         lens.append(len(str(max([x[i] for x in rows] + [headers[i]],
-                    key = lambda x: len(str(x))))))
-    formats  = []
-    hformats = []
-    for i in range(len(rows[0])):
-        formats.append('%%%ds' % lens[i])
-        hformats.append("%%-%ds" % lens[i])
-    pattern   = " | ".join(formats)
-    hpattern  = " | ".join(hformats)
-    separator = "-+-".join(['-' * n for n in lens])
+            key = lambda x: len(str(x))))))
 
-    # Check for "Required" header
+    # Add spacing
+    repack = []
+    for row in rows:
+        new_row = []
+        for size,data in zip(lens,row):
+            data = str(data)
+            if len(data) < size:
+                new_row.append(data + ((size - len(data)) * " "))
+            else:
+                new_row.append(data)
+        repack.append(new_row)
+
+    # Add color
     required_flag = False
-    if "Required" in headers: required_flag = True
-
-    # Apply colors
-    tmp = headers
-    headers = []
-    for i in tmp:
-         headers.append(color.B_YELLOW + i + color.END)
-    tmp = rows
-    rows = []
-    for line in tmp:
+    first_line = True
+    if "Required" in repack[0]: required_flag = True
+    added_colors = []
+    for row in repack:
         new_line = []
-        for i in line:
-            i = str(i)
-            if required_flag and (i  == "True" or i == "False"):
-                    if i == "False":
+        for i in row:
+            if first_line:
+                new_line.append(color.B_YELLOW + i + color.END)
+            else:
+                if required_flag and ("True" in i or "False" in i):
+                    if "False" in i:
                         new_line.append(color.B_WHITE + i + color.END)
                     else:
                         new_line.append(color.B_CYAN + i + color.END)
-            elif '[' in i or ']' in i:
-                i = i.replace('[', color.B_GREEN + '[' + color.B_YELLOW)
-                i = i.replace(']', color.B_GREEN + ']' + color.B_WHITE)
-                i = i + color.END
-                new_line.append(i)
-            else:
-                new_line.append(color.B_WHITE + i + color.END)
-        rows.append(new_line)
+                elif '[' in i or ']' in i:
+                    i = i.replace('[', color.B_GREEN + '[' + color.B_YELLOW)
+                    i = i.replace(']', color.B_GREEN + ']' + color.B_WHITE)
+                    i = i + color.END
+                    new_line.append(i)
+                else:
+                    new_line.append(color.B_WHITE + i + color.END)
+        first_line = False
+        added_colors.append(new_line)
 
-    print '\t'*2 + hpattern % tuple(headers)
-    print '\t' + separator
-    for line in rows:
-        print '\t' + pattern % tuple(line)
-    print '\t' + separator
+    # Create spacing string
+    space_string = '+-'
+    for i in lens:
+        space_string = space_string + ("-" * i) + "-+-"
+    space_string = '\t' + space_string
+
+    # Display glorious table
+    print space_string
+    for row in added_colors:
+        first = True
+        for i in row:
+            if first is True:
+                sys.stdout.write("\t| " + str(i))
+                first = False
+            else:
+                sys.stdout.write(" | " + str(i))
+        print ' | '
+        print space_string

@@ -62,19 +62,20 @@ def handle_opts(module):
     """
     # fetch generic module options and module-specific options
     options = module.config
-    Setting = namedtuple('Setting', ['Option', 'Value', \
-        "Type", "Required"])
+    Setting = ['', 'Option', 'Value', 'Type', 'Required'] 
     while True:
         # generate list of opts
         table = []
-        for idx,opt in enumerate(options.keys()):
-           data = Setting("[%d] %s"%(idx+1,  options[opt].display),
-                                             options[opt].getStr(),
-                                             options[opt].type,
-                                             options[opt].required)
-           table.append(data)
+        for idx, opt in enumerate(options.keys()):
+            tmp = []
+            tmp.append(idx+1)
+            tmp.append(options[opt].display)
+            tmp.append(options[opt].getStr())
+            tmp.append(options[opt].type)
+            tmp.append(options[opt].required)
+            table.append(tmp)
         if len(table) > 0:
-            config.pptable(table)
+            config.pptable([Setting] + table)
         else:
             Msg('\tModule has no options.')
         print color.B_YELLOW + '0' + color.B_GREEN + ') ' + color.B_WHITE + 'Back' + color.END
@@ -122,7 +123,7 @@ def handle_opts(module):
 
                     # generate a temporary zoption
                     tmp = copy(module.config[key])
-                    tmp.value = ' '.join(choice[1::])
+                    tmp.value = choice[1]
 
                     # we've got a valid number, validate the type and set it
                     if not tmp.validate():
