@@ -12,6 +12,7 @@ from zoption import Zoption
 class ssh(Service):
     def __init__(self):
         super(ssh, self).__init__('SSH Server')
+        self.config['port'].value = 22
         self.config.update({"priv_key":Zoption(type = "str",
                                         value = None,
                                         required = False,
@@ -68,7 +69,7 @@ class ssh(Service):
             server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, True)
             server_socket.settimeout(3)
-            server_socket.bind(('0.0.0.0', 22))
+            server_socket.bind(('0.0.0.0', self.config['port'].value))
             server_socket.listen(1)
             self.running = True
 

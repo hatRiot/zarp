@@ -15,6 +15,7 @@ class http(Service):
     def __init__(self):
         super(http, self).__init__('HTTP Server')
         self.httpd = None
+        self.config['port'].value = 80
         self.config.update({"root": Zoption(type = "str", 
                                      value = None,
                                      required = False, 
@@ -45,13 +46,14 @@ class http(Service):
     def initialize(self):
         """Initialize the server"""
         try:
-            self.httpd = ZarpHTTPServer(('', 80), self.handler)
+            self.httpd = ZarpHTTPServer(('', self.config['port'].value), 
+                                                          self.handler)
             self.running = True
             self.httpd.serve()
         except socket.error, KeyboardInterrupt:
             self.running = False
         except PortBoundException:
-            util.Error("Port 80 is already bound.")
+            util.Error("Port %d is already bound." % self.config['port'].value)
             self.running = False
         except Exception, e:
             util.Error('Error: %s' % e)

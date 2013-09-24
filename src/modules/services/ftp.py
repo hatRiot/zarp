@@ -11,6 +11,7 @@ class ftp(Service):
         self.usr = None
         self.pwd = None
         self.server_socket = None
+        self.config['port'].value = 21
         self.config.update({"motd":Zoption(type = "str", 
                                   value = "b4ll4stS3c FTP Server v1.4",
                                   required = False,
@@ -62,7 +63,7 @@ class ftp(Service):
         self.server_sock = socket.socket()
         self.server_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         try:
-            self.server_sock.bind(('', 21))
+            self.server_sock.bind(('', self.config['port'].value))
         except:
             util.Error('Cannot bind to address.')
             return

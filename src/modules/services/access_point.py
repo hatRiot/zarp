@@ -9,6 +9,7 @@ class access_point(Service):
     def __init__(self):
         super(access_point, self).__init__('Access Point')
         self.mon_adapt = None
+        del self.config["port"]
         self.config.update({"ap_essid":Zoption(type = "str", 
                                         value = "zoopzop",
                                         required = False, 

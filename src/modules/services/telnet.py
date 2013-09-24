@@ -11,6 +11,7 @@ class telnet(Service):
         super(telnet, self).__init__('telnet server')
         self.server_thread = None
         self.server_socket = None
+        self.config['port'].value = 23
         self.config.update({"server":Zoption(type = "str",
                                       value = "Unified",
                                       required = False,
@@ -43,7 +44,7 @@ class telnet(Service):
         self.server_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
         try:
-            self.server_sock.bind(('', 23))
+            self.server_sock.bind(('', self.config['port'].value))
         except:
             util.Error('Cannot bind to address.')
             return

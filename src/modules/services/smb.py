@@ -9,6 +9,7 @@ from service import Service
 class smb(Service):
     def __init__(self):
         super(smb, self).__init__('SMB Service')
+        self.config['port'].value = 445
         self.captured_hashes = {}
         self.info = """
                     SMB listener for harvesting NTLM/LM hashes.
@@ -188,7 +189,7 @@ class smb(Service):
         socker = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         socker.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         socker.settimeout(3)
-        socker.bind(('', 445))
+        socker.bind(('', self.config['port'].value))
         socker.listen(5)
         self.running = True
         try:

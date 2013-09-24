@@ -42,7 +42,7 @@ def Error(msg):
     """Prints the given message and, if debugging is on,
        logs it.
     """
-    print color.RED + '[-] %s' % (msg) + color.END
+    print color.B_RED + '[-] %s' % (msg) + color.END
     if config.get('debug'):
         debug(msg)
 

@@ -1,4 +1,5 @@
 from module import ZarpModule
+from zoption import Zoption
 import abc
 
 
@@ -9,6 +10,11 @@ class Service(ZarpModule):
 
     def __init__(self, which):
         super(Service, self).__init__(which)
+        self.config.update({"port":Zoption(type="int",
+                                           value = None,
+                                           required = False,
+                                           display = "Listen port")
+                          })
 
     @abc.abstractmethod
     def initialize_bg(self):
