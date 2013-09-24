@@ -250,7 +250,7 @@ if __name__ == "__main__":
             if 'not permitted' in tmp:
                 Error('Error enabling IPv4 forwarding.')
                 exit(1)
-    elif system == 'linux2':
+    elif system == 'linux':
         if not getoutput('cat /proc/sys/net/ipv4/ip_forward') == '1':
             Msg('IPv4 forwarding disabled.  Enabling..')
             tmp = getoutput(
