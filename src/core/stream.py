@@ -22,7 +22,6 @@ class FailedCheck(Exception):
     """
     pass
 
-
 def initialize(module):
     """ Initialize a module and load it into the global HOUSE
         variable.  MODULE should be an instance of the loaded
@@ -35,7 +34,6 @@ def initialize(module):
         HOUSE['service'] = {}
 
     tmp_mod = module()
-    # a little hacky way to allow modules to skip the
     # option management interface; i.e. if we need to
     # load into another menu
     if not tmp_mod.skip_opts:
@@ -48,7 +46,7 @@ def initialize(module):
             tmp = tmp_mod.initialize_bg()
         else:
             tmp = tmp_mod.initialize()
-    else: 
+    else:
         return
 
     if tmp is not None and tmp is not False:
@@ -58,38 +56,40 @@ def initialize(module):
 
 
 def handle_opts(module):
-    """ The user has selected a module, so we should parse out all the 
+    """ The user has selected a module, so we should parse out all the
         options for this particular module, set the config, and when
         requested, run it.  This is kinda messy, but works for now.
     """
     # fetch generic module options and module-specific options
     options = module.config
-    Setting = namedtuple('Setting', ['Option', 'Value', "Type", "Required"])
+    Setting = ['', 'Option', 'Value', 'Type', 'Required'] 
     while True:
         # generate list of opts
         table = []
-        for idx,opt in enumerate(options.keys()):
-            data = Setting("[%d] %s"%(idx+1, options[opt].display), 
-                                             options[opt].getStr(),
-                                             options[opt].type,
-                                             options[opt].required)
-            table.append(data)
+        for idx, opt in enumerate(options.keys()):
+            tmp = []
+            tmp.append(idx+1)
+            tmp.append(options[opt].display)
+            tmp.append(options[opt].getStr())
+            tmp.append(options[opt].type)
+            tmp.append(options[opt].required)
+            table.append(tmp)
         if len(table) > 0:
-            config.pptable(table)
+            config.pptable([Setting] + table)
         else:
             Msg('\tModule has no options.')
-        print '0) Back'
+        print color.B_YELLOW + '0' + color.B_GREEN + ') ' + color.B_WHITE + 'Back' + color.END
 
         # fetch command/option
         try:
-            choice = raw_input('%s > '%module.which)
+            choice = raw_input('%s > ' % (color.B_WHITE + module.which + color.END))
 
             # first check global commands
             tmp = check_opts(choice)
             if tmp == -1:
                 continue
 
-            # check module commands                
+            # check module commands
             if choice is "0":
                 return False
             elif choice == "info":
@@ -97,11 +97,11 @@ def handle_opts(module):
                     Msg("Module has no information available")
                     continue
 
-                print '%s%s%s' % (color.GREEN, 
+                print '%s%s%s' % (color.GREEN,
                                  '-' * len(module.info.split('\n')[1].strip()),
                                   color.END),
                 print dedent(module.info.rstrip())
-                print '%s%s%s' % (color.GREEN, 
+                print '%s%s%s' % (color.GREEN,
                                   '-' * len(module.info.split('\n')[1].strip()),
                                   color.END)
             elif len(choice.split(' ')) > 1:
