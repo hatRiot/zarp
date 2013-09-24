@@ -48,5 +48,5 @@ class router_pwn(Parameter):
                         pass
                     else:
                         tmp = router[choice - 1]()
-                        tmp.fetch_ip()
-                        tmp.run()
+                        if tmp.fetch_ip():
+                            tmp.run()

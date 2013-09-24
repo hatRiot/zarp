@@ -28,9 +28,10 @@ class RouterVuln(object):
                     self.ip = tmp
                 break
             except KeyboardInterrupt:
-                return
+                return False
             except:
                 continue
+        return True
 
     def attempt_login(self, brand):
         """ Attempts to login to the router with default credentials. This will
