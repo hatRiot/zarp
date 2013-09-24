@@ -110,7 +110,11 @@ class dns(Poison):
     def session_view(self):
         """ Return what to print when viewing sessions
         """
-        data = self.config['victim'].value + '\n'
+        if not self.config['victim'].value:
+            data = 'Any\n'
+        else:
+            data = self.config['victim'].value + '\n'
+
         for (cnt, dns) in enumerate(self.dns_spoofed_pair):
             data += '\t|-> [%d] %s -> %s' \
                                % (cnt, dns.pattern, self.dns_spoofed_pair[dns])
