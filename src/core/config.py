@@ -63,7 +63,8 @@ def set(key, value):
             # valid iface, set new ipconfig
             new_ip = util.get_local_ip(value)
             if new_ip is not None:
-                set('iface', new_ip)
+                set('iface',value)
+                set('ip_addr', new_ip)
         else:
             res = util.eval_type(value, CONFIG.opts[key]['type'])
             if res[0]:
