@@ -28,8 +28,8 @@ class Database(object):
 
         # it didnt fail, create default schema
         insert('create table host (mac UNIQUE, ip, hostname);')
-        insert('create table credentials (username, password, location, \
-            source_idx, time, FOREIGN KEY(source_idx) REFERENCES host(ROWID));')
+        insert('create table credentials (username, password, location, '
+               'source_idx, time, FOREIGN KEY(source_idx) REFERENCES host(ROWID));')
 
 db = None
 
