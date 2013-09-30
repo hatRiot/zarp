@@ -67,7 +67,8 @@ class http(Service):
                 'dump': self.dump_data,
                 'log_data': self.log_data,
                 'log_file': self.log_file,
-                'server' : self.config['server'].value
+                'server' : self.config['server'].value,
+                'self'   : self
                   }
         RequestHandler(context, *args)
 
@@ -173,11 +174,11 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 self.send_headers()
                 self.wfile.write('Authenticated :)')
             elif not auth_header is None:
-                if self.context['log_data']:
-                    self.context['log_file'].write(base64.b64decode(auth_header.split(' ')[1]) + '\n')
-                    self.context['log_file'].flush()
-                if self.context['dump']:
-                    util.Msg('Collected: \033[32m%s\033[33m'%base64.b64decode(auth_header.split(' ')[1]))
+                (usr, pswd) = base64.b64decode(auth_header.split(' ')[1]).split(':')
+                self.context['self'].log_msg(\
+                              'Collected: \033[32m%s:%s\033[33m' % (usr,pswd))
+                self.context['self']._dbcredentials(usr, pswd, 'local HTTP',
+                               self.connection.getpeername()[0])
                 self.send_auth_headers()
             else:
                 self.send_auth_headers()

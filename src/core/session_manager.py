@@ -30,17 +30,17 @@ def menu():
             if not module is None:
                 stream.view_session(module, number)
         elif choice == 3:
+        try:
             print color.B_YELLOW + '[' + color.B_GREEN + '!' + color.B_YELLOW + \
                   '] Enter file to log to: ' + color.END
-            file_path = raw_input('> ')
-            if file_path is None:
-                return
-            if util.does_file_exist(file_path) or path.islink(file_path):
-                util.Error('File already exists.')
-                return
-            util.Msg('Module must be a sniffer or valid logging module.')
-            (module, number) = stream.get_session_input()
-            try:
+                file_path = raw_input('> ')
+                if file_path is None:
+                    return
+                if util.does_file_exist(file_path) or path.islink(file_path):
+                    util.Error('File already exists.')
+                    return
+                util.Msg('Module must be a sniffer or valid logging module.')
+                (module, number) = stream.get_session_input()
                 if not module is None:
                     display = color.B_YELLOW + '[' + color.B_GREEN + '!' + color.B_YELLOW + \
                              '] Log output from %s session %s to %s.Is this correct? '  + \
@@ -50,6 +50,8 @@ def menu():
                     if 'n' in tmp.lower():
                         return
                     stream.toggle_log(module, number, file_path, True)
+            except KeyboardInterrupt:
+                return
             except Exception:
                 util.Error('Error logging to given file')
                 return

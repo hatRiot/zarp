@@ -133,7 +133,7 @@ def handle_opts(module):
                         module.config[key] = tmp
 
                 except Exception, e:
-                    print e
+                    Error('%s' % e) 
                     continue
             elif "r" in choice.lower() or "run" in choice.lower():
                 # verify all required options are set
@@ -147,7 +147,7 @@ def handle_opts(module):
         except FailedCheck:
             continue
         except Exception, e:
-            print e
+            Error('%s' % e)
 
 
 def dump_sessions():
