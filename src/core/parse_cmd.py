@@ -1,3 +1,4 @@
+from stream import handle_opts
 import sys
 import argparse
 import util
@@ -56,14 +57,14 @@ def parse(sysv, loader):
 
     # see what it is
     if usr_mod in [x().which for x in loader.services]:
-        module = [x for x in loader.services if x().which == usr_mod][0]
-        util.Msg('Starting %s...' % module().which)
-        mod = module()
-        mod.dump_data = True
-        mod.initialize()
+        module = [x for x in loader.services if x().which == usr_mod][0]()
+        util.Msg('Starting %s...' % module.which)
+        module.dump_data = True
+        module.initialize()
     elif usr_mod in [x().which for x in loader.scanner]:
-        module = [x for x in loader.scanner if x().which == usr_mod][0]
-        module().initialize()
+        module = [x for x in loader.scanner if x().which == usr_mod][0]()
+        if module and handle_opts(module):
+            module.initialize()
     sys.exit(1)
 
 
