@@ -1,5 +1,6 @@
 import stream
 import util
+from colors import color
 from os import system
 from os import path
 
@@ -29,7 +30,8 @@ def menu():
             if not module is None:
                 stream.view_session(module, number)
         elif choice == 3:
-            print '[!] Enter file to log to: '
+            print color.B_YELLOW + '[' + color.B_GREEN + '!' + color.B_YELLOW + \
+                  '] Enter file to log to: ' + color.END
             file_path = raw_input('> ')
             if file_path is None:
                 return
@@ -40,8 +42,11 @@ def menu():
             (module, number) = stream.get_session_input()
             try:
                 if not module is None:
-                    tmp = raw_input('[!] Log output from %s session %s to %s.'
-                        'Is this correct? [Y/n]' % (module, number, file_path))
+                    display = color.B_YELLOW + '[' + color.B_GREEN + '!' + color.B_YELLOW + \
+                             '] Log output from %s session %s to %s.Is this correct? '  + \
+                             color.B_GREEN + '[' + color.B_YELLOW + 'Y' + color.B_GREEN + \
+                             '/' + color.B_YELLOW + 'n' + color.B_GREEN + ']' + color.END
+                    tmp = raw_input(display % (module, number, file_path))
                     if 'n' in tmp.lower():
                         return
                     stream.toggle_log(module, number, file_path, True)

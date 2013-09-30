@@ -29,13 +29,15 @@ def version():
 
 def header():
     """Zarp header"""
+    ver = color.B_GREEN + '  [' + color.B_YELLOW + 'Version: ' + version() + \
+          color.B_GREEN + ']' + color.END
     print color.B_GREEN + '\t ____   __   ____  ____'
     print '\t(__  ) / _\ (  _ \(  _ \''
     print '\t / _/ /    \ )   / ) __/'
-    print '\t(____)\_/\_/(__\_)(__)' + color.B_YELLOW + '  [Version: '  + version() + ']'
+    print '\t(____)\_/\_/(__\_)(__)' + ver
     print color.END
     if config.get('debug'):
-        print '\t      ' + color.BLUE + ' [DEBUGGING]' + color.END
+        print '\t      ' + color.B_BLUE + ' [DEBUGGING]' + color.END
 
 
 def Error(msg):
@@ -49,7 +51,7 @@ def Error(msg):
 
 def Msg(msg):
     """Prints a warning message"""
-    print color.YELLOW + '[!] %s' % (msg) + color.END
+    print color.B_YELLOW + '[' + color.B_GREEN + '!' + color.B_YELLOW + '] %s' % (msg) + color.END
 
 
 def debug(msg):
@@ -59,7 +61,7 @@ def debug(msg):
     dbg = config.get('log')
     if config.get('debug') and not os.path.islink(dbg):
         with open(dbg, 'a+') as f:
-            f.write(format('[%s] %s\n' % (timestamp(), msg)))
+            f.write(format('[%s] %s\n' % (timestamp(), msg))) #TODO add color
 
 
 def get_input(msg):
