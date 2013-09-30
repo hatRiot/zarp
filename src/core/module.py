@@ -122,7 +122,7 @@ class ZarpModule(object):
         if not rval:
             # failed to insert, attempt update
             rval = self._insert('UPDATE host SET ip = ?, hostname = ?'
-                        'WHERE mac = ?;', (ip, hostname, mac))
+                        ' WHERE mac = ?;', (ip, hostname, mac))
         return rval
 
     def _dbcredentials(self, username, password, location, source):
