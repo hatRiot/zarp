@@ -29,22 +29,24 @@ def menu():
             if not module is None:
                 stream.view_session(module, number)
         elif choice == 3:
-            print '[!] Enter file to log to: '
-            file_path = raw_input('> ')
-            if file_path is None:
-                return
-            if util.does_file_exist(file_path) or path.islink(file_path):
-                util.Error('File already exists.')
-                return
-            util.Msg('Module must be a sniffer or valid logging module.')
-            (module, number) = stream.get_session_input()
             try:
+                print '[!] Enter file to log to: '
+                file_path = raw_input('> ')
+                if file_path is None:
+                    return
+                if util.does_file_exist(file_path) or path.islink(file_path):
+                    util.Error('File already exists.')
+                    return
+                util.Msg('Module must be a sniffer or valid logging module.')
+                (module, number) = stream.get_session_input()
                 if not module is None:
                     tmp = raw_input('[!] Log output from %s session %s to %s.'
                         'Is this correct? [Y/n]' % (module, number, file_path))
                     if 'n' in tmp.lower():
                         return
                     stream.toggle_log(module, number, file_path, True)
+            except KeyboardInterrupt:
+                return
             except Exception:
                 util.Error('Error logging to given file')
                 return
