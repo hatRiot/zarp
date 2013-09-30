@@ -127,9 +127,11 @@ def main():
             # check if they've got running sessions!
             cnt = stream.get_session_count()
             if cnt > 0:
-                choice = raw_input(color.YELLOW +
-                'You have %d sessions running.  Are you sure? [Y/n] ' % cnt
-                 + color.END)
+                display = color.B_YELLOW + 'You have %d sessions running. ' + \
+                          'Are you sure? ' + color.B_GREEN + '[' + color.B_YELLOW + \
+                          'Y' + color.B_GREEN + '/' + color.B_YELLOW + 'n' + \
+                          color.B_GREEN + '] ' + color.END
+                choice = raw_input(display % cnt)
                 if 'y' in choice.lower() or choice == '':
                     Msg('Shutting all sessions down...')
                     stream.stop_session('all', -1)
