@@ -30,9 +30,9 @@ def menu():
             if not module is None:
                 stream.view_session(module, number)
         elif choice == 3:
-        try:
-            print color.B_YELLOW + '[' + color.B_GREEN + '!' + color.B_YELLOW + \
-                  '] Enter file to log to: ' + color.END
+            try:
+                print color.B_YELLOW + '[' + color.B_GREEN + '!' + color.B_YELLOW + \
+                      '] Enter file to log to: ' + color.END
                 file_path = raw_input('> ')
                 if file_path is None:
                     return
@@ -43,9 +43,9 @@ def menu():
                 (module, number) = stream.get_session_input()
                 if not module is None:
                     display = color.B_YELLOW + '[' + color.B_GREEN + '!' + color.B_YELLOW + \
-                             '] Log output from %s session %s to %s.Is this correct? '  + \
-                             color.B_GREEN + '[' + color.B_YELLOW + 'Y' + color.B_GREEN + \
-                             '/' + color.B_YELLOW + 'n' + color.B_GREEN + ']' + color.END
+                              '] Log output from %s session %s to %s.Is this correct? '  + \
+                              color.B_GREEN + '[' + color.B_YELLOW + 'Y' + color.B_GREEN + \
+                              '/' + color.B_YELLOW + 'n' + color.B_GREEN + ']' + color.END
                     tmp = raw_input(display % (module, number, file_path))
                     if 'n' in tmp.lower():
                         return
