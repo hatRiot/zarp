@@ -430,10 +430,7 @@ def eval_type(value, type):
             rval = (False, None)
         else:
             try:
-                int(ip[0])
-                int(ip[1])
-                int(ip[2])
-                int(ip[3])
+                socket.inet_aton(value)
                 rval = (True, value)
             except:
                 rval = (False, None)
