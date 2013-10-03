@@ -160,30 +160,34 @@ def dump_sessions():
     """
     global HOUSE
 
-    print '\n\t[Running sessions]'
+    print color.B_GREEN + '\n\t[' + color.B_YELLOW + 'Running sessions' + \
+          color.B_GREEN + ']' + color.END
     if 'service' in HOUSE:
         # services first
         tmp = HOUSE['service']
         if len(tmp) > 0:
-            print '[0] Services'
+            print color.B_GREEN + '\t[' + color.B_YELLOW + '0' + color.B_GREEN + \
+                    '] ' + color.B_WHITE + 'Services' + color.END
         for (cnt, service) in enumerate(tmp):
-            print '{0}\t[{1}] {2}{3}'.format(color.GREEN, cnt,
-                            tmp[service].session_view(), color.END)
+            print color.B_GREEN + '\t\t[' + color.B_YELLOW + str(cnt) + color.B_GREEN + \
+                  '] ' + color.B_WHITE + tmp[service].session_view() + color.END
             if tmp[service].log_data:
-                print '\t--> {0}Logging to {1}{2}'.format(color.GREEN,
-                        tmp[service].log_file.name, color.END)
+                print color.B_YELLOW + '\t\t\t--> ' + color.B_WHITE + 'Logging to ' + \
+                      tmp[service].log_file.name + color.END
 
     for (cnt, key) in enumerate(HOUSE.keys()):
         if key is 'service':
             continue
         if len(HOUSE[key]) > 0:
-            print '[%d] %s' % (cnt, key)
+            print color.B_GREEN + '\t[' + color.B_YELLOW + str(cnt) + color.B_GREEN + \
+                  ']' + color.B_WHITE  + ' ' + key + color.END
         for (cnt, obj) in enumerate(HOUSE[key]):
-            print '{0}\t[{1}] {2} {3}'.format(color.GREEN, cnt,
-                HOUSE[key][obj].session_view(), color.END)
+            print color.B_GREEN + '\t\t[' + color.B_YELLOW + str(cnt) + color.B_GREEN + \
+                  '] ' + color.B_WHITE + HOUSE[key][obj].session_view() + color.END
             if hasattr(HOUSE[key][obj], 'log_data'):
                 if HOUSE[key][obj].log_data:
-                    print '\t|--> Logging to ', HOUSE[key][obj].log_file.name
+                    print color.B_YELLOW + '\t\t\t--> ' + color.B_WHITE + 'Logging to ' + \
+                          HOUSE[key][obj].log_file.name + color.END
     print '\n'
 
 
@@ -198,9 +202,11 @@ def dump_module_sessions(module):
     else:
         mod = HOUSE[module]
 
-    print '[!] %s' % module
+    print color.B_YELLOW + '[' + color.B_RED  + '!' + color.B_YELLOW + '] ' + \
+          color.B_WHITE + module
     for (cnt, obj) in enumerate(mod.keys()):
-        print '\t[%d] %s' % (cnt, obj)
+        print color.B_GREEN + '\t[' + color.B_YELLOW + str(cnt) + color.B_GREEN + '] ' + \
+              color.B_WHITE + str(obj)
 
 
 def get_session_count():
@@ -276,7 +282,10 @@ def get_session_input():
     """ Helper for obtaining module and session numbers
     """
     try:
-        tmp = raw_input('[module] [number]> ')
+        display = color.B_GREEN + '[' + color.B_YELLOW + 'session' + color.B_GREEN + \
+                  '] [' + color.B_YELLOW + 'number' + color.B_GREEN + ']' + \
+                  color.B_WHITE + ' > '
+        tmp = raw_input(display)
         (module, number) = tmp.split(' ')
         if not module is None and not number is None:
             return (int(module), int(number))
