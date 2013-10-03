@@ -6,6 +6,7 @@ from colors import color
 from textwrap import dedent
 from util import Msg, Error, debug, check_opts, eval_type
 from collections import OrderedDict, namedtuple
+from src.modules.services.service import Service
 
 """
     Main data bus for interacting with the various modules.  Dumps information,
@@ -50,9 +51,13 @@ def initialize(module):
         return
 
     if tmp is not None and tmp is not False:
+        if isinstance(tmp_mod, Service):
+            HOUSE['service'][tmp_mod.which] = tmp_mod
+            return
+
         if not tmp_mod.which in HOUSE:
             HOUSE[tmp_mod.which] = {}
-        HOUSE[tmp_mod.which][tmp] = tmp_mod
+        HOUSE[tmp_mod.which][tmp_mod.session_view()] = tmp_mod
 
 
 def handle_opts(module):
