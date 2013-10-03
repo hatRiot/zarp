@@ -164,7 +164,7 @@ def dump_sessions():
             print color.B_GREEN + '[' + color.B_YELLOW + '0' + color.B_GREEN + \
                     '] ' + color.B_YELLOW + 'Services' + color.END
         for (cnt, service) in enumerate(tmp):
-            print color.B_GREEN + '\t[' + color.B_YELLOW + str(cnt) + color.B_GREEN + \
+            print color.B_GREEN + '\t\t[' + color.B_YELLOW + str(cnt) + color.B_GREEN + \
                   '] ' + color.B_WHITE + tmp[service].session_view() + color.END
             if tmp[service].log_data:
                 print color.B_YELLOW + '\t--> ' + color.B_WHITE + 'Logging to ' + \
@@ -177,7 +177,7 @@ def dump_sessions():
             print color.B_GREEN + '\t[' + color.B_YELLOW + str(cnt) + color.B_GREEN + \
                   ']' + color.B_WHITE  + ' ' + key + color.END
         for (cnt, obj) in enumerate(HOUSE[key]):
-            print color.B_GREEN + '\t[' + color.B_YELLOW + str(cnt) + color.B_GREEN + \
+            print color.B_GREEN + '\t\t[' + color.B_YELLOW + str(cnt) + color.B_GREEN + \
                   '] ' + color.B_WHITE + HOUSE[key][obj].session_view() + color.END
             if hasattr(HOUSE[key][obj], 'log_data'):
                 if HOUSE[key][obj].log_data:
