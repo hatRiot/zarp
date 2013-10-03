@@ -166,13 +166,13 @@ def dump_sessions():
         # services first
         tmp = HOUSE['service']
         if len(tmp) > 0:
-            print color.B_GREEN + '[' + color.B_YELLOW + '0' + color.B_GREEN + \
-                    '] ' + color.B_YELLOW + 'Services' + color.END
+            print color.B_GREEN + '\t[' + color.B_YELLOW + '0' + color.B_GREEN + \
+                    '] ' + color.B_WHITE + 'Services' + color.END
         for (cnt, service) in enumerate(tmp):
             print color.B_GREEN + '\t\t[' + color.B_YELLOW + str(cnt) + color.B_GREEN + \
                   '] ' + color.B_WHITE + tmp[service].session_view() + color.END
             if tmp[service].log_data:
-                print color.B_YELLOW + '\t--> ' + color.B_WHITE + 'Logging to ' + \
+                print color.B_YELLOW + '\t\t\t--> ' + color.B_WHITE + 'Logging to ' + \
                       tmp[service].log_file.name + color.END
 
     for (cnt, key) in enumerate(HOUSE.keys()):
@@ -186,7 +186,7 @@ def dump_sessions():
                   '] ' + color.B_WHITE + HOUSE[key][obj].session_view() + color.END
             if hasattr(HOUSE[key][obj], 'log_data'):
                 if HOUSE[key][obj].log_data:
-                    print color.B_YELLOW + '\t|--> ' + color.B_WHITE + 'Logging to ' + \
+                    print color.B_YELLOW + '\t\t\t--> ' + color.B_WHITE + 'Logging to ' + \
                           HOUSE[key][obj].log_file.name + color.END
     print '\n'
 
@@ -282,9 +282,9 @@ def get_session_input():
     """ Helper for obtaining module and session numbers
     """
     try:
-        display = color.B_GREEN + '[' + color.B_YELLOW + 'module' + color.B_GREEN + \
+        display = color.B_GREEN + '[' + color.B_YELLOW + 'session' + color.B_GREEN + \
                   '] [' + color.B_YELLOW + 'number' + color.B_GREEN + ']' + \
-                  color.B_WHITE + '> '
+                  color.B_WHITE + ' > '
         tmp = raw_input(display)
         (module, number) = tmp.split(' ')
         if not module is None and not number is None:
