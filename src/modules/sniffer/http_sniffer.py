@@ -22,7 +22,11 @@ class http_sniffer(Sniffer):
                             "regex":Zoption(type = "regex",
                                      value = None,
                                      required = False,
-                                     display = "Regex for level 5 verbosity")
+                                     display = "Regex for level 5 verbosity"),
+                            'port':Zoption(type = "int",
+                                           value = 80,
+                                           required = False,
+                                           display = "Port to sniff on")
             })
         self.info = """ 
                     The HTTP sniffer is a fairly robust sniffer module that
@@ -47,8 +51,9 @@ class http_sniffer(Sniffer):
 
     def initialize(self):
         """Initialize the sniffer"""
-        self.sniff_filter = "tcp and dst port 80 and src %s" % \
-                                        self.config['target'].value
+        self.sniff_filter = "tcp and dst port %s and src %s" % \
+                                        (self.config['port'].value,
+                                         self.config['target'].value)
         self.run()
         util.Msg("Running HTTP sniffer...")
         return True
@@ -84,7 +89,7 @@ class http_sniffer(Sniffer):
             the packet and return formatted data.
         """
         verb = self.config['verb'].value
-        data = pkt.getlayer(Raw).load
+        data = pkt.getlayer(Raw).load.rstrip()
         if verb is 1:
             # parse the site only
             data = re.findall('Host: (.*)', data)
