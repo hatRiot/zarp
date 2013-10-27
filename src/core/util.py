@@ -462,6 +462,9 @@ def eval_type(value, type):
             rval = (True, value.split(','))
         except:
             rval = (False, None)
+    elif type == 'file':
+        if does_file_exist(value):
+            rval = (True, value)
     else:
         Error('Unrecognized type: %s'%type)
     return rval
