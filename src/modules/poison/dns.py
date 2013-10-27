@@ -1,4 +1,5 @@
 from scapy.all import *
+from colors import color
 from poison import Poison
 from zoption import Zoption
 from threading import Thread
@@ -116,6 +117,7 @@ class dns(Poison):
             data = self.config['victim'].value + '\n'
 
         for (cnt, dns) in enumerate(self.dns_spoofed_pair):
-            data += '\t|-> [%d] %s -> %s' \
-                               % (cnt, dns.pattern, self.dns_spoofed_pair[dns])
+            data += '\t\t%s|->%s [%d] %s -> %s' \
+                               % (color.GREEN, color.WHITE, cnt, 
+                                  dns.pattern, self.dns_spoofed_pair[dns])
         return data
