@@ -78,7 +78,7 @@ def display_options(options, settings):
     if len(table) > 0:
         config.pptable([settings] + table)
     else:
-         msg('\tModule has no options.')
+         Msg('\tModule has no options.')
 
     print color.B_YELLOW + '0' + color.B_GREEN + ') ' + color.B_WHITE + 'Back' + color.END
     return table
