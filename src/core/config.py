@@ -112,6 +112,9 @@ def pptable(rows):
         @param rows is a list of lists, first row assumed to be the header 
     """
 
+    if len(rows) <= 0:
+        return
+
     # Convert items to strings
     new_rows = []
     for i in rows:
