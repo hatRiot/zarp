@@ -2,36 +2,21 @@ import abc
 import urllib2
 from base64 import b64encode
 from util import Msg
+from module import ZarpModule
+from zoption import Zoption
 from default_passwords import default_list
 
 
-class RouterVuln(object):
+class RouterVuln(ZarpModule):
     """Abstract router vulnerability"""
-    __metaclass__ = abc.ABCMeta
 
     def __init__(self):
-        """Initialize a default router IP and fetch IP from user"""
-        self.ip = '192.168.1.1'
-
-    @abc.abstractmethod
-    def run(self):
-        """Runner for the menus"""
-        pass
-
-    def fetch_ip(self):
-        """Fetch the router IP
-        """
-        while True:
-            try:
-                tmp = raw_input('[!] Enter address of router [%s]: ' % self.ip)
-                if len(tmp.split('.')) is 4:
-                    self.ip = tmp
-                break
-            except KeyboardInterrupt:
-                return False
-            except:
-                continue
-        return True
+        super(RouterVuln, self).__init__("%s - %s" % (self.router, self.vuln))
+        self.config.update({"target":Zoption(type = "ip",
+                                        value = "192.168.1.1",
+                                        required = False,
+                                        display = "Address to target")
+                            })
 
     def attempt_login(self, brand):
         """ Attempts to login to the router with default credentials. This will

