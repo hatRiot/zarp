@@ -60,6 +60,29 @@ def initialize(module):
         HOUSE[tmp_mod.which][tmp_mod.session_view()] = tmp_mod
 
 
+def display_options(options, settings):
+    """ Given a module's options and the column
+        headers, generate a table, print it, and return
+        the completed table.
+    """
+    table = []
+    for (idx, opt) in enumerate(options.keys()):
+        tmp = []
+        tmp.append(idx + 1)
+        tmp.append(options[opt].display)
+        tmp.append(options[opt].getStr())
+        tmp.append(options[opt].type)
+        tmp.append(options[opt].required)
+        table.append(tmp)
+
+    if len(table) > 0:
+        config.pptable([settings] + table)
+    else:
+         Msg('\tModule has no options.')
+
+    print color.B_YELLOW + '0' + color.B_GREEN + ') ' + color.B_WHITE + 'Back' + color.END
+    return table
+
 def handle_opts(module):
     """ The user has selected a module, so we should parse out all the
         options for this particular module, set the config, and when
@@ -67,24 +90,11 @@ def handle_opts(module):
     """
     # fetch generic module options and module-specific options
     options = module.config
-    Setting = ['', 'Option', 'Value', 'Type', 'Required'] 
-    while True:
-        # generate list of opts
-        table = []
-        for idx, opt in enumerate(options.keys()):
-            tmp = []
-            tmp.append(idx+1)
-            tmp.append(options[opt].display)
-            tmp.append(options[opt].getStr())
-            tmp.append(options[opt].type)
-            tmp.append(options[opt].required)
-            table.append(tmp)
-        if len(table) > 0:
-            config.pptable([Setting] + table)
-        else:
-            Msg('\tModule has no options.')
-        print color.B_YELLOW + '0' + color.B_GREEN + ') ' + color.B_WHITE + 'Back' + color.END
 
+    # dump module settings
+    Setting = ['', 'Option', 'Value', 'Type', 'Required'] 
+    table = display_options(options, Setting)
+    while True:
         # fetch command/option
         try:
             choice = raw_input('%s > ' % (color.B_WHITE + module.which + color.END))
@@ -109,6 +119,9 @@ def handle_opts(module):
                 print '%s%s%s' % (color.GREEN,
                                   '-' * len(module.info.split('\n')[1].strip()),
                                   color.END)
+            elif choice == "ops":
+                display_options(options, Setting)
+                continue
             elif len(choice.split(' ')) > 1:
                 choice = choice.split(' ')
                 try:

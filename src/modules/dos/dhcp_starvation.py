@@ -1,4 +1,5 @@
 from scapy.all import *
+from time import sleep
 from util import Msg
 from dos import DoS
 from threading import Thread

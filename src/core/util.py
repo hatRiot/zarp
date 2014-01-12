@@ -24,7 +24,7 @@ buffered = None
 
 def version():
     """Zarp version"""
-    return "0.1.4"
+    return "0.1.5"
 
 
 def header():
@@ -280,7 +280,7 @@ def check_opts(choice):
         elif 'help' in choice:
             help()
             choice = -1
-        elif 'opts' in choice:
+        elif 'gops' in choice:
             config.dump()
             choice = -1
         elif 'quit' in choice or 'exit' in choice:
@@ -317,7 +317,7 @@ def help():
     """
     print color.B_YELLOW + '\n  zarp options:' + color.B_WHITE
     print color.B_GREEN + '\thelp\t\t\t' + color.B_WHITE  + '- This menu'
-    print color.B_GREEN + '\topts\t\t\t' + color.B_WHITE  + '- Dump zarp current settings'
+    print color.B_GREEN + '\tgops\t\t\t' + color.B_WHITE  + '- Display global options'
     print color.B_GREEN + '\texit\t\t\t' + color.B_WHITE  + '- Exit immediately'
     print color.B_GREEN + '\tbg\t\t\t' + color.B_WHITE  + '- Put zarp to background'
     print color.B_GREEN + '\tset [' + color.B_YELLOW + 'key' + color.B_GREEN + '] [' + \
@@ -331,6 +331,7 @@ def help():
         color.B_WHITE  + '- View options for setting'
     print color.B_GREEN + '\trun (r)\t\t\t' + color.B_WHITE  + '- Run the selected module'
     print color.B_GREEN + '\tinfo \t\t\t' + color.B_WHITE  + '- Display module information'
+    print color.B_GREEN + '\tops \t\t\t' + color.B_WHITE + '- Display module options'
     print color.END
 
 
@@ -461,6 +462,9 @@ def eval_type(value, type):
             rval = (True, value.split(','))
         except:
             rval = (False, None)
+    elif type == 'file':
+        if does_file_exist(value):
+            rval = (True, value)
     else:
         Error('Unrecognized type: %s'%type)
     return rval

@@ -49,7 +49,7 @@ class nbns(Poison):
     def initialize(self):
         """Initialize spoofer
         """
-        util.Msg('[!] Starting NBNS spoofer...')
+        util.Msg('Starting NBNS spoofer...')
         sniffr = Thread(target=self.sniff_thread)
         sniffr.start()
         self.running = True

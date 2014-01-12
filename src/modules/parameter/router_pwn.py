@@ -1,6 +1,7 @@
 import importlib
 import routers
 import util
+import stream
 from parameter import Parameter
 
 
@@ -21,9 +22,10 @@ class router_pwn(Parameter):
                                                                     % router)
             self.routers[router] = []
             for vuln in mod.__all__:
-                v = getattr(importlib.import_module('modules.parameter.routers.'
-                            '%s.%s' % (router, vuln), 'routers'), vuln)
-                self.routers[router].append(v)
+                path = "modules.parameter.routers.%s.%s" % (router, vuln)
+                if util.check_dependency(path):
+                    mod = getattr(importlib.import_module(path, 'routers'), vuln)
+                    self.routers[router].append(mod)
 
     def initialize(self):
         """ Load router exploits; store {router:[vuln]}
@@ -39,14 +41,10 @@ class router_pwn(Parameter):
             else:
                 router = self.routers[self.routers.keys()[choice - 1]]
                 while True:
-                    # print router modules
-                    choice = util.print_menu(['%s - %s' %
-                                        (x().router, x().vuln) for x in router])
+                    choice = util.print_menu([x().which for x in router])
                     if choice is 0:
                         break
                     elif choice is -1 or choice > len(router):
                         pass
                     else:
-                        tmp = router[choice - 1]()
-                        if tmp.fetch_ip():
-                            tmp.run()
+                        stream.initialize(router[choice - 1])
