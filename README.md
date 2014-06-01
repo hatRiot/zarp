@@ -12,17 +12,17 @@ Installation
 ==
 zarp is intended to be as dependency-free as possible.  When available, zarp has opted to use pure or native Python implementations over requiring or importing huge libraries.  Even as such, zarp requires the following to run:
 
-*Linux
-*Python 2.7.x
-*Scapy (packaged with zarp)
+* Linux 
+* Python 2.7.x 
+* Scapy (packaged with zarp) 
 
 It is also recommended that user's have the following installed for access to specific modules:
 
-*airmon-ng suite (for all your wireless cracking needs)
-*tcpdump
-*libmproxy (packaged with zarp)
-*paramiko (SSH service)
-*nfqueue-bindings (packet modifier)
+* airmon-ng suite (for all your wireless cracking needs)
+* tcpdump
+* libmproxy (packaged with zarp)
+* paramiko (SSH service)
+* nfqueue-bindings (packet modifier)
 
 The recommended installation process is to run:
 
@@ -44,6 +44,12 @@ Tool Overview
 ==
 Broad categories are (see wiki for more information on these):
 * Poisoners
+* Denial of Service
+* Sniffers
+* Scanners
+* Services
+* Parameter
+* Attacks
 
 CLI Usage and Shortcuts
 ==
