@@ -32,7 +32,7 @@ class redirect_port(Attack):
 
         self.running = True
 
-        util.Msg("Redirection to from TCP port {0} to {1}...")
+        util.Msg("Redirection to from TCP port {0} to {1}...".format(self.config['source_port'].value, self.config['dest_port'].value))
 
         return True
 
