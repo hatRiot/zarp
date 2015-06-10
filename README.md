@@ -28,6 +28,8 @@ The recommended installation process is to run:
 
 ```
 git clone git://github.com/hatRiot/zarp.git
+
+pip install -r requirements.txt
 ```
 
 You can then run:
