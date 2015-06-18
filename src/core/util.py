@@ -61,7 +61,7 @@ def debug(msg):
     dbg = config.get('log')
     if config.get('debug') and not os.path.islink(dbg):
         with open(dbg, 'a+') as f:
-            f.write(format('[%s] %s\n' % (timestamp(), msg))) #TODO add color
+            f.write(format('[%s] %s\n' % (timestamp(), msg)))  # TODO add color
 
 
 def get_input(msg):
@@ -86,7 +86,7 @@ def timestamp():
     """ Generate a formatted timestamp
     """
     return '%s %s' % (date.today().isoformat(),
-                                        datetime.now().strftime('%I:%M%p'))
+                      datetime.now().strftime('%I:%M%p'))
 
 
 def getipbyhost(hostname):
@@ -186,7 +186,7 @@ def enable_monitor(channel=None):
                     tmp = getoutput('airmon-ng start {0}'.format(iface))
                 else:
                     tmp = getoutput('airmon-ng start {0} {1}'
-                                                    .format(iface, channel))
+                                    .format(iface, channel))
                 debug("started \'%s\' in monitor mode" % iface)
             except Exception, j:
                 Error("Error enabling monitor mode: %s" % j)
@@ -239,7 +239,7 @@ def get_local_ip(adapter):
             s.fileno(),
             0x8915,
             struct.pack('256s', adapter[:15])
-            )[20:24])
+        )[20:24])
     except:
         addr = None
     return addr
@@ -294,16 +294,16 @@ def check_opts(choice):
             if opts[1] is None or opts[2] is None:
                 return
             print '[!] Setting ' + color.YELLOW + '%s' % opts[1] + color.END + \
-                        '-> ' + color.GREEN + '%s..' % opts[2] + color.END
+                  '-> ' + color.GREEN + '%s..' % opts[2] + color.END
             config.set(opts[1], opts[2])
             choice = -1
     return choice
-    
+
 
 def check_dependency(module):
     """ Attempts to load the module; returns a boolean
         indicating success or fail.
-    """ 
+    """
     try:
         mod = __import__(module)
     except Exception, e:
@@ -316,21 +316,21 @@ def help():
     """ Dump a help menu with zarp options
     """
     print color.B_YELLOW + '\n  zarp options:' + color.B_WHITE
-    print color.B_GREEN + '\thelp\t\t\t' + color.B_WHITE  + '- This menu'
-    print color.B_GREEN + '\tgops\t\t\t' + color.B_WHITE  + '- Display global options'
-    print color.B_GREEN + '\texit\t\t\t' + color.B_WHITE  + '- Exit immediately'
-    print color.B_GREEN + '\tbg\t\t\t' + color.B_WHITE  + '- Put zarp to background'
+    print color.B_GREEN + '\thelp\t\t\t' + color.B_WHITE + '- This menu'
+    print color.B_GREEN + '\tgops\t\t\t' + color.B_WHITE + '- Display global options'
+    print color.B_GREEN + '\texit\t\t\t' + color.B_WHITE + '- Exit immediately'
+    print color.B_GREEN + '\tbg\t\t\t' + color.B_WHITE + '- Put zarp to background'
     print color.B_GREEN + '\tset [' + color.B_YELLOW + 'key' + color.B_GREEN + '] [' + \
-        color.B_YELLOW + 'value' + color.B_GREEN + ']' +  color.B_WHITE + \
-        ' \t- Set key to value' + color.END
+          color.B_YELLOW + 'value' + color.B_GREEN + ']' + color.B_WHITE + \
+          ' \t- Set key to value' + color.END
     print color.B_YELLOW + '\n  zarp module options:' + color.B_WHITE
     print color.B_GREEN + '\t[' + color.B_YELLOW + 'int' + color.B_GREEN + '] [' + \
-        color.B_YELLOW + 'value' + color.B_GREEN + ']\t\t' + color.B_WHITE  + \
-        '- Set option [int] to value [value]'
+          color.B_YELLOW + 'value' + color.B_GREEN + ']\t\t' + color.B_WHITE + \
+          '- Set option [int] to value [value]'
     print color.B_GREEN + '\t[' + color.B_YELLOW + 'int' + color.B_GREEN + '] o\t\t\t' + \
-        color.B_WHITE  + '- View options for setting'
-    print color.B_GREEN + '\trun (r)\t\t\t' + color.B_WHITE  + '- Run the selected module'
-    print color.B_GREEN + '\tinfo \t\t\t' + color.B_WHITE  + '- Display module information'
+          color.B_WHITE + '- View options for setting'
+    print color.B_GREEN + '\trun (r)\t\t\t' + color.B_WHITE + '- Run the selected module'
+    print color.B_GREEN + '\tinfo \t\t\t' + color.B_WHITE + '- Display module information'
     print color.B_GREEN + '\tops \t\t\t' + color.B_WHITE + '- Display module options'
     print color.END
 
@@ -384,7 +384,7 @@ def print_menu(arr):
 
     tmp = Cmd()
     arr = ['\t%s[%s%d%s] %s%s%s' % (color.B_GREEN, color.B_YELLOW, x + 1, color.B_GREEN,
-        color.B_WHITE, arr[x], color.END) for x in xrange(len(arr))]
+                                    color.B_WHITE, arr[x], color.END) for x in xrange(len(arr))]
     tmp.columnize(arr, 100)
     print '\n' + color.B_YELLOW + '0' + color.B_GREEN + ')' + color.B_WHITE + ' Back' + color.END
     try:
@@ -438,6 +438,12 @@ def eval_type(value, type):
     elif type == "str":
         # anything can be a string
         rval = (True, str(value))
+    elif type == "ip or ipmask":
+        t1 = eval_type(value, "ip")
+        if t1[0] == False:
+            t1 = eval_type(value, "ipmask")
+            return t1
+        return t1
     elif type == "ipmask":
         ip = value.split('.')
         if len(ip) != 4:
@@ -466,5 +472,5 @@ def eval_type(value, type):
         if does_file_exist(value):
             rval = (True, value)
     else:
-        Error('Unrecognized type: %s'%type)
+        Error('Unrecognized type: %s' % type)
     return rval
