@@ -30,7 +30,7 @@ class arp(Poison):
                                              required=True,
                                              display="Target to poison"),
                             "from_ip": Zoption(value=None,
-                                               type="ip or ipmask",
+                                               type=["ip", "ipmask"],
                                                required=False,
                                                display="Address or addresses to spoof from target"),
                             "respoof": Zoption(value=2,
