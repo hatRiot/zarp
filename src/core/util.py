@@ -438,12 +438,6 @@ def eval_type(value, type):
     elif type == "str":
         # anything can be a string
         rval = (True, str(value))
-    elif type == "ip or ipmask":
-        t1 = eval_type(value, "ip")
-        if t1[0] == False:
-            t1 = eval_type(value, "ipmask")
-            return t1
-        return t1
     elif type == "ipmask":
         ip = value.split('.')
         if len(ip) != 4:
