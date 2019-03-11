@@ -1,5 +1,8 @@
 Introduction
 ==
+- ![#f03c15](https://placehold.it/15/f03c15/000000?text=+) `#f03c15`
+- ![#c5f015](https://placehold.it/15/c5f015/000000?text=+) `#c5f015`
+- ![#1589F0](https://placehold.it/15/1589F0/000000?text=+) `#1589F0`
 
 Zarp is a network attack tool centered around the exploitation of local networks. 
 - This does not include system exploitation, but rather abusing networking protocols and stacks to take over, infiltrate, and knock out. 
@@ -35,10 +38,10 @@ It is also recommended that user's have the following installed for access to sp
 
 The recommended installation process is to run:
 
-```batch
-git clone git://github.com/hatRiot/zarp.git
+```diff
++git clone -git://github.com/hatRiot/zarp.git
 
-pip install -r requirements.txt
++pip install -r requirements.txt
 ```
 
 You can then run:
