@@ -18,15 +18,16 @@ Current dev version: 1.6
 
 ## Installation
 
-zarp is intended to be as dependency-free as possible.  
-When available, zarp has opted to use pure or native Python implementations over requiring or importing huge libraries.  
-Even as such, zarp requires the following to run:
+Zarp is intended to be as dependency-free as possible.  
+When available, zarp has opted to use pure or native Python implementations over requiring or importing huge libraries. 
+
+#### Even as such, zarp requires the following to run:
 
 * Linux 
 * Python 2.7.x 
 * Scapy (packaged with zarp) 
 
-It is also recommended that user's have the following installed for access to specific modules:
+#### It is also recommended that user's have the following installed for access to specific modules:
 
 * airmon-ng suite (for all your wireless cracking needs)
 * tcpdump
@@ -34,7 +35,7 @@ It is also recommended that user's have the following installed for access to sp
 * paramiko (SSH service)
 * nfqueue-bindings (packet modifier)
 
-The recommended installation process is to run:
+#### The recommended installation process is to run:
 
 ```bash
 git clone git://github.com/hatRiot/zarp.git
@@ -42,15 +43,22 @@ git clone git://github.com/hatRiot/zarp.git
 pip install -r requirements.txt
 ```
 
-You can then run:
+## You can then run (to update zarp):
 
 ```bash
 sudo python zarp.py --update
 ```
 
-to update zarp.  The update flag will not work if you download the tarball from the Git page.
+```diff
+-The update flag will not work if you download the tarball from the Git page.
+```
 
-Scapy comes packaged with Zarp and no installation is required. Wifite is used for wireless AP cracking; a specific version (ballast-dev branch) is required. This comes packaged with zarp. There are some dependencies required for Scapy, but most should be pretty easy to install or already be installed.
+```diff
+- Scapy comes packaged with Zarp and no installation is required. 
+- Wifite is used for wireless AP cracking; a specific version (ballast-dev branch) is required. 
+- This comes packaged with zarp. 
+- There are some dependencies required for Scapy, but most should be pretty easy to install or already be installed.
+```
 
 ## Tool Overview
 
@@ -83,7 +91,7 @@ Broad categories are (see wiki for more information on these):
 
 ```
 
-Modules can be navigated to by nesting entries:
+#### Modules can be navigated to by nesting entries:
 ```
 bryan@debdev:~/tools/zarp$ sudo ./zarp.py 
 [!] Loaded 34 modules.
@@ -109,7 +117,8 @@ bryan@debdev:~/tools/zarp$ sudo ./zarp.py
 0) Back
 FTP Server > 
 ```
-Nested entries go as far as modules will.  Note that right now it's 'dumb' in that, if you enter in a ton of numbers, it's going to continue dumping that out as module selection!
+Nested entries go as far as modules will.  
+Note that right now it's "dumb" in that, if you enter in a ton of numbers, it's going to continue dumping that out as module selection!
 
 ## Usage Examples
 
@@ -164,6 +173,7 @@ bryan@devbox:~/zarp$ sudo ./zarp.py
 ```
 
 Navigating a module is pretty simple, and there are really only a few commands to know.  
+
 #### When in the context of a module, the command `'info'` can be used to dump a help or informational string:
 ```
 ARP Spoof > info
@@ -211,7 +221,6 @@ HTTP Sniffer >
 
 Modules, once all required options are set, can be run by specifying a lowercase '''r'''.
 
-Future/Current Development
-==
+## Future/Current Development
 
 ### Moved to freedcamp; please send me an email if you'd like to contribute.
