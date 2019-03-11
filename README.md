@@ -43,7 +43,7 @@ git clone git://github.com/hatRiot/zarp.git
 pip install -r requirements.txt
 ```
 
-## You can then run (to update zarp):
+#### You can then run (to update zarp):
 
 ```bash
 sudo python zarp.py --update
