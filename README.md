@@ -1,16 +1,25 @@
 Introduction
 ==
 
-Zarp is a network attack tool centered around the exploitation of local networks. This does not include system exploitation, but rather abusing networking protocols and stacks to take over, infiltrate, and knock out. Sessions can be managed to quickly poison and sniff multiple systems at once, dumping sensitive information automatically or to the attacker directly. Various sniffers are included to automatically parse usernames and passwords from various protocols, as well as view HTTP traffic and more. DoS attacks are included to knock out various systems and applications. These tools open up the possibility for very complex attack scenarios on live networks quickly, cleanly, and quietly.
+Zarp is a network attack tool centered around the exploitation of local networks. 
+- This does not include system exploitation, but rather abusing networking protocols and stacks to take over, infiltrate, and knock out. 
+- Sessions can be managed to quickly poison and sniff multiple systems at once, dumping sensitive information automatically or to the attacker directly. 
+- Various sniffers are included to automatically parse usernames and passwords from various protocols, as well as view HTTP traffic and more. 
+- DoS attacks are included to knock out various systems and applications. These tools open up the possibility for very complex attack scenarios on live networks quickly, cleanly, and quietly.
 
-The long-term goal of zarp is to become the master command center of a network; to provide a modular, well-defined framework that provides a powerful overview and in-depth analysis of an entire network.  This will come to light with the future inclusion of a web application front-end, which acts as the television screen, whereas the CLI interface will be the remote.  This will provide network topology reports, host relationships, and more.  zarp aims to be your window into the potential exploitability of a network and its hosts, not an exploitation platform itself; it is the manipulation of relationships and trust felt within local intranets.  Look for zeb, the web-app frontend to zarp, sometime in the future.
+  The long-term goal of zarp is to become the master command center of a network; to provide a modular, well-defined framework that provides a powerful overview and in-depth analysis of an entire network.  
+  This will come to light with the future inclusion of a web application front-end, which acts as the television screen, whereas the CLI interface will be the remote.  
+  This will provide network topology reports, host relationships, and more.  zarp aims to be your window into the potential exploitability of a network and its hosts, not an exploitation platform itself; it is the manipulation of relationships and trust felt within local intranets.  
+Look for zeb, the web-app frontend to zarp, sometime in the future.
 
 Current version: 1.5 
 Current dev version: 1.6 
 
 Installation
 ==
-zarp is intended to be as dependency-free as possible.  When available, zarp has opted to use pure or native Python implementations over requiring or importing huge libraries.  Even as such, zarp requires the following to run:
+zarp is intended to be as dependency-free as possible.  
+When available, zarp has opted to use pure or native Python implementations over requiring or importing huge libraries.  
+Even as such, zarp requires the following to run:
 
 * Linux 
 * Python 2.7.x 
@@ -26,7 +35,7 @@ It is also recommended that user's have the following installed for access to sp
 
 The recommended installation process is to run:
 
-```
+```batch
 git clone git://github.com/hatRiot/zarp.git
 
 pip install -r requirements.txt
@@ -34,7 +43,7 @@ pip install -r requirements.txt
 
 You can then run:
 
-```
+```batch
 sudo python zarp.py --update
 ```
 
