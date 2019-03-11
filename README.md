@@ -1,7 +1,6 @@
 # Zarp
 
 ## Introduction
-==
 
 Zarp is a network attack tool centered around the exploitation of local networks. 
 - This does not include system exploitation, but rather abusing networking protocols and stacks to take over, infiltrate, and knock out. 
@@ -18,7 +17,7 @@ Current version: 1.5
 Current dev version: 1.6 
 
 ## Installation
-==
+
 zarp is intended to be as dependency-free as possible.  
 When available, zarp has opted to use pure or native Python implementations over requiring or importing huge libraries.  
 Even as such, zarp requires the following to run:
@@ -54,7 +53,7 @@ to update zarp.  The update flag will not work if you download the tarball from 
 Scapy comes packaged with Zarp and no installation is required. Wifite is used for wireless AP cracking; a specific version (ballast-dev branch) is required. This comes packaged with zarp. There are some dependencies required for Scapy, but most should be pretty easy to install or already be installed.
 
 ## Tool Overview
-==
+
 Broad categories are (see wiki for more information on these):
 * Poisoners
 * Denial of Service
@@ -65,7 +64,7 @@ Broad categories are (see wiki for more information on these):
 * Attacks
 
 ## CLI Usage and Shortcuts
-==
+
 ```
 > help
 
@@ -113,7 +112,7 @@ FTP Server >
 Nested entries go as far as modules will.  Note that right now it's 'dumb' in that, if you enter in a ton of numbers, it's going to continue dumping that out as module selection!
 
 ## Usage Examples
-==
+
 #### List of modules accessible from the command line:
 ```
 bryan@debdev:~/tools/zarp$ sudo ./zarp.py --help
