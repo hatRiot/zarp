@@ -1,4 +1,4 @@
-# Zarp :wifi:
+# Zarp :satellite:
 
 ## Introduction
 
@@ -229,4 +229,4 @@ Modules, once all required options are set, can be run by specifying a lowercase
 
 ## Future/Current Development
 
-### Moved to freedcamp; please send me an email if you'd like to contribute.
+### Moved to freedcamp; please send me an email if you'd like to contribute. :octocat:
