@@ -33,15 +33,20 @@ It is also recommended that user's have the following installed for access to sp
 * paramiko (SSH service)
 * nfqueue-bindings (packet modifier)
 
+```python
+def function():
+    #indenting works just fine in the fenced code block
+    s = "Python syntax highlighting"
+    print s
+```
+
 The recommended installation process is to run:
 
-```diff
-git clone
 ```
-https://placehold.it/150/ffffff/ff0000?text=git://github.com/hatRiot/zarp.git
+git clone git://github.com/hatRiot/zarp.git=
 
 pip install -r requirements.txt
-
+```
 
 You can then run:
 
