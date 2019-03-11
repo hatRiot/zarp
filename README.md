@@ -1,10 +1,14 @@
 # Zarp  :satellite:
 
-##### This ReadMe Was Forked and Changed by Lin8x :penguin:
-##### (Hoping to edit the tool more and list changes here)
+--------------------------
 
-##### Things that were changed:
-##### - The README.md file was updated to look more stylistic
+This ReadMe Was Forked and Changed by Lin8x :penguin:
+(Hoping to edit the tool more and list changes here)
+
+Things that were changed:
+- The README.md file was updated to look more stylistic
+
+--------------------------
 
 ## Introduction   :books:
 
