@@ -1,6 +1,6 @@
 # Zarp  :satellite:
 
-## Introduction
+## Introduction :books:
 
 Zarp is a network attack tool centered around the exploitation of local networks. 
 - This does not include system exploitation, but rather abusing networking protocols and stacks to take over, infiltrate, and knock out. 
@@ -24,7 +24,7 @@ trust felt within local intranets.⋅⋅
 + Current dev version: 1.6 
 ```
 
-## Installation :books:
+## Installation :inbox_tray:
 
 Zarp is intended to be as dependency-free as possible.  
 When available, zarp has opted to use pure or native Python implementations over requiring or importing huge libraries. 
