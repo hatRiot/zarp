@@ -4,7 +4,7 @@
 ##### (Hoping to edit the tool more and list changes here)
 
 ##### Things that were changed:
-- The README.md file was updated to look more stylistic
+##### - The README.md file was updated to look more stylistic
 
 ## Introduction   :books:
 
