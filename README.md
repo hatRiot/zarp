@@ -36,10 +36,12 @@ It is also recommended that user's have the following installed for access to sp
 The recommended installation process is to run:
 
 ```diff
-git clone https://placehold.it/150/ffffff/ff0000?text=git://github.com/hatRiot/zarp.git
+git clone
+```
+https://placehold.it/150/ffffff/ff0000?text=git://github.com/hatRiot/zarp.git
 
 pip install -r requirements.txt
-```
+
 
 You can then run:
 
