@@ -1,6 +1,6 @@
 # Zarp  :satellite:
 
-##### This ReadMe Was Forked and Changed by Lin8x :fork:
+##### This ReadMe Was Forked and Changed by Lin8x :penguin:
 
 ## Introduction   :books:
 
