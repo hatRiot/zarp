@@ -50,14 +50,12 @@ sudo python zarp.py --update
 ```
 
 ```diff
--The update flag will not work if you download the tarball from the Git page.
-```
+- The update flag will not work if you download the tarball from the Git page.
 
-```diff
-- Scapy comes packaged with Zarp and no installation is required. 
-- Wifite is used for wireless AP cracking; a specific version (ballast-dev branch) is required. 
-- This comes packaged with zarp. 
-- There are some dependencies required for Scapy, but most should be pretty easy to install or already be installed.
++ Scapy comes packaged with Zarp and no installation is required. 
++ Wifite is used for wireless AP cracking; a specific version (ballast-dev branch) is required. 
++ This comes packaged with zarp. 
++ There are some dependencies required for Scapy, but most should be pretty easy to install or already be installed.
 ```
 
 ## Tool Overview
