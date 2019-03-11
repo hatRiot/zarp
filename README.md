@@ -1,4 +1,4 @@
-# Zarp
+# Zarp :+1:
 
 ## Introduction
 
