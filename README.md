@@ -1,6 +1,6 @@
 # Zarp  :satellite:
 
-## Introduction :books:
+## Introduction   :books:
 
 Zarp is a network attack tool centered around the exploitation of local networks. 
 - This does not include system exploitation, but rather abusing networking protocols and stacks to take over, infiltrate, and knock out. 
@@ -24,7 +24,7 @@ trust felt within local intranets.⋅⋅
 + Current dev version: 1.6 
 ```
 
-## Installation :inbox_tray:
+## Installation   :inbox_tray:
 
 Zarp is intended to be as dependency-free as possible.  
 When available, zarp has opted to use pure or native Python implementations over requiring or importing huge libraries. 
@@ -66,7 +66,7 @@ sudo python zarp.py --update
 + There are some dependencies required for Scapy, but most should be pretty easy to install or already be installed.
 ```
 
-## Tool Overview :hammer:
+## Tool Overview   :hammer:
 
 Broad categories are (see wiki for more information on these):
 * Poisoners
@@ -126,7 +126,7 @@ FTP Server >
 Nested entries go as far as modules will.  
 Note that right now it's "dumb" in that, if you enter in a ton of numbers, it's going to continue dumping that out as module selection!
 
-## Usage Examples :mag_right:
+## Usage Examples   :mag_right:
 
 #### List of modules accessible from the command line:
 ```
@@ -227,6 +227,6 @@ HTTP Sniffer >
 
 Modules, once all required options are set, can be run by specifying a lowercase '''r'''.
 
-## Future/Current Development :wrench:
+## Future/Current Development   :wrench:
 
 ### Moved to freedcamp; please send me an email if you'd like to contribute. :octocat:
