@@ -163,7 +163,8 @@ bryan@devbox:~/zarp$ sudo ./zarp.py
 > 
 ```
 
-#### Navigating a module is pretty simple, and there are really only a few commands to know.  When in the context of a module, the command 'info' can be used to dump a help or informational string:
+Navigating a module is pretty simple, and there are really only a few commands to know.  
+#### When in the context of a module, the command `'info'` can be used to dump a help or informational string:
 ```
 ARP Spoof > info
 --------------------------------------------------------- 
