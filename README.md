@@ -10,6 +10,7 @@ Zarp is a network attack tool centered around the exploitation of local networks
 
 The long-term goal of zarp is to become the master command center of a network; to provide a modular, well-defined framework
 that provides a powerful overview and in-depth analysis of an entire network.  
+
 ⋅⋅⋅This will come to light with the future inclusion of a web application front-end, which acts as the television screen,⋅⋅ 
 ⋅⋅⋅whereas the CLI interface will be the remote.⋅⋅
 ⋅⋅⋅This will provide network topology reports, host relationships, and more.  zarp aims to be your window into the potential⋅⋅
