@@ -9,12 +9,17 @@ Zarp is a network attack tool centered around the exploitation of local networks
 - DoS attacks are included to knock out various systems and applications. These tools open up the possibility for very complex attack scenarios on live networks quickly, cleanly, and quietly.
 
 The long-term goal of zarp is to become the master command center of a network; to provide a modular, well-defined framework that provides a powerful overview and in-depth analysis of an entire network.  
-  This will come to light with the future inclusion of a web application front-end, which acts as the television screen, whereas the CLI interface will be the remote.  
-  This will provide network topology reports, host relationships, and more.  zarp aims to be your window into the potential exploitability of a network and its hosts, not an exploitation platform itself; it is the manipulation of relationships and trust felt within local intranets.  
-Look for zeb, the web-app frontend to zarp, sometime in the future.
 
-Current version: 1.5 
-Current dev version: 1.6 
+This will come to light with the future inclusion of a web application front-end, which acts as the television screen, whereas the CLI interface will be the remote.  
+
+This will provide network topology reports, host relationships, and more.  zarp aims to be your window into the potential exploitability of a network and its hosts, not an exploitation platform itself; it is the manipulation of relationships and trust felt within local intranets.  
+
+##### Look for zeb, the web-app frontend to zarp, sometime in the future.
+
+```diff
++ Current version: 1.5 
++ Current dev version: 1.6 
+```
 
 ## Installation
 
