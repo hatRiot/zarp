@@ -1,4 +1,4 @@
-# Zarp :+1:
+# Zarp :wifi:
 
 ## Introduction
 
