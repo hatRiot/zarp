@@ -28,7 +28,9 @@ This ReadMe Was Forked and Changed by Lin8x :penguin:
 N/A
 
 ## File Directory Setup
+```
 N/A
+```
 
 --------------------------
 
