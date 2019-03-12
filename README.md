@@ -1,4 +1,4 @@
-# :satellite: &nbsp; Zarp &nbsp; :satellite:
+# :trophy: &nbsp; Zarp &nbsp; :trophy:
 
 --------------------------
 
