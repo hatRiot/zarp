@@ -16,7 +16,7 @@ This ReadMe Was Forked and Changed by Lin8x :penguin:
 - z4ck :school_satchel:
 - bwall :moyai:
 
-#### Goals:
+#### (Working Contributer's) Goals:
 - Change the format form Python 2.7 to Python 3.6
 - Commentate more on the code
 - Improve the look and feel of the tool
