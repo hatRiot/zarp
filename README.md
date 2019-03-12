@@ -11,6 +11,12 @@ This ReadMe Was Forked and Changed by Lin8x :penguin:
 - Lin8x :wine_glass:
 - lezno :space_invader:
 
+#### Goals:
+- Change the format form Python 2.7 to Python 3.6
+- Commentate more on the code
+- Improve the look and feel of the tool
+- Fix any found bugs (if any)
+
 #### Things that were changed:
 - *The README.md file was updated to look more stylistic*
 
