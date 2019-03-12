@@ -85,13 +85,47 @@ sudo python zarp.py --update
 ## Tool Overview   :hammer:
 
 Broad categories are (see wiki for more information on these):
-* Poisoners
-* Denial of Service
-* Sniffers
-* Scanners
-* Services
-* Parameter
-* Attacks
+[POISONERS]		
+ Various man in the middle tools provide a stepping stone for more complex attacks.		
+ : ARP, DNS, DHCP, NBNS :		
+
+  [DOS]		
+ Denial of service tools for rendering various systems unusable.		
+ : Teardrop, IPv6 NDP RA, Nestea, LAND, TCP SYN, SMB2 :		
+
+  [SNIFFERS]		
+ Post-poisoning tools for aggressively parsing and sniffing local traffic.  These are 		
+ used to intelligently view poisoned traffic.		
+ : HTTP Traffic, Password and Username Sniffer :		
+
+  [SCANNERS]		
+ These tools can be used for mapping a network out.  Network topography and service 		
+ systems can be automatically mapped out to assist in the planning of attacks.		
+ : Network Scanner, Service Scanner, Access Point Scanner :		
+
+  [EMULATE]		
+ These are functionally different from poisoners in that they provide a spoofed 		
+ service.  For example, you could set up a fake SSH service or a honeypot FTP server 		
+ and poison a systems DNS to redirect to yours.  When you get a hit, remove the DNS 		
+ poison and allow it to resolve correctly.		
+ : HTTP, SSH, FTP : 		
+
+  [PARAMETER]		
+ Parameter tools are for use when you're on the outside of a network.  These will 		
+ assist in mapping out potential entry points and soft spots for vulnerabilities.  		
+ These, in conjunction with Scanners, should give you a solid picture of what's 		
+ available.  		
+ : WEP Crack, WPA2 Crack, Router pwn : 		
+
+  [CLI USAGE AND SHORTCUTS]		
+ If you want to clear the screen, typing gibberish ('asdf') will wipe the screen and 		
+ reprint the current menu.		
+
+  Typing 'quit' will close out of the application, no matter where you are.  Note 		
+ that this is a 'hard quit', so any running sessions may not be closed gracefully.		
+
+  Typing 'info [module]' will dump information and usage about the specified module.		
+
 
 --------------------------
 
