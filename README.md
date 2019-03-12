@@ -7,9 +7,14 @@
 This ReadMe Was Forked and Changed by Lin8x :penguin:
 (Hoping to edit the tool more and list changes here with others)
 
-#### Working Contributers:
+#### (Currently) Working Contributers:
 - Lin8x :wine_glass:
 - lezno :space_invader:
+
+#### (Past) Contributers:
+- NullMode :ghost:
+- z4ck :school_satchel:
+- bwall :moyai:
 
 #### Goals:
 - Change the format form Python 2.7 to Python 3.6
