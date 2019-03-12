@@ -1,20 +1,20 @@
-# Zarp  :satellite:
+# :satellite: &nbsp; Zarp &nbsp; :satellite:
 
 --------------------------
 
-#### You can find the official github repository here: https://github.com/hatRiot/zarp :link:
+#### :link: &nbsp; You can find the official github repository here: https://github.com/hatRiot/zarp &nbsp; :link:
 
 This ReadMe Was Forked and Changed by Lin8x :penguin:
 (Hoping to edit the tool more and list changes here with others)
 
 #### (Currently) Working Contributers:
-- Lin8x :wine_glass:
-- lezno :space_invader:
+- Lin8x &nbsp; :wine_glass:
+- lezno &nbsp; :space_invader:
 
 #### (Past) Contributers:
-- NullMode :ghost:
-- z4ck :school_satchel:
-- bwall :moyai:
+- NullMode &nbsp; :ghost:
+- z4ck &nbsp; :school_satchel:
+- bwall &nbsp; :moyai:
 
 #### Goals:
 - Change the format form Python 2.7 to Python 3.6
@@ -28,7 +28,7 @@ This ReadMe Was Forked and Changed by Lin8x :penguin:
 
 --------------------------
 
-## Introduction   :books:
+## :books: &nbsp; Introduction &nbsp; :books:
 
 Zarp is a network attack tool centered around the exploitation of local networks. 
 - This does not include system exploitation, but rather abusing networking protocols and stacks to take over, infiltrate, and knock out. 
@@ -54,7 +54,7 @@ trust felt within local intranets.⋅⋅
 
 --------------------------
 
-## Installation   :inbox_tray:
+## :inbox_tray: &nbsp; Installation &nbsp; :inbox_tray:
 
 Zarp is intended to be as dependency-free as possible.  
 When available, zarp has opted to use pure or native Python implementations over requiring or importing huge libraries. 
@@ -98,7 +98,7 @@ sudo python zarp.py --update
 
 --------------------------
 
-## Tool Overview   :hammer:
+## :hammer: &nbsp; Tool Overview &nbsp; :hammer:
 
 Broad categories are (see wiki for more information on these):
 
@@ -167,7 +167,7 @@ available.
 
 --------------------------
 
-## CLI Usage and Shortcuts :pencil:	
+## :pencil:	&nbsp; CLI Usage and Shortcuts &nbsp; :pencil:	
 
  If you want to clear the screen, typing gibberish ('asdf') will wipe the screen and 		
  reprint the current menu.		
@@ -329,6 +329,6 @@ Modules, once all required options are set, can be run by specifying a lowercase
 
 --------------------------
 
-## Future/Current Development   :wrench:
+## :wrench: &nbsp; Future/Current Development &nbsp; :wrench:
 
-### Moved to freedcamp; please send me an email if you'd like to contribute. :octocat:
+### Moved to freedcamp; please send me an email if you'd like to contribute. &nbsp; :octocat:
