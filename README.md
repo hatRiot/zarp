@@ -7,11 +7,11 @@
 This ReadMe Was Forked and Changed by Lin8x :penguin:
 (Hoping to edit the tool more and list changes here with others)
 
-***Working Contributers:***
+#### Working Contributers:
 - Lin8x :wine_glass:
 
 #### Things that were changed:
-- The README.md file was updated to look more stylistic
+- *The README.md file was updated to look more stylistic*
 
 --------------------------
 
