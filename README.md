@@ -226,7 +226,7 @@ Note that right now it's "dumb" in that, if you enter in a ton of numbers, it's 
 
 --------------------------
 
-## Usage Examples   :mag_right:
+## :mag_right: &nbsp; Usage Examples &nbsp; :mag_right:
 
 #### List of modules accessible from the command line:
 ```
