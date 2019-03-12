@@ -21,6 +21,7 @@ This ReadMe Was Forked and Changed by Lin8x :penguin:
 - Commentate more on the code
 - Improve the look and feel of the tool
 - Fix any found bugs (if any)
+- Add more **OSX + Brew** support
 
 #### Things that were changed:
 - *The README.md file was updated to look more stylistic*
