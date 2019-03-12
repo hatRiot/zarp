@@ -25,5 +25,7 @@ The README.md and CONTIBUTERS.md file were forked and changed by lin8x :penguin:
 
 #### Things that were changed:
 - *The README.md file was updated to look more stylistic*
+- *The CONTRIBUTERS file was changed to be CONTRIBUTERS.md*
+- *The CONTRIBUTERS.md file was updated to look more stylistic*
 
 --------------------------
