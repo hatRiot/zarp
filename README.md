@@ -2,6 +2,8 @@
 
 --------------------------
 
+You can find the official github repository here: https://github.com/hatRiot/zarp :link:
+
 This ReadMe Was Forked and Changed by Lin8x :penguin:
 (Hoping to edit the tool more and list changes here)
 
@@ -87,7 +89,7 @@ Broad categories are (see wiki for more information on these):
 * Parameter
 * Attacks
 
-## CLI Usage and Shortcuts
+## CLI Usage and Shortcuts :pencil:
 
 ```
 > help
