@@ -9,6 +9,7 @@ This ReadMe Was Forked and Changed by Lin8x :penguin:
 
 #### Working Contributers:
 - Lin8x :wine_glass:
+- lezno :space_invader:
 
 #### Things that were changed:
 - *The README.md file was updated to look more stylistic*
