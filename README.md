@@ -36,6 +36,8 @@ trust felt within local intranets.⋅⋅
 + Current dev version: 1.6 
 ```
 
+--------------------------
+
 ## Installation   :inbox_tray:
 
 Zarp is intended to be as dependency-free as possible.  
@@ -78,6 +80,8 @@ sudo python zarp.py --update
 + There are some dependencies required for Scapy, but most should be pretty easy to install or already be installed.
 ```
 
+--------------------------
+
 ## Tool Overview   :hammer:
 
 Broad categories are (see wiki for more information on these):
@@ -88,6 +92,8 @@ Broad categories are (see wiki for more information on these):
 * Services
 * Parameter
 * Attacks
+
+--------------------------
 
 ## CLI Usage and Shortcuts :pencil:
 
@@ -137,6 +143,8 @@ FTP Server >
 ```
 Nested entries go as far as modules will.  
 Note that right now it's "dumb" in that, if you enter in a ton of numbers, it's going to continue dumping that out as module selection!
+
+--------------------------
 
 ## Usage Examples   :mag_right:
 
@@ -238,6 +246,8 @@ HTTP Sniffer >
 ```
 
 Modules, once all required options are set, can be run by specifying a lowercase '''r'''.
+
+--------------------------
 
 ## Future/Current Development   :wrench:
 
