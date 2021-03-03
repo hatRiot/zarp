@@ -7,7 +7,7 @@ path.insert(0, getcwd() + '/src/')
 path.insert(0, getcwd() + '/src/core/')
 path.insert(0, getcwd() + '/src/modules/')
 path.insert(0, getcwd() + '/src/lib/')
-from commands import getoutput
+from subprocess import check_output 
 # module loading
 from src.modules import poison, dos, scanner, services
 from src.modules import sniffer, parameter, attacks
@@ -250,17 +250,17 @@ if __name__ == "__main__":
     # check for forwarding
     system = platform.system().lower()
     if system == 'darwin':
-        if not getoutput('sysctl -n net.inet.ip.forwarding') == '1':
+        if not check_output('sysctl -n net.inet.ip.forwarding') == '1':
             util.Msg('IPv4 forwarding disabled. Enabling..')
-            tmp = getoutput(
+            tmp = check_output(
                     'sudo sh -c \'sysctl -w net.inet.ip.forwarding=1\'')
             if 'not permitted' in tmp:
                 util.Error('Error enabling IPv4 forwarding.')
                 exit(1)
     elif system == 'linux':
-        if not getoutput('cat /proc/sys/net/ipv4/ip_forward') == '1':
+        if not check_output('cat /proc/sys/net/ipv4/ip_forward') == '1':
             util.Msg('IPv4 forwarding disabled.  Enabling..')
-            tmp = getoutput(
+            tmp = check_output(
                     'sudo sh -c \'echo "1" > /proc/sys/net/ipv4/ip_forward\'')
             if len(tmp) > 0:
                 util.Error('Error enabling IPv4 forwarding.')
